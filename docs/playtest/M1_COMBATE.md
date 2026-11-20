@@ -43,7 +43,11 @@ Problemas encontrados:
 - **Pendência:** o trocador ainda perde para o wrestler (7/40). Parte disso é a IA trocadora ficar dentro do alcance de queda; a outra parte são os atributos de exemplo. Reavaliar com o playtest.
 - **Pendência:** a IA não reage a golpes rápidos, porque a preparação do jab (100 ms) é menor que o atraso mínimo de percepção (150 ms). Isso é coerente com o design (ninguém "reage" a um jab), mas significa que a defesa da IA em pé é só preventiva (guarda e distância).
 
-## 2. Roteiro do playtest humano (decide o M1)
+## 2. Resultado do playtest humano
+
+**2026-11-20 — M1 APROVADO pelo usuário:** todas as funcionalidades foram testadas e consideradas OK. Não houve apontamentos específicos sobre spam, IA ou ritmo; as pendências V-012 (trocador × wrestler na IA × IA) e a defesa só preventiva da IA em pé continuam registradas para revisão no balanceamento (E-13).
+
+## 3. Roteiro do playtest humano (usado para decidir o M1)
 1. Rode o jogo, aperte Enter (Luta Rápida) e jogue com:
    - você Trocador × Wrestler, IA Intermediária, 3 rounds de 2 min;
    - você Wrestler × Trocador, IA Elite;
