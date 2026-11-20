@@ -1,6 +1,7 @@
 extends SceneTree
 ## Smoke dos sprites da E-06: carrega a folha, roda a cena de treino com sprites ligados e golpes do boneco.
 func _initialize() -> void:
+	await process_frame  # autoloads prontos antes de compilar as cenas
 	var set: SpriteSet = SpriteSet.load_biotype("res://assets/sprites/fighters/m_medium", "m_medium")
 	if set == null or set.textures.size() < 7:
 		print("SMOKE_FAIL sprites não carregaram")

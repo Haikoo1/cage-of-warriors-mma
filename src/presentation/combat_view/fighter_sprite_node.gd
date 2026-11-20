@@ -12,6 +12,7 @@ var index: int = 0
 var flip: float = 1.0
 var scale_px: float = 1.0
 var cut: int = 0
+var show_blood: bool = true  # definido por quem usa o nó (opção R-029)
 
 
 func configure(sprite_set: SpriteSet, look: Appearance) -> void:
@@ -60,7 +61,7 @@ func _draw() -> void:
 		if beard != null:
 			draw_texture_rect_region(beard, dest, src)
 	draw_set_transform(Vector2.ZERO)
-	if cut > 0 and Settings.store.show_blood:
+	if cut > 0 and show_blood:
 		var head: Vector2 = Vector2(flip * 6, -sprites.anchor.y * scale_px + 22 * scale_px)
 		for k: int in cut * 2:
 			draw_rect(Rect2(roundf(head.x + k % 3 - 1), roundf(head.y + k * 2), 1, 2), Color(0.6, 0.02, 0.03))

@@ -13,6 +13,7 @@ var sim: CombatSim
 var _fighter_nodes: Array[FighterSpriteNode] = []
 var _configured_for: CombatSim
 var debug_overlay: bool = false
+var show_blood: bool = true
 ## E-06: F4 alterna entre formas greybox e os sprites do pipeline 3D → pixel (só em pé; solo segue greybox).
 var use_sprites: bool = true
 var sprites: SpriteSet = SpriteSet.load_biotype("res://assets/sprites/fighters/m_medium", "m_medium")
@@ -183,6 +184,7 @@ func _draw_sprite(i: int, f: FighterCombatState, base: Vector2) -> void:
 		var node: FighterSpriteNode = _fighter_nodes[i]
 		node.visible = true
 		node.z_index = 10 - roundi(f.z * 4.0)
+		node.show_blood = show_blood
 		node.present(base, sprites.pick(f, sim.frame, tech), float(f.facing), PPM / sprites.px_per_m, f.cut)
 		if debug_overlay:
 			_draw_debug(f, base)
@@ -200,7 +202,7 @@ func _draw_sprite(i: int, f: FighterCombatState, base: Vector2) -> void:
 	var tint: Color = Color.WHITE if i == 0 else Color(1.0, 0.8, 0.75)
 	draw_texture_rect_region(tex, Rect2(-sprites.anchor, size), src, tint)
 	draw_set_transform(Vector2.ZERO)
-	if f.cut > 0 and Settings.store.show_blood:
+	if f.cut > 0 and show_blood:
 		var head: Vector2 = base + Vector2(f.facing * 6, -sprites.anchor.y * scale_px + 22 * scale_px)
 		for k: int in f.cut * 2:
 			draw_rect(Rect2(roundf(head.x + k % 3 - 1), roundf(head.y + k * 2), 1, 2), Color(0.6, 0.02, 0.03))

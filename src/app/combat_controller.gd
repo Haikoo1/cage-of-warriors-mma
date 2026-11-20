@@ -32,6 +32,7 @@ func setup(params: Dictionary) -> void:
 
 func _ready() -> void:
 	player.relative_to_opponent = Settings.store.directions_relative_to_opponent
+	view.show_blood = Settings.store.show_blood
 	_start()
 	AudioDirector.start_ambience(&"crowd_loop")
 	AudioDirector.play(&"bell", -6.0, 0.0)
