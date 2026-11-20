@@ -29,6 +29,7 @@
 | D-018 | **Menus e HUD em HD** (UI renderizada na resolução da janela, fonte do sistema); a luta continua em pixel art fiel numa SubViewport 640×360 (revisa T-011) | Pedido do usuário, 2026-11-20 |
 | D-019 | **Criador de visual** estilo Stardew/Terraria: sprites em camadas (corpo, 3 cabelos, barba) e troca de paleta por shader (8 peles, 6 cores de cabelo, 8 calções, 6 luvas); biótipos m_medium e f_medium; aba Visual na carreira (gratuita, só aparência) | Pedido do usuário, 2026-11-20 (resolve P-004 de forma inicial) |
 | D-020 | **HUD e telas com elementos de RPG**: ícones em pixel art gerados por código, cinturões, selo de nível, ficha de atributos | Pedido do usuário, 2026-11-20 |
+| D-022 | **Sprites no estilo da referência do usuário e lutadores maiores**: corpo orgânico em 3/4 (luvas de MMA, linhas internas, relevo muscular), **≈189 px de altura** (105 px/m) numa área de luta de **960×540** (2x exato em 1080p, 4x em 4K; 2,67x em 1440p). Criador de personagem ampliado: 4 físicos (só visuais), 9 cabelos, 5 barbas, 8 peles, cores de cabelo/calção/luvas. Revisa R-003 e a altura de ART §3 | Pedido do usuário, 2026-11-20 (imagem de referência; escolheu 192 px) |
 | D-021 | Áudio provisório **sintetizado por código** (sem assets de terceiros) até haver design de áudio (V-005) | Autonomia autorizada pelo usuário, 2026-11-20 |
 | D-016 | Todas as teclas são **remapeáveis pelo jogador**; padrões simples definidos pelo Claude (U/I mãos, J/K pernas, E curvo, Q corpo, Shift guarda, Espaço técnica, L agarrar) | Usuário, 2026-11-19 (E-03) |
 
@@ -143,6 +144,7 @@ Registro completo em [architecture/TECH_DECISIONS.md](architecture/TECH_DECISION
 |---|---|---|
 | 0.1 | 2026-11-19 | Criação do registro na Etapa 01 |
 | 0.2 | 2026-11-19 | Respostas a P-001, P-002, P-003 (método) e P-007 → D-012 a D-015; R-008 revisada; novas R-036 a R-038 |
+| 0.9 | 2026-11-20 | D-022: estilo da referência, 960×540, criador ampliado |
 | 0.8 | 2026-11-20 | Sessão autônoma noturna: D-018 a D-021; M3 e M4 medidos; V-009 resolvida (6 finalizações, meia-guarda, golpes no clinch) |
 | 0.7 | 2026-11-20 | M2 aprovado → D-017 (pipeline 3D → pixel); P-003 resolvida |
 | 0.6 | 2026-11-20 | E-05: V-011 e V-012 |

@@ -3,7 +3,7 @@ extends Control
 ## Só lê o estado e chama o CareerController (nunca altera CareerState direto).
 
 const TABS: Array[String] = ["1 Visão geral", "2 Treino", "3 Ofertas", "4 Rankings", "5 Perfil", "6 Visual"]
-const LOOK_ROWS: Array[String] = ["Cabelo", "Cor do cabelo", "Barba", "Calção", "Luvas"]
+const LOOK_ROWS: Array[String] = ["Físico", "Cabelo", "Cor do cabelo", "Barba", "Calção", "Luvas"]
 ## Ícone de cada atributo (ficha estilo RPG).
 const ATTR_ICONS: Dictionary = {
 	&"forca": "dumbbell", &"velocidade": "bolt", &"condicionamento": "heart", &"recuperacao": "heart", &"mobilidade": "bolt",
@@ -62,7 +62,7 @@ func _process(delta: float) -> void:
 		preview.visible = cc != null and tab == 5 and cc.state.legacy.is_empty()
 		if preview.visible:
 			var idx: int = int(_anim_time * 20.0 / 1.5) % int(sprites.frames.get("guard", 1))
-			preview.present(Vector2(520, 318), ["guard", idx], 1.0, 1.1, 0)
+			preview.present(Vector2(500, 316), ["guard", idx], 1.0, 2.0 / 3.0, 0)
 	queue_redraw()
 
 
@@ -76,30 +76,37 @@ func _open_look_tab() -> void:
 		preview.configure(sprites, look_edit)
 
 
+func _is_female_player() -> bool:
+	return cc.defs.weight_class(cc.state.player().weight_class_id).division == WeightClassDef.Division.FEMALE
+
+
 func _look_count(i: int) -> int:
 	match i:
-		0: return 4
-		1: return Appearance.HAIR_COLORS.size()
-		2: return 2
-		3: return Appearance.SHORTS_COLORS.size()
+		0: return Appearance.BUILD_NAMES.size()
+		1: return Appearance.HAIR_STYLE_NAMES.size()
+		2: return Appearance.HAIR_COLORS.size()
+		3: return 1 if _is_female_player() else Appearance.BEARD_NAMES.size()
+		4: return Appearance.SHORTS_COLORS.size()
 	return Appearance.GLOVE_COLORS.size()
 
 
 func _look_get(i: int) -> int:
 	match i:
-		0: return look_edit.hair_style
-		1: return look_edit.hair_color
-		2: return 1 if look_edit.beard else 0
-		3: return look_edit.shorts
+		0: return look_edit.build
+		1: return look_edit.hair_style
+		2: return look_edit.hair_color
+		3: return look_edit.beard
+		4: return look_edit.shorts
 	return look_edit.gloves
 
 
 func _look_set(i: int, v: int) -> void:
 	match i:
-		0: look_edit.hair_style = v
-		1: look_edit.hair_color = v
-		2: look_edit.beard = v == 1 and cc.defs.weight_class(cc.state.player().weight_class_id).division == WeightClassDef.Division.MALE
-		3: look_edit.shorts = v
+		0: look_edit.build = v
+		1: look_edit.hair_style = v
+		2: look_edit.hair_color = v
+		3: look_edit.beard = 0 if _is_female_player() else v
+		4: look_edit.shorts = v
 		_: look_edit.gloves = v
 	if preview != null:
 		preview.configure(sprites, look_edit)
@@ -107,10 +114,11 @@ func _look_set(i: int, v: int) -> void:
 
 func _look_text(i: int) -> String:
 	match i:
-		0: return Appearance.HAIR_STYLE_NAMES[look_edit.hair_style]
-		1: return Appearance.HAIR_COLOR_NAMES[look_edit.hair_color]
-		2: return ("Sim" if look_edit.beard else "Não") + ("" if cc.defs.weight_class(cc.state.player().weight_class_id).division == WeightClassDef.Division.MALE else " (indisponível)")
-		3: return Appearance.SHORTS_NAMES[look_edit.shorts]
+		0: return Appearance.BUILD_NAMES[look_edit.build]
+		1: return Appearance.HAIR_STYLE_NAMES[look_edit.hair_style]
+		2: return Appearance.HAIR_COLOR_NAMES[look_edit.hair_color]
+		3: return Appearance.BEARD_NAMES[look_edit.beard] + (" (indisponível)" if _is_female_player() else "")
+		4: return Appearance.SHORTS_NAMES[look_edit.shorts]
 	return Appearance.GLOVE_NAMES[look_edit.gloves]
 
 
@@ -122,7 +130,7 @@ func _draw_look() -> void:
 		UiDraw.text(self, rect.position + Vector2(10, 14), LOOK_ROWS[i], UiDraw.C_SEL if i == cursor else UiDraw.C_DIM, 9)
 		UiDraw.text(self, rect.position + Vector2(140, 14), "‹ %s ›" % _look_text(i), UiDraw.C_TEXT, 9)
 	var changed: bool = look_edit.to_dict() != cc.state.player().appearance.to_dict()
-	UiDraw.text(self, Vector2(10, 222), "Enter: confirmar o novo visual" if changed else "Visual atual.", UiDraw.C_GOOD if changed else UiDraw.C_DIM, UiDraw.SMALL)
+	UiDraw.text(self, Vector2(10, 248), "Enter: confirmar o novo visual" if changed else "Visual atual.", UiDraw.C_GOOD if changed else UiDraw.C_DIM, UiDraw.SMALL)
 	UiDraw.panel(self, Rect2(420, 58, 200, 270))
 	draw_rect(Rect2(432, 318, 176, 3), Color(0.8, 0.8, 0.78))
 

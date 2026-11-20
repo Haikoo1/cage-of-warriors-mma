@@ -19,13 +19,13 @@ func test_change_appearance_keeps_skin_and_persists() -> void:
 	look.skin = 0
 	look.hair_style = 3
 	look.shorts = 6
-	look.beard = true
+	look.beard = 2
 	cc.change_appearance(look)
 	var a: Appearance = cc.state.player().appearance
 	assert_eq(a.skin, 4, "pele não muda na loja")
 	assert_eq(a.hair_style, 3)
 	assert_eq(a.shorts, 6)
-	assert_true(a.beard)
+	assert_eq(a.beard, 2)
 	look.shorts = 2
 	assert_eq(cc.state.player().appearance.shorts, 6, "o controlador copia o visual (sem alias)")
 	assert_eq(cc.save(), OK)
@@ -37,6 +37,6 @@ func test_change_appearance_keeps_skin_and_persists() -> void:
 func test_female_fighters_cannot_get_beard() -> void:
 	var cc: CareerController = _new(&"f_strawweight")
 	var look: Appearance = Appearance.new()
-	look.beard = true
+	look.beard = 3
 	cc.change_appearance(look)
-	assert_false(cc.state.player().appearance.beard)
+	assert_eq(cc.state.player().appearance.beard, 0)

@@ -9,8 +9,10 @@ var px_per_m: float
 var sim_frames_per_sprite: int = 4
 var textures: Dictionary = {}  # nome -> Texture2D
 var frames: Dictionary = {}  # nome -> quantidade de quadros
+var bodies: Dictionary = {}  # físico (int) -> {anim -> Texture2D}; o padrão também fica em `textures`
+var default_build: int = 1
 var hair: Dictionary = {}  # estilo (int) -> {anim -> Texture2D}
-var beard: Dictionary = {}  # anim -> Texture2D
+var beards: Dictionary = {}  # estilo (int) -> {anim -> Texture2D}
 var palette: Dictionary = {}
 var far_darken: float = 0.72
 
@@ -45,25 +47,39 @@ static func load_biotype(dir: String, biotype: String) -> SpriteSet:
 		if tex != null:
 			s.textures[anim] = tex
 			s.frames[anim] = int(meta["animations"][anim]["frames"])
+		s.default_build = int(meta.get("default_build", 1))
+		for build: int in int(meta.get("builds", 1)):
+			var bt: Texture2D = tex if build == s.default_build else load(dir.path_join("%s__b%d.png" % [anim, build])) as Texture2D
+			_put(s.bodies, build, anim, bt)
 		for style: Variant in meta.get("hair_styles", []):
-			var ht: Texture2D = load(dir.path_join("%s__hair%d.png" % [anim, int(style)])) as Texture2D
-			if ht != null:
-				if not s.hair.has(int(style)):
-					s.hair[int(style)] = {}
-				s.hair[int(style)][anim] = ht
-		if bool(meta.get("beard", false)):
-			s.beard[anim] = load(dir.path_join("%s__beard.png" % anim)) as Texture2D
+			_put(s.hair, int(style), anim, load(dir.path_join("%s__hair%d.png" % [anim, int(style)])) as Texture2D)
+		for style: Variant in meta.get("beards", []):
+			_put(s.beards, int(style), anim, load(dir.path_join("%s__beard%d.png" % [anim, int(style)])) as Texture2D)
 	s.palette = meta.get("palette", {})
 	s.far_darken = float(meta.get("far_darken", 0.72))
 	return s
+
+
+static func _put(dict: Dictionary, key: int, anim: String, tex: Texture2D) -> void:
+	if tex == null:
+		return
+	if not dict.has(key):
+		dict[key] = {}
+	dict[key][anim] = tex
+
+
+## Corpo do físico pedido; cai no físico padrão se esse físico não existir (ex.: sprites antigos).
+func body_layer(build: int, anim: String) -> Texture2D:
+	var t: Texture2D = (bodies.get(build, {}) as Dictionary).get(anim) as Texture2D
+	return t if t != null else textures.get(anim) as Texture2D
 
 
 func hair_layer(style: int, anim: String) -> Texture2D:
 	return (hair.get(style, {}) as Dictionary).get(anim) as Texture2D
 
 
-func beard_layer(anim: String) -> Texture2D:
-	return beard.get(anim) as Texture2D
+func beard_layer(style: int, anim: String) -> Texture2D:
+	return (beards.get(style, {}) as Dictionary).get(anim) as Texture2D
 
 
 const EVADE_ANIMS: Dictionary = {

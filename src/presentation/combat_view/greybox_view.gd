@@ -3,7 +3,9 @@ extends Node2D
 ## Desenho greybox da luta (E-03): jaula, sombras, lutadores em formas simples e overlay de depuração.
 ## Só lê o estado da simulação (COMBAT_ARCHITECTURE §10); nenhuma regra aqui.
 
-const PPM: float = 70.0  # pixels por metro [PROV, depende de R-003]
+## Unidades da vista = 640x360; o nó é escalado 1,5x na SubViewport de 960x540 (D-022), então
+## 70 px/m aqui = 105 px/m na tela, a mesma densidade dos sprites (desenho em 1:1).
+const PPM: float = 70.0
 const DEPTH_PPM: float = 20.0
 const FLOOR_Y: float = 290.0
 const CENTER_X: float = 320.0

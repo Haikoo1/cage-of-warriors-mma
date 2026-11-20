@@ -3,9 +3,12 @@ extends Control
 ## com troca de paleta em tempo real. ↑/↓ linha · A/D (←/→) valor · digite o nome · R aleatório · Enter cria · Esc volta.
 
 const ROWS: Array[String] = ["Nome", "Categoria", "Origem", "Idade", "Duração do round", "Slot de save",
-	"Tom de pele", "Cabelo", "Cor do cabelo", "Barba", "Calção", "Luvas"]
+	"Tom de pele", "Físico", "Cabelo", "Cor do cabelo", "Barba", "Calção", "Luvas"]
 const ROUND_LENGTHS: Array[int] = [60, 120, 180, 300]
 const FIRST_LOOK_ROW: int = 6
+const ROW_H: float = 20.0
+## Sprites de 189 px (D-022) a 2/3 = 126 px lógicos: em 1080p cada pixel do sprite vira exatamente 2x2.
+const PREVIEW_SCALE: float = 2.0 / 3.0
 
 var row: int = 0
 var name_text: String = "Novo Lutador"
@@ -41,6 +44,7 @@ func _is_female() -> bool:
 	return DataRegistry.definitions.weight_class(wc_ids[values[1]]).division == WeightClassDef.Division.FEMALE
 
 
+## Linhas do visual: 6 pele · 7 físico · 8 cabelo · 9 cor do cabelo · 10 barba · 11 calção · 12 luvas.
 func _count(i: int) -> int:
 	match i:
 		0: return 1
@@ -50,35 +54,38 @@ func _count(i: int) -> int:
 		4: return ROUND_LENGTHS.size()
 		5: return 3
 		6: return Appearance.SKIN_TONES.size()
-		7: return 4
-		8: return Appearance.HAIR_COLORS.size()
-		9: return 2
-		10: return Appearance.SHORTS_COLORS.size()
+		7: return Appearance.BUILD_NAMES.size()
+		8: return Appearance.HAIR_STYLE_NAMES.size()
+		9: return Appearance.HAIR_COLORS.size()
+		10: return 1 if _is_female() else Appearance.BEARD_NAMES.size()
+		11: return Appearance.SHORTS_COLORS.size()
 	return Appearance.GLOVE_COLORS.size()
 
 
 func _get_value(i: int) -> int:
 	match i:
 		6: return look.skin
-		7: return look.hair_style
-		8: return look.hair_color
-		9: return 1 if look.beard else 0
-		10: return look.shorts
-		11: return look.gloves
+		7: return look.build
+		8: return look.hair_style
+		9: return look.hair_color
+		10: return look.beard
+		11: return look.shorts
+		12: return look.gloves
 	return values[i]
 
 
 func _set_value(i: int, v: int) -> void:
 	match i:
 		6: look.skin = v
-		7: look.hair_style = v
-		8: look.hair_color = v
-		9: look.beard = v == 1 and not _is_female()
-		10: look.shorts = v
-		11: look.gloves = v
+		7: look.build = v
+		8: look.hair_style = v
+		9: look.hair_color = v
+		10: look.beard = 0 if _is_female() else v
+		11: look.shorts = v
+		12: look.gloves = v
 		_: values[i] = v
 	if i == 1 and _is_female():
-		look.beard = false
+		look.beard = 0
 	_refresh_preview()
 
 
@@ -101,10 +108,11 @@ func _value_text(i: int) -> String:
 			var used: String = CareerController.slot_summary(defs, s)
 			return "%d%s" % [s, ("  (sobrescreve: %s)" % used) if used != "" else ""]
 		6: return Appearance.SKIN_NAMES[look.skin]
-		7: return Appearance.HAIR_STYLE_NAMES[look.hair_style]
-		8: return Appearance.HAIR_COLOR_NAMES[look.hair_color]
-		9: return ("Sim" if look.beard else "Não") + (" (indisponível)" if _is_female() else "")
-		10: return Appearance.SHORTS_NAMES[look.shorts]
+		7: return Appearance.BUILD_NAMES[look.build]
+		8: return Appearance.HAIR_STYLE_NAMES[look.hair_style]
+		9: return Appearance.HAIR_COLOR_NAMES[look.hair_color]
+		10: return Appearance.BEARD_NAMES[look.beard] + (" (indisponível)" if _is_female() else "")
+		11: return Appearance.SHORTS_NAMES[look.shorts]
 	return Appearance.GLOVE_NAMES[look.gloves]
 
 
@@ -121,19 +129,19 @@ func _process(delta: float) -> void:
 	if preview != null:
 		var frames: int = int(sprites.frames.get("guard", 1))
 		var idx: int = int(_anim_time * 20.0 / 1.5) % frames
-		preview.present(Vector2(524, 300), ["guard", idx], 1.0, 1.25, 0)
+		preview.present(Vector2(500, 298), ["guard", idx], 1.0, PREVIEW_SCALE, 0)
 	queue_redraw()
 
 
 func _draw() -> void:
 	UiDraw.background(self, "NOVA CARREIRA", "do circuito local ao cinturão")
 	for i: int in ROWS.size():
-		var y: float = 50 + i * 22 + (8 if i >= FIRST_LOOK_ROW else 0)
-		var rect: Rect2 = Rect2(20, y, 400, 19)
+		var y: float = 48 + i * ROW_H + (8 if i >= FIRST_LOOK_ROW else 0)
+		var rect: Rect2 = Rect2(20, y, 400, ROW_H - 2)
 		UiDraw.panel(self, rect, i == row)
-		UiDraw.text(self, rect.position + Vector2(10, 13), ROWS[i], UiDraw.C_SEL if i == row else UiDraw.C_DIM, 9)
-		UiDraw.text(self, rect.position + Vector2(120, 13), ("‹ %s ›" if i > 0 else "%s") % _value_text(i), UiDraw.C_TEXT, 9, 275)
-	UiDraw.text(self, Vector2(22, 50 + FIRST_LOOK_ROW * 22 + 4), "VISUAL", UiDraw.C_ACCENT, 7)
+		UiDraw.text(self, rect.position + Vector2(10, 12), ROWS[i], UiDraw.C_SEL if i == row else UiDraw.C_DIM, 9)
+		UiDraw.text(self, rect.position + Vector2(120, 12), ("‹ %s ›" if i > 0 else "%s") % _value_text(i), UiDraw.C_TEXT, 9, 275)
+	UiDraw.text(self, Vector2(22, 48 + FIRST_LOOK_ROW * ROW_H + 4), "VISUAL", UiDraw.C_ACCENT, 7)
 	UiDraw.panel(self, Rect2(440, 50, 180, 270))
 	UiDraw.text(self, Vector2(452, 66), "Prévia", UiDraw.C_SEL, 10)
 	draw_rect(Rect2(452, 300, 156, 3), Color(0.8, 0.8, 0.78))

@@ -23,7 +23,10 @@ func test_five_autoloads() -> void:
 func test_combat_world_renders_in_pixel_perfect_subviewport() -> void:
 	var scene: Node = (load("res://scenes/combat/combat_test.tscn") as PackedScene).instantiate()
 	var vp: SubViewport = scene.get_node("PixelWorld/SubViewport") as SubViewport
-	assert_eq(vp.size, Vector2i(640, 360), "mundo em 640x360 (ART §3)")
+	assert_eq(vp.size, Vector2i(960, 540), "mundo em 960x540 (D-022): 2x exato em 1080p")
+	var view: Node2D = vp.get_node("GreyboxView") as Node2D
+	assert_eq(view.scale, Vector2(1.5, 1.5), "lógica da vista em unidades de 640x360")
+	assert_almost(GreyboxView.PPM * view.scale.x, 105.0, 0.001, "sprites (105 px/m) desenhados em 1:1")
 	assert_eq(vp.canvas_item_default_texture_filter, Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST)
 	assert_true(vp.get_node_or_null("GreyboxView") != null, "lutadores dentro da SubViewport")
 	scene.free()

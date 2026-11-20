@@ -32,7 +32,8 @@ Godot: `C:\Users\sousa\Downloads\Godot_v4.7.2-stable_win64.exe` (defina `GODOT_E
 - Dados da carreira: `node tools/gen_career_data.js` (categorias, organizações, origens, treino, academias).
 - Smokes da carreira: `smoke_career.gd` (telas) e `smoke_career_fight.gd` (luta jogada até o resultado).
 - Geradores de conteúdo (node): `tools/gen_strike_data.js`, `gen_grappling_data.js`, `gen_career_data.js`, `gen_audio.js`, `gen_icons.js`.
-- Sprites em camadas (Blender 5.3, ~75 s por biótipo; `-- <raiz> f_medium` gera só um): biótipos m_medium e f_medium, corpo + cabelo1..3 + barba por animação; o jogo recolore por shader (assets/shaders/palette_swap.gdshader).
+- Sprites v3 (Blender 5.3, ~8 min por biótipo; `-- <raiz> f_medium` gera só um): corpo orgânico em 3/4 a 105 px/m (D-022), camadas corpo x4 físicos + cabelo1..8 + barba1..4; o jogo recolore por shader (assets/shaders/palette_swap.gdshader). Ensaio rápido: `JAULA_OUT=<pasta> JAULA_ANIMS=guard,jab`; prancha de revisão: `tools/art_pipeline/preview_sheet.py`.
+- A luta é desenhada em unidades de 640x360 e o nó GreyboxView é escalado 1,5x numa SubViewport de 960x540 (sprites em 1:1).
 - Lotes: `calibrate_resolver.gd` (resolvedor x motor), `career_batch.gd` (M4, ~2,5 min), `world_years.gd` (M3, 10 anos).
 - Capturas em HD (precisa de janela): `"$GODOT" --path . --resolution 1920x1080 --script res://tests/runner/screenshots.gd -- <pasta>`
 - Smoke da cena de combate: `"$GODOT" --headless --path . --script res://tests/runner/smoke_combat.gd`

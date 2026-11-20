@@ -102,7 +102,7 @@ func change_appearance(look: Appearance) -> void:
 	var a: Appearance = look.duplicate_appearance()
 	a.skin = p.appearance.skin
 	if defs.weight_class(p.weight_class_id).division == WeightClassDef.Division.FEMALE:
-		a.beard = false
+		a.beard = 0
 	p.appearance = a
 
 

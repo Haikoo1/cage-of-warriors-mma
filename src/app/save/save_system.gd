@@ -2,7 +2,7 @@ class_name SaveSystem
 extends RefCounted
 ## Persistência da carreira (SAVE_AND_TESTING §1, T-007): JSON + gzip, escrita atômica, autosaves rotativos.
 
-const CURRENT_SCHEMA: int = 2
+const CURRENT_SCHEMA: int = 3
 const AUTOSAVE_COUNT: int = 3
 const EXT: String = ".json.gz"
 
@@ -117,4 +117,19 @@ static func migrate(from_version: int, doc: Dictionary) -> Variant:
 			var d: Dictionary = doc.duplicate(true)
 			d["schema_version"] = 2
 			return d
+		2:
+			# v3 (D-022): criador de personagem ampliado. Barba booleana vira estilo (true -> rente), físico padrão
+			# atlético, e os cabelos 1..3 antigos (curto, moicano, coque) passam a 2..4.
+			var d3: Dictionary = doc.duplicate(true)
+			d3["schema_version"] = 3
+			var career: Variant = d3.get("career")
+			if career is Dictionary:
+				for fd: Variant in (career as Dictionary).get("fighters", []):
+					if fd is Dictionary and (fd as Dictionary).get("appearance") is Dictionary:
+						var ap: Dictionary = fd["appearance"]
+						ap["beard"] = 1 if bool(ap.get("beard", false)) else 0
+						ap["build"] = int(ap.get("build", 1))
+						var hs: int = int(ap.get("hair_style", 1))
+						ap["hair_style"] = hs + 1 if hs > 0 else 0
+			return d3
 	return null

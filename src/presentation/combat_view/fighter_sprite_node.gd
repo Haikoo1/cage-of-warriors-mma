@@ -46,13 +46,13 @@ func _draw() -> void:
 	var src: Rect2 = Rect2(Vector2(size.x * index, 0), size)
 	var dest: Rect2 = Rect2(-sprites.anchor, size)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(flip * scale_px, scale_px))
-	draw_texture_rect_region(sprites.textures[anim], dest, src)
+	draw_texture_rect_region(sprites.body_layer(appearance.build if appearance != null else sprites.default_build, anim), dest, src)
 	if appearance != null and appearance.hair_style > 0:
 		var hair: Texture2D = sprites.hair_layer(appearance.hair_style, anim)
 		if hair != null:
 			draw_texture_rect_region(hair, dest, src)
-	if appearance != null and appearance.beard:
-		var beard: Texture2D = sprites.beard_layer(anim)
+	if appearance != null and appearance.beard > 0:
+		var beard: Texture2D = sprites.beard_layer(appearance.beard, anim)
 		if beard != null:
 			draw_texture_rect_region(beard, dest, src)
 	draw_set_transform(Vector2.ZERO)

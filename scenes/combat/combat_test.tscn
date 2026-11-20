@@ -8,20 +8,21 @@
 script = ExtResource("1")
 
 [node name="PixelWorld" type="SubViewportContainer" parent="."]
-offset_right = 640.0
-offset_bottom = 360.0
-stretch = true
+offset_right = 960.0
+offset_bottom = 540.0
+scale = Vector2(0.6666667, 0.6666667)
 texture_filter = 1
 
 [node name="SubViewport" type="SubViewport" parent="PixelWorld"]
 handle_input_locally = false
-size = Vector2i(640, 360)
+size = Vector2i(960, 540)
 render_target_update_mode = 4
 canvas_item_default_texture_filter = 0
 snap_2d_transforms_to_pixel = true
 
 [node name="GreyboxView" type="Node2D" parent="PixelWorld/SubViewport"]
 unique_name_in_owner = true
+scale = Vector2(1.5, 1.5)
 script = ExtResource("2")
 
 [node name="HUD" type="CanvasLayer" parent="."]

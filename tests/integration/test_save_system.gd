@@ -72,3 +72,18 @@ func test_v1_save_migrates_to_current() -> void:
 	var res: SaveSystem.LoadResult = SaveSystem.load_career(path)
 	assert_eq(res.error_message, "", "migrou")
 	assert_eq(res.career.week_index, 10)
+
+
+func test_v2_appearance_migrates_beard_flag_and_gets_default_build() -> void:
+	var doc: Dictionary = {"schema_version": 2, "career": {"fighters": [
+		{"id": "F-1", "appearance": {"skin": 2, "hair_style": 3, "beard": true}},
+		{"id": "F-2", "appearance": {"beard": false}},
+		{"id": "F-3"},
+	]}}
+	var m: Dictionary = SaveSystem.migrate(2, doc)
+	assert_eq(int(m["schema_version"]), 3)
+	var f1: Dictionary = m["career"]["fighters"][0]["appearance"]
+	assert_eq(int(f1["beard"]), 1, "barba antiga vira 'rente'")
+	assert_eq(int(f1["build"]), 1, "físico padrão: atlético")
+	assert_eq(int(f1["hair_style"]), 4, "coque antigo (3) vira coque novo (4); curto 1->2, moicano 2->3")
+	assert_eq(int(m["career"]["fighters"][1]["appearance"]["beard"]), 0)

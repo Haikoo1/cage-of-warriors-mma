@@ -1,169 +1,169 @@
 {
-  "total_seconds": 169.8,
-  "layers": 5,
+  "total_seconds": 824.0,
+  "version": 3,
   "biotypes": {
     "m_medium": {
       "guard": {
         "sprite_frames": 11,
-        "seconds": 5.76
+        "seconds": 34.7
       },
       "walk": {
         "sprite_frames": 9,
-        "seconds": 4.26
+        "seconds": 29.1
       },
       "jab": {
         "sprite_frames": 7,
-        "seconds": 3.29
+        "seconds": 17.0
       },
       "cross": {
         "sprite_frames": 9,
-        "seconds": 4.19
+        "seconds": 22.9
       },
       "lead_hook": {
         "sprite_frames": 11,
-        "seconds": 5.11
+        "seconds": 27.6
       },
       "uppercut": {
         "sprite_frames": 11,
-        "seconds": 5.12
+        "seconds": 27.2
       },
       "low_kick": {
         "sprite_frames": 12,
-        "seconds": 5.54
+        "seconds": 31.3
       },
       "body_kick": {
         "sprite_frames": 15,
-        "seconds": 6.99
+        "seconds": 36.3
       },
       "high_kick": {
         "sprite_frames": 17,
-        "seconds": 7.88
+        "seconds": 41.3
       },
       "teep": {
         "sprite_frames": 11,
-        "seconds": 5.05
+        "seconds": 28.5
       },
       "calf_kick": {
         "sprite_frames": 9,
-        "seconds": 4.18
+        "seconds": 22.1
       },
       "double_leg": {
         "sprite_frames": 10,
-        "seconds": 4.63
+        "seconds": 24.7
       },
       "slip": {
         "sprite_frames": 5,
-        "seconds": 2.33
+        "seconds": 12.3
       },
       "duck": {
         "sprite_frames": 5,
-        "seconds": 2.33
+        "seconds": 12.5
       },
       "pull": {
         "sprite_frames": 5,
-        "seconds": 2.32
+        "seconds": 12.3
       },
       "down": {
         "sprite_frames": 2,
-        "seconds": 0.93
+        "seconds": 5.0
       },
       "hit_head": {
         "sprite_frames": 6,
-        "seconds": 2.77
+        "seconds": 14.6
       },
       "clinch": {
         "sprite_frames": 9,
-        "seconds": 4.16
+        "seconds": 21.6
       },
       "ground_top": {
         "sprite_frames": 9,
-        "seconds": 4.16
+        "seconds": 21.9
       },
       "ground_bottom": {
         "sprite_frames": 9,
-        "seconds": 4.18
+        "seconds": 22.7
       }
     },
     "f_medium": {
       "guard": {
         "sprite_frames": 11,
-        "seconds": 5.07
+        "seconds": 21.9
       },
       "walk": {
         "sprite_frames": 9,
-        "seconds": 4.15
+        "seconds": 17.3
       },
       "jab": {
         "sprite_frames": 7,
-        "seconds": 3.25
+        "seconds": 13.5
       },
       "cross": {
         "sprite_frames": 9,
-        "seconds": 4.15
+        "seconds": 17.5
       },
       "lead_hook": {
         "sprite_frames": 11,
-        "seconds": 5.11
+        "seconds": 21.9
       },
       "uppercut": {
         "sprite_frames": 11,
-        "seconds": 5.06
+        "seconds": 21.8
       },
       "low_kick": {
         "sprite_frames": 12,
-        "seconds": 5.55
+        "seconds": 24.2
       },
       "body_kick": {
         "sprite_frames": 15,
-        "seconds": 6.93
+        "seconds": 29.1
       },
       "high_kick": {
         "sprite_frames": 17,
-        "seconds": 7.84
+        "seconds": 33.9
       },
       "teep": {
         "sprite_frames": 11,
-        "seconds": 5.09
+        "seconds": 21.5
       },
       "calf_kick": {
         "sprite_frames": 9,
-        "seconds": 4.14
+        "seconds": 18.1
       },
       "double_leg": {
         "sprite_frames": 10,
-        "seconds": 4.6
+        "seconds": 18.7
       },
       "slip": {
         "sprite_frames": 5,
-        "seconds": 2.31
+        "seconds": 10.6
       },
       "duck": {
         "sprite_frames": 5,
-        "seconds": 2.32
+        "seconds": 10.3
       },
       "pull": {
         "sprite_frames": 5,
-        "seconds": 2.3
+        "seconds": 9.8
       },
       "down": {
         "sprite_frames": 2,
-        "seconds": 0.93
+        "seconds": 4.0
       },
       "hit_head": {
         "sprite_frames": 6,
-        "seconds": 2.76
+        "seconds": 12.0
       },
       "clinch": {
         "sprite_frames": 9,
-        "seconds": 4.15
+        "seconds": 17.6
       },
       "ground_top": {
         "sprite_frames": 9,
-        "seconds": 4.14
+        "seconds": 17.0
       },
       "ground_bottom": {
         "sprite_frames": 9,
-        "seconds": 4.16
+        "seconds": 17.2
       }
     }
   },

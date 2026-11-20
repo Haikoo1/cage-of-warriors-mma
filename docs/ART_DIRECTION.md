@@ -35,6 +35,7 @@ Sem copiar nenhum jogo específico. O alvo visual é descrito por qualidades:
 
 - **Recomendação:** 640 × 360 com escala inteira; em resoluções sem múltiplo inteiro (ex.: 1366 × 768, ultrawide), barras laterais/superiores com moldura de arte ou ampliação da área visível horizontal (mais cenário, mesma escala).
 - **Escala de sprite:** 1 pixel de sprite = 1 pixel da resolução-base. Sem sprites em "meia escala".
+- **Revisado por D-022:** a luta roda em **960 × 540** (2x em 1080p) e o lutador médio tem **≈ 189 px** (105 px/m), corpo orgânico em 3/4 no estilo da referência do usuário. Os valores abaixo são o plano original em 640 × 360.
 - **Altura dos lutadores na tela** `[PROV]`: biotipos leves ≈ 128 px, médios ≈ 136 px, pesados ≈ 144 px, superpesados ≈ 150 px (diferença intencionalmente menor que a real para manter a leitura; a largura comunica a massa).
 - **Câmera:** sem zoom dinâmico (só existiria em múltiplos inteiros, o que é brusco). Panorâmica horizontal suave com *snap* de pixel. Jaula mais larga que a tela (≈ 700 px de diâmetro em X `[PROV]`).
 - **Risco:** 640 × 360 com personagens de ~140 px é o fator que mais encarece animação. Ver §11.
