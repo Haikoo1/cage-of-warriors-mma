@@ -36,7 +36,39 @@ static func defs() -> Definitions:
 	d.add(strike(&"hook", StrikeDef.Limb.LEAD_HAND, StrikeDef.Variant.CURVED, PackedStringArray(["head", "body"]), 0.6, 0.6, 10))
 	d.add(strike(&"low_kick", StrikeDef.Limb.REAR_LEG, StrikeDef.Variant.STRAIGHT, PackedStringArray(["legs"]), 1.1, 0.6, 12, &"kickboxing"))
 	d.add(CombatBalanceDef.new())
+	# Técnicas de grappling vêm dos dados reais (também valida data/grappling).
+	for t: GrappleTechniqueDef in DataLoader.load_from("res://data").grapple_techniques.values():
+		d.add(t)
 	return d
+
+
+static func grapple(dir: FighterCommand.Direction = FighterCommand.Direction.NONE) -> FighterCommand:
+	var c: FighterCommand = FighterCommand.new()
+	c.grapple = true
+	c.technique_direction = dir
+	return c
+
+
+static func direction(dir: FighterCommand.Direction) -> FighterCommand:
+	var c: FighterCommand = FighterCommand.new()
+	c.technique_direction = dir
+	return c
+
+
+## Coloca a luta direto em uma posição (atalho de teste).
+static func set_position(s: CombatSim, position: StringName, top: int) -> void:
+	s.grappling.transition(s, position, top)
+
+
+## Roda até a disputa pendente terminar; devolve o evento de resolução.
+static func run_until_grapple(s: CombatSim, cmd_a: FighterCommand, cmd_b: FighterCommand = null, max_steps: int = 60) -> CombatEvent:
+	var events: Array[CombatEvent] = s.step(cmd_a, cmd_b if cmd_b != null else idle())
+	for i: int in max_steps:
+		for e: CombatEvent in events:
+			if e.type == CombatEvent.Type.GRAPPLE_RESOLVED:
+				return e
+		events = s.step(idle(), idle())
+	return null
 
 
 static func sim(attr_a: float = 50.0, attr_b: float = 50.0, seed: int = 1) -> CombatSim:

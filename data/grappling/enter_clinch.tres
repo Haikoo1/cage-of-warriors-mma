@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="GrappleTechniqueDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/grapple_technique_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"enter_clinch"
+kind = &"transition"
+from_state = &"EP"
+role = &"any"
+direction = 0
+to_state = &"CL"
+result_top = &"none"
+startup_frames = 8
+pressure_attr = &"wrestling_ofensivo"
+resistance_attr = &"wrestling_defensivo"
+defense_direction = 2
+stamina_cost = 2.0
+max_range_m = 0.9

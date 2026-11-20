@@ -14,7 +14,7 @@ static func apply_command(sim: CombatSim, i: int, cmd: FighterCommand, events: A
 	var idle: bool = f.action == FighterCombatState.Action.IDLE
 	f.guard_high = idle and cmd.guard and not cmd.mod_body
 	f.guard_low = idle and cmd.guard and cmd.mod_body
-	if not idle:
+	if not idle or cmd.grapple:  # Agarrar + direção é técnica de grappling, nunca esquiva
 		return
 	if cmd.technique_direction != FighterCommand.Direction.NONE:
 		var ev: FighterCombatState.Evade = _evade_for(cmd.technique_direction)

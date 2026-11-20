@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="GrappleTechniqueDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/grapple_technique_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"push_to_cage"
+kind = &"transition"
+from_state = &"CL"
+role = &"any"
+direction = 1
+to_state = &"CG"
+result_top = &"attacker"
+startup_frames = 14
+pressure_attr = &"forca"
+resistance_attr = &"wrestling_defensivo"
+defense_direction = 2
+stamina_cost = 3.0
+requires_advantage = true

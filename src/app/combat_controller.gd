@@ -1,6 +1,6 @@
 extends Node2D
 ## Liga CombatSim ↔ entrada ↔ apresentação no passo fixo de 60 Hz (COMBAT_ARCHITECTURE §10.1).
-## E-03: luta de treino contra o boneco, sem rounds.
+## E-03/E-04: luta de treino contra o boneco (trocação e grappling), sem rounds.
 
 @onready var view: GreyboxView = %GreyboxView
 @onready var hud: CombatHud = %CombatHud
@@ -29,7 +29,8 @@ func _start() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var events: Array[CombatEvent] = sim.step(player.get_command(sim.fighters[0].facing), dummy.get_command())
+	var cmd_player: FighterCommand = player.get_command(sim.fighters[0].facing, sim.grappling.position)
+	var events: Array[CombatEvent] = sim.step(cmd_player, dummy.get_command(sim))
 	hud.dummy_mode = TrainingDummy.NAMES[dummy.mode]
 	hud.present(events)
 

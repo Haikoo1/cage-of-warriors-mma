@@ -6,6 +6,7 @@ extends RefCounted
 var weight_classes: Dictionary = {}  # StringName -> WeightClassDef
 var strikes: Dictionary = {}  # StringName -> StrikeDef
 var rule_sets: Dictionary = {}  # StringName -> RuleSetDef
+var grapple_techniques: Dictionary = {}  # StringName -> GrappleTechniqueDef
 var combat_balance: CombatBalanceDef
 var load_errors: Array[String] = []
 
@@ -39,6 +40,18 @@ func rule_set(id: StringName) -> RuleSetDef:
 	return rule_sets.get(id) as RuleSetDef
 
 
+func grapple_technique(id: StringName) -> GrappleTechniqueDef:
+	return grapple_techniques.get(id) as GrappleTechniqueDef
+
+
+## Técnica disponível para um papel em uma posição e direção (COMBAT_ARCHITECTURE §3.3).
+func find_grapple(from_state: StringName, role: StringName, dir: FighterCommand.Direction) -> GrappleTechniqueDef:
+	for t: GrappleTechniqueDef in grapple_techniques.values():
+		if t.from_state == from_state and t.role == role and t.direction == dir:
+			return t
+	return null
+
+
 func validate_all() -> Array[String]:
 	var errors: Array[String] = load_errors.duplicate()
 	for d: WeightClassDef in weight_classes.values():
@@ -47,6 +60,8 @@ func validate_all() -> Array[String]:
 		errors.append_array(d.validate())
 	for d: RuleSetDef in rule_sets.values():
 		errors.append_array(d.validate(self))
+	for d: GrappleTechniqueDef in grapple_techniques.values():
+		errors.append_array(d.validate())
 	if combat_balance == null:
 		errors.append("CombatBalanceDef ausente")
 	else:
@@ -57,7 +72,7 @@ func validate_all() -> Array[String]:
 ## Hash de todo o conteúdo; usado para detectar alteração acidental de definições (DATA_ARCHITECTURE §4).
 func content_hash() -> String:
 	var parts: PackedStringArray = []
-	for table: Dictionary in [weight_classes, strikes, rule_sets]:
+	for table: Dictionary in [weight_classes, strikes, rule_sets, grapple_techniques]:
 		var ids: Array = table.keys()
 		ids.sort()
 		for id: StringName in ids:
@@ -74,6 +89,8 @@ func _table_for(def: Resource) -> Variant:
 		return strikes
 	if def is RuleSetDef:
 		return rule_sets
+	if def is GrappleTechniqueDef:
+		return grapple_techniques
 	return null
 
 

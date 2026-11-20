@@ -2,7 +2,7 @@ class_name FighterCombatState
 extends RefCounted
 ## Estado individual de um lutador durante a luta (COMBAT_ARCHITECTURE §3.1). Transitório: nunca é salvo.
 
-enum Action { IDLE, STRIKE_STARTUP, STRIKE_ACTIVE, STRIKE_RECOVERY, EVADING, ROCKED, STUNNED, DOWN, OUT }
+enum Action { IDLE, STRIKE_STARTUP, STRIKE_ACTIVE, STRIKE_RECOVERY, EVADING, ROCKED, STUNNED, DOWN, OUT, GRAPPLING }
 enum Evade { NONE, SLIP, DUCK, PULL }
 
 const ZONES: Array[StringName] = [&"head", &"body", &"legs"]
@@ -23,6 +23,7 @@ var guard_high: bool = false
 var guard_low: bool = false
 var angle_frames: int = 0
 var moved_this_step: bool = false
+var gnp_cooldown: int = 0
 
 var stamina: float = 100.0
 var reserve: float = 100.0

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GrappleTechniqueDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/grapple_technique_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"recover_guard"
+kind = &"transition"
+from_state = &"SL"
+role = &"bottom"
+direction = 1
+to_state = &"SG"
+result_top = &"keep"
+startup_frames = 16
+pressure_attr = &"jiu_jitsu"
+resistance_attr = &"controle_solo"
+defense_direction = 1
+stamina_cost = 4.0

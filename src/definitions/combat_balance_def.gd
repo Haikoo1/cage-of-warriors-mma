@@ -46,6 +46,24 @@ extends Resource
 @export var knockdown_frames: int = 120
 
 
+@export_group("Grappling (COMBAT §4)")
+## Bônus de pressão por progresso parcial acumulado na mesma técnica.
+@export var partial_bonus: float = 0.2
+@export var partial_ratio: float = 0.8
+## Leitura no primeiro terço da janela é "perfeita" e abre o contra.
+@export var perfect_read_fraction: float = 0.34
+@export var fail_stamina_mult: float = 2.0
+@export var gnp_power: float = 9.0
+@export var gnp_cooldown_frames: int = 24
+@export var gnp_mult_guard: float = 0.6
+@export var gnp_mult_side: float = 1.0
+@export var gnp_mult_mount: float = 1.2
+@export var gnp_mult_back: float = 0.5
+@export var squeeze_cycle_frames: int = 60
+@export var squeeze_start: float = 20.0
+@export var squeeze_escape_drop: float = 25.0
+
+
 func validate() -> Array[String]:
 	var errors: Array[String] = []
 	if walk_speed_mps <= 0.0 or lateral_speed_mps <= 0.0:

@@ -32,6 +32,9 @@ func _draw() -> void:
 	for side: float in [-1.0, 1.0]:
 		var top: Vector2 = to_screen(side * bal.cage_half_width_m, bal.depth_half_m)
 		draw_line(top + Vector2(0, -150), to_screen(side * bal.cage_half_width_m, -bal.depth_half_m), Color(0.6, 0.6, 0.6), 2.0)
+	if sim.grappling.position != &"EP":
+		_draw_grapple_pair()
+		return
 	# Desenha primeiro quem está mais ao fundo (maior z).
 	var order: Array[int] = [0, 1]
 	if sim.fighters[1].z > sim.fighters[0].z:
@@ -97,6 +100,46 @@ func _draw_debug(f: FighterCombatState, base: Vector2) -> void:
 	_label(base + Vector2(-20, 10), "z %.2f" % f.z, Color(1, 1, 1, 0.6))
 	if f.angle_frames > 0:
 		_label(base + Vector2(-20, 20), "ÂNGULO", Color.GREEN)
+
+
+const POSITION_NAMES: Dictionary = {
+	&"CL": "CLINCH", &"CG": "CLINCH NA GRADE", &"SG": "GUARDA", &"SL": "CONTROLE LATERAL",
+	&"SO": "MONTADA", &"SC": "COSTAS", &"SR": "LEVANTANDO",
+}
+
+
+## Posições de clinch e solo em formas simples: quem está por cima é desenhado por último e mais alto.
+func _draw_grapple_pair() -> void:
+	var g: CombatGrappling = sim.grappling
+	var a: FighterCombatState = sim.fighters[0]
+	var b: FighterCombatState = sim.fighters[1]
+	var mid: Vector2 = (to_screen(a.x, a.z) + to_screen(b.x, b.z)) / 2.0
+	_draw_ellipse(mid, 40.0, 6.0, Color(0, 0, 0, 0.45))
+	var top_i: int = g.top if g.top >= 0 else 0
+	var bottom_i: int = 1 - top_i
+	var ct: Color = COLORS[top_i]
+	var cb: Color = COLORS[bottom_i]
+	match g.position:
+		&"CL", &"CG":
+			for i: int in 2:
+				var p: Vector2 = to_screen(sim.fighters[i].x, sim.fighters[i].z)
+				draw_rect(Rect2(p.x - 12, p.y - 96, 24, 96), COLORS[i])
+				draw_circle(Vector2(p.x + sim.fighters[i].facing * 6, p.y - 104), 12.0, COLORS[i].lightened(0.2))
+			if g.clinch_owner >= 0:
+				var o: Vector2 = to_screen(sim.fighters[g.clinch_owner].x, 0)
+				_label(Vector2(o.x - 16, mid.y - 132), "PEGADA", Color.GREEN)
+		&"SR":
+			draw_rect(Rect2(mid.x - 30, mid.y - 50, 26, 50), cb)
+			draw_rect(Rect2(mid.x - 4, mid.y - 70, 24, 70), ct)
+		_:
+			draw_rect(Rect2(mid.x - 55, mid.y - 16, 110, 16), cb)  # quem está por baixo, deitado
+			draw_circle(Vector2(mid.x - 58 * sim.fighters[bottom_i].facing, mid.y - 8), 10.0, cb.lightened(0.2))
+			var h: float = {&"SG": 40.0, &"SL": 30.0, &"SO": 50.0, &"SC": 36.0}.get(g.position, 36.0)
+			draw_rect(Rect2(mid.x - 14, mid.y - 16 - h, 28, h), ct)
+			draw_circle(Vector2(mid.x, mid.y - 26 - h), 11.0, ct.lightened(0.2))
+	_label(Vector2(mid.x - 40, mid.y - 150), POSITION_NAMES.get(g.position, ""), Color.WHITE)
+	if g.top >= 0:
+		_label(Vector2(mid.x - 40, mid.y - 138), "por cima: %s" % ("JOGADOR" if g.top == 0 else "BONECO"), COLORS[g.top])
 
 
 func _draw_ellipse(center: Vector2, rx: float, ry: float, color: Color) -> void:
