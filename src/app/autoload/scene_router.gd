@@ -22,6 +22,7 @@ func set_screen_root(root: Node) -> void:
 
 func go_to(route: StringName, params: Dictionary = {}) -> void:
 	assert(ROUTES.has(route), "rota desconhecida: %s" % route)
+	AudioDirector.ui_click()
 	assert(_screen_root != null, "ScreenRoot não registrado")
 	if _current != null:
 		_current.queue_free()

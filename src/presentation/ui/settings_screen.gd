@@ -98,4 +98,5 @@ func _change(step: int) -> void:
 			store.music_volume = clampf(store.music_volume + step * 0.1, 0.0, 1.0)
 		4:
 			store.sfx_volume = clampf(store.sfx_volume + step * 0.1, 0.0, 1.0)
-	AudioServer.set_bus_volume_db(0, linear_to_db(maxf(0.001, store.master_volume)))
+	AudioDirector.apply_volumes()
+	AudioDirector.play(&"hit_light", -6.0)  # amostra do volume

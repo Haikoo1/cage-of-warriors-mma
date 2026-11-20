@@ -16,7 +16,7 @@ func _ready() -> void:
 	InputBindings.register_defaults()
 	store.load_from(PATH)  # ausência do arquivo mantém os padrões
 	InputBindings.apply_overrides(store.key_overrides)
-	AudioServer.set_bus_volume_db(0, linear_to_db(maxf(0.001, store.master_volume)))
+
 
 
 func save() -> Error:

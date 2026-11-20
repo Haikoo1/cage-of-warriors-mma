@@ -30,6 +30,19 @@ func setup(params: Dictionary) -> void:
 func _ready() -> void:
 	player.relative_to_opponent = Settings.store.directions_relative_to_opponent
 	_start()
+	AudioDirector.start_ambience(&"crowd_loop")
+	AudioDirector.play(&"bell", -6.0, 0.0)
+
+
+func _exit_tree() -> void:
+	AudioDirector.stop_ambience()
+
+
+func _play_sounds(events: Array[CombatEvent]) -> void:
+	for e: CombatEvent in events:
+		AudioDirector.play(CombatSounds.sound_for(e), -2.0)
+		if CombatSounds.crowd_reacts(e):
+			AudioDirector.play(&"crowd_roar", -4.0, 0.03)
 
 
 func _start() -> void:
@@ -91,7 +104,11 @@ func _physics_process(_delta: float) -> void:
 		cmd_b = quick.ai_b.get_command(sim)
 	else:
 		cmd_b = dummy.get_command(sim)
+	var round_before: int = sim.round
 	var events: Array[CombatEvent] = sim.step(cmd_a, cmd_b)
+	_play_sounds(events)
+	if sim.phase == CombatSim.Phase.ROUND_BREAK:
+		AudioDirector.play(&"bell", -6.0, 0.0)
 	hud.dummy_mode = TrainingDummy.NAMES[dummy.mode]
 	hud.present(events)
 
@@ -102,6 +119,7 @@ func _next_round() -> void:
 		focus_a = quick.ai_a.choose_focus(sim)
 	var focus_b: CombatSim.Focus = quick.ai_b.choose_focus(sim) if quick != null else CombatSim.Focus.NORMAL
 	sim.begin_next_round(focus_a, focus_b)
+	AudioDirector.play(&"bell", -6.0, 0.0)
 	player_focus = CombatSim.Focus.NORMAL
 	_break_timer = 0
 
