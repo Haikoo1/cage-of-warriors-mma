@@ -22,6 +22,8 @@ static func run_week(c: CareerState, defs: Definitions, rng: RandomNumberGenerat
 		var act: TrainingActivityDef = defs.training_activity(act_id)
 		if act == null or (act.requires_fight and c.booked.is_empty()):
 			continue
+		if act.requires_fight:
+			c.scouting_blocks += 1
 		# Acima do limite o treinador recusa treino pesado (CAREER §4.2): o bloco vira descanso.
 		if act.load > 5.0 and p.fatigue >= bal.fatigue_block_heavy:
 			act = defs.training_activity(&"rest")

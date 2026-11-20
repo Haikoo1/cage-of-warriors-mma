@@ -53,6 +53,9 @@ func _start() -> void:
 		hud.names = ["VOCÊ", "IA"]
 		if quick.watch_only:
 			hud.names = ["IA A", "IA B"]
+		if career_mode and GameSession.career != null:
+			var gym: GymDef = GameSession.career.defs.gym(GameSession.career.state.gym_id)
+			hud.max_tips = 2 if gym != null and gym.structure >= 3 else 1
 		if fighter_names.size() == 2:
 			hud.names = [String(fighter_names[0]), String(fighter_names[1])]
 		hud.training = false

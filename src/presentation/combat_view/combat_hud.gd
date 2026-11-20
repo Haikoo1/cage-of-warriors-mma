@@ -28,6 +28,7 @@ var names: Array[String] = ["JOGADOR", "BONECO"]
 var training: bool = true
 var paused: bool = false
 var career_lock: bool = false  # luta de carreira não pode ser abandonada
+var max_tips: int = 2  # carreira: depende da estrutura da academia (CAREER §4.5)
 var player_focus: CombatSim.Focus = CombatSim.Focus.NORMAL
 var feedback: Array[String] = ["", ""]
 var _feedback_timer: Array[int] = [0, 0]
@@ -163,7 +164,7 @@ func corner_tips() -> Array[String]:
 		tips.append("ele está sentindo a cabeça. Pressione com cuidado.")
 	if tips.is_empty():
 		tips.append("round equilibrado. Mantenha o plano.")
-	return tips.slice(0, 2)
+	return tips.slice(0, max_tips)
 
 
 func _draw_end() -> void:

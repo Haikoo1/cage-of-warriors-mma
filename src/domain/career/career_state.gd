@@ -20,6 +20,9 @@ var pending_interview: bool = false
 var news: Array = []  # [{week, text}] mais recentes primeiro
 var champions: Dictionary = {}  # "org|wc" -> id do campeão
 var legacy: Dictionary = {}  # preenchido na aposentadoria
+var scouting_blocks: int = 0  # blocos de "Estudo do adversário" no camp atual (CAREER §4.3)
+var rivals: Dictionary = {}  # id do rival (String) -> intensidade 0..100 (CAREER §10.6)
+var org_relationship: Dictionary = {}  # id da organização (String) -> 0..100 (CAREER §10.4)
 
 
 func next_id(prefix: String) -> StringName:
@@ -49,6 +52,14 @@ func set_champion(org: StringName, wc: StringName, fighter_id: StringName) -> vo
 	champions["%s|%s" % [org, wc]] = String(fighter_id)
 
 
+func relationship(org: StringName) -> float:
+	return float(org_relationship.get(String(org), 50.0))
+
+
+func change_relationship(org: StringName, delta: float) -> void:
+	org_relationship[String(org)] = clampf(relationship(org) + delta, 0.0, 100.0)
+
+
 func add_news(text: String) -> void:
 	news.push_front({"week": week_index, "text": text})
 	if news.size() > 40:
@@ -70,6 +81,7 @@ func to_dict() -> Dictionary:
 		"money": snappedf(money, 0.01), "gym_id": String(gym_id), "training_plan": plan, "round_seconds": round_seconds,
 		"offers": offers.duplicate(true), "booked": booked.duplicate(true), "pending_interview": pending_interview,
 		"news": news.duplicate(true), "champions": champions.duplicate(), "legacy": legacy.duplicate(true),
+		"scouting_blocks": scouting_blocks, "rivals": rivals.duplicate(), "org_relationship": org_relationship.duplicate(),
 	}
 
 
@@ -97,6 +109,13 @@ static func from_dict(d: Dictionary) -> CareerState:
 		c.news.append({"week": int(n.get("week", 0)), "text": String(n.get("text", ""))})
 	c.champions = (d.get("champions", {}) as Dictionary).duplicate()
 	c.legacy = (d.get("legacy", {}) as Dictionary).duplicate(true)
+	c.scouting_blocks = int(d.get("scouting_blocks", 0))
+	var rv: Dictionary = d.get("rivals", {})
+	for k: String in rv:
+		c.rivals[k] = float(rv[k])
+	var rel: Dictionary = d.get("org_relationship", {})
+	for k: String in rel:
+		c.org_relationship[k] = float(rel[k])
 	return c
 
 

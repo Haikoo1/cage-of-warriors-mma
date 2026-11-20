@@ -104,6 +104,35 @@ func decline_offer(index: int) -> void:
 	Matchmaking.decline_offer(state, index)
 
 
+func counter_offer(index: int) -> bool:
+	return Matchmaking.counter_offer(state, index, CareerRng.make(state, &"counter", index + state.offers.size() * 7))
+
+
+## Relatório de scouting do próximo adversário (COMBAT §5.1): a precisão cresce com blocos de estudo.
+func scouting_report() -> Dictionary:
+	var rep: Dictionary = {"precision": 0, "style": "?", "attributes": [], "weakness": "?", "tendency": "?"}
+	if state.booked.is_empty():
+		return rep
+	var opp: FighterState = state.get_fighter(StringName(state.booked["opponent"]))
+	var b: int = state.scouting_blocks
+	var precision: int = 0 if b == 0 else (1 if b <= 2 else (2 if b <= 5 else 3))
+	rep["precision"] = precision
+	if precision == 0:
+		return rep
+	var arch: ArchetypeDef = defs.archetype(opp.archetype_id)
+	rep["style"] = arch.display_key if arch else "?"
+	rep["tendency"] = "procura quedas e controle por cima" if opp.archetype_id == &"arch_wrestler" else "prefere trocar em pé, na distância"
+	var band: float = [0.0, 10.0, 5.0, 0.0][precision]
+	var attrs: Array = AttributeIds.ALL.duplicate()
+	attrs.sort_custom(func(x: StringName, y: StringName) -> bool: return float(opp.attributes[x]) > float(opp.attributes[y]))
+	for k: int in 4:
+		var v: float = float(opp.attributes[attrs[k]])
+		rep["attributes"].append([String(attrs[k]), roundi(v - band), roundi(v + band)])
+	if precision >= 2:
+		rep["weakness"] = String(attrs[attrs.size() - 1])
+	return rep
+
+
 # ------------------------------------------------------------------ luta do jogador
 ## Pesagem + FightSetup (jogador = A, adversário = B controlado pela IA).
 func prepare_fight() -> Dictionary:
@@ -148,9 +177,15 @@ func finish_player_fight(result: FightResult, weigh_in: Dictionary = {}) -> void
 		var bal: CareerBalanceDef = defs.career_balance if defs.career_balance != null else CareerBalanceDef.new()
 		state.money -= float(bout["show"]) * bal.weight_miss_fine
 		state.player().popularity = maxf(0.0, state.player().popularity - 3.0)
+		state.change_relationship(StringName(bout["org"]), -8.0)
 		bout["title"] = false  # quem falha no peso não pode ganhar o cinturão (CAREER §6.2)
 		state.add_news("%s não bateu o peso: multa e luta sem título." % state.player().display_name)
+	var rival_key: String = String(bout["b"])
 	ResultApplier.apply(state, defs, bout, result)
+	if state.rivals.has(rival_key):
+		state.player().popularity = minf(100.0, state.player().popularity + 3.0)  # luta de rivalidade vende mais
+		state.rivals.erase(rival_key)
+		state.add_news("Rivalidade resolvida na jaula.")
 	state.booked = {}
 	autosave()
 
@@ -170,11 +205,31 @@ func answer_interview(tone: int) -> void:
 	if not state.pending_interview:
 		return
 	var p: FighterState = state.player()
+	if tone == 2:
+		_provoke()
 	var deltas: Array[float] = [1.0, 2.0, 4.0]
 	var texts: Array[String] = ["agradece ao adversário e à equipe", "diz que está pronto para o topo", "provoca o próximo da fila"]
 	p.popularity = clampf(p.popularity + deltas[clampi(tone, 0, 2)], 0.0, 100.0)
 	state.add_news("Entrevista: %s %s." % [p.display_name, texts[clampi(tone, 0, 2)]])
 	state.pending_interview = false
+
+
+## Provocar cria rivalidade: com o último adversário se perdeu, senão com quem está logo acima no ranking.
+func _provoke() -> void:
+	var p: FighterState = state.player()
+	var target: FighterState = null
+	if not p.history.is_empty() and p.history[-1]["result"] == "L":
+		target = state.get_fighter(StringName(p.history[-1]["opponent"]))
+	else:
+		var roster: Array[FighterState] = Rankings.roster(state, p.org_id, p.weight_class_id)
+		var idx: int = roster.find(p)
+		if idx > 0:
+			target = roster[idx - 1]
+		elif roster.size() > 1:
+			target = roster[1]
+	if target != null and target != p:
+		state.rivals[String(target.id)] = minf(100.0, float(state.rivals.get(String(target.id), 0.0)) + 40.0)
+		state.add_news("Rivalidade: %s responde às provocações de %s." % [target.display_name, p.display_name])
 
 
 # ------------------------------------------------------------------ fim de carreira

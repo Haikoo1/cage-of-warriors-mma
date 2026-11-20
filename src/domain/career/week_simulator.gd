@@ -22,6 +22,10 @@ static func simulate_week(c: CareerState, defs: Definitions) -> Dictionary:
 	var p: FighterState = c.player()
 	if p != null:
 		p.popularity = maxf(0.0, p.popularity - bal.popularity_decay_week)
+	for rid: String in c.rivals.keys():
+		c.rivals[rid] = float(c.rivals[rid]) - 0.5
+		if float(c.rivals[rid]) <= 0.0:
+			c.rivals.erase(rid)
 	c.week_index += 1
 	for n: String in notes:
 		c.add_news(n)

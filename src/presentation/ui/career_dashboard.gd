@@ -86,7 +86,7 @@ func _help() -> String:
 	var common: String = "1-5 abas · Espaço simular semana · A avançar até evento · F5 salvar · Esc salvar e sair"
 	match tab:
 		1: return "W/S bloco · Q/E atividade · G trocar academia · " + common
-		2: return "W/S oferta · Enter aceitar · X recusar · " + common
+		2: return "W/S oferta · Enter aceitar · C contrapropor · X recusar · " + common
 		3: return "Q/E categoria · Z/C organização · " + common
 	return "R aposentar (2x) · " + common
 
@@ -108,18 +108,19 @@ func _draw_overview() -> void:
 	UiDraw.panel(self, Rect2(8, y - 12, 624, 60))
 	if s.pending_interview:
 		UiDraw.text(self, Vector2(16, y + 2), "ENTREVISTA PÓS-LUTA — como você responde?", UiDraw.C_SEL, 11)
-		UiDraw.text(self, Vector2(16, y + 18), "1 Respeitoso (+pouca popularidade)   2 Confiante   3 Provocador (+muita popularidade)", UiDraw.C_TEXT)
+		UiDraw.text(self, Vector2(16, y + 18), "1 Respeitoso (+pouca popularidade)   2 Confiante   3 Provocador (+muita popularidade, cria rivalidade)", UiDraw.C_TEXT)
 	elif cc.is_fight_week():
 		var opp: FighterState = s.get_fighter(StringName(s.booked["opponent"]))
 		UiDraw.text(self, Vector2(16, y + 2), "SEMANA DA LUTA%s: %s (%s)" % [" — DISPUTA DE CINTURÃO" if s.booked["title"] else "", opp.display_name, opp.record_text()], UiDraw.C_SEL, 11)
 		UiDraw.text(self, Vector2(16, y + 18), "Enter: pesagem e LUTAR (você joga)     F: simular a luta", UiDraw.C_TEXT)
 		var cut: float = WeightSystem.cut_fraction(p, cc.defs.weight_class(p.weight_class_id), bool(s.booked.get("short", false)))
 		UiDraw.text(self, Vector2(16, y + 34), "Corte de peso previsto: %.1f%%" % (cut * 100.0), UiDraw.C_DIM, UiDraw.SMALL)
+		_draw_scouting(Vector2(240, y + 34))
 	elif not s.booked.is_empty():
 		var opp2: FighterState = s.get_fighter(StringName(s.booked["opponent"]))
 		UiDraw.text(self, Vector2(16, y + 2), "Próxima luta: %s (%s) na semana %d — faltam %d semanas de camp" % [opp2.display_name,
 			opp2.record_text(), int(s.booked["week"]) + 1, int(s.booked["week"]) - s.week_index], UiDraw.C_TEXT, 11)
-		UiDraw.text(self, Vector2(16, y + 18), "Dica: use blocos de 'Estudo do adversário' e termine o camp com fadiga baixa.", UiDraw.C_DIM, UiDraw.SMALL)
+		_draw_scouting(Vector2(16, y + 18))
 	elif not s.offers.is_empty():
 		UiDraw.text(self, Vector2(16, y + 2), "Você tem %d oferta(s) — aba 3." % s.offers.size(), UiDraw.C_SEL, 11)
 	elif not p.is_available(s.week_index):
@@ -131,6 +132,21 @@ func _draw_overview() -> void:
 	for k: int in mini(10, s.news.size()):
 		var n: Dictionary = s.news[k]
 		UiDraw.text(self, Vector2(10, y + 14 + k * 12), "S%d  %s" % [int(n["week"]) + 1, n["text"]], UiDraw.C_TEXT, UiDraw.SMALL, 620)
+
+
+## Relatório de scouting (COMBAT §5.1): mais blocos de "Estudo do adversário" = faixas mais estreitas.
+func _draw_scouting(pos: Vector2) -> void:
+	var rep: Dictionary = cc.scouting_report()
+	if int(rep["precision"]) == 0:
+		UiDraw.text(self, pos, "Scouting: nenhum estudo do adversário ainda (bloco 'Estudo do adversário' no treino).", UiDraw.C_DIM, UiDraw.SMALL)
+		return
+	var parts: PackedStringArray = []
+	for a: Array in rep["attributes"]:
+		var name: String = ATTR_NAMES.get(StringName(a[0]), a[0])
+		parts.append("%s %d" % [name, a[1]] if a[1] == a[2] else "%s %d–%d" % [name, a[1], a[2]])
+	var weak: String = ("  ·  ponto fraco: %s" % ATTR_NAMES.get(StringName(rep["weakness"]), rep["weakness"])) if rep["weakness"] != "?" else ""
+	UiDraw.text(self, pos, "Scouting (%s): %s — %s. Fortes: %s%s" % [["", "básico", "bom", "completo"][int(rep["precision"])],
+		rep["style"], rep["tendency"], ", ".join(parts), weak], UiDraw.C_TEXT, UiDraw.SMALL, 600 - pos.x)
 
 
 func _draw_training() -> void:
@@ -162,12 +178,15 @@ func _draw_training() -> void:
 
 func _draw_offers() -> void:
 	var s: CareerState = cc.state
+	var p0: FighterState = s.player()
+	UiDraw.text(self, Vector2(10, 62), "Relação com %s: %.0f/100 (recusar e contrapropor sem sucesso baixa; salvar cards com pouco prazo sobe)" % [
+		cc.defs.organization(p0.org_id).display_name, s.relationship(p0.org_id)], UiDraw.C_DIM, UiDraw.SMALL)
 	if s.offers.is_empty():
-		UiDraw.text(self, Vector2(10, 70), "Nenhuma oferta no momento. Ofertas chegam quando você está disponível e sem luta marcada.", UiDraw.C_DIM)
+		UiDraw.text(self, Vector2(10, 80), "Nenhuma oferta no momento. Ofertas chegam quando você está disponível e sem luta marcada.", UiDraw.C_DIM)
 		return
 	for i: int in s.offers.size():
 		var o: Dictionary = s.offers[i]
-		var y: float = 70 + i * 30
+		var y: float = 84 + i * 30
 		var col: Color = UiDraw.C_SEL if i == cursor else UiDraw.C_TEXT
 		if o["kind"] == "contract":
 			var org: OrganizationDef = cc.defs.organization(StringName(o["org"]))
@@ -176,11 +195,12 @@ func _draw_offers() -> void:
 		else:
 			var opp: FighterState = s.get_fighter(StringName(o["opponent"]))
 			var opp_rank: int = Rankings.rank_of(s, opp)
-			UiDraw.text(self, Vector2(10, y), "%s%s (%s, %s, ranking %s) — semana %d%s" % ["TÍTULO: " if o["title"] else "", opp.display_name,
+			UiDraw.text(self, Vector2(10, y), "%s%s%s (%s, %s, ranking %s) — semana %d%s" % ["TÍTULO: " if o["title"] else "", "RIVAL: " if o.get("rivalry", false) else "", opp.display_name,
 				opp.record_text(), cc.defs.archetype(opp.archetype_id).display_key, "C" if opp_rank == 0 else str(opp_rank),
 				int(o["week"]) + 1, "  [POUCO PRAZO]" if o["short"] else ""], col, 11)
-			UiDraw.text(self, Vector2(22, y + 12), "Bolsa %s + %s por vitória · expira na semana %d · rating dele %.0f (seu %.0f)" % [
-				UiDraw.money(float(o["show"])), UiDraw.money(float(o["win"])), int(o["expires"]) + 1, opp.rating, s.player().rating], UiDraw.C_DIM, UiDraw.SMALL)
+			UiDraw.text(self, Vector2(22, y + 12), "Bolsa %s + %s por vitória · expira na semana %d · rating dele %.0f (seu %.0f)%s" % [
+				UiDraw.money(float(o["show"])), UiDraw.money(float(o["win"])), int(o["expires"]) + 1, opp.rating, s.player().rating,
+				"  · já contraproposta" if o.get("countered", false) else ""], UiDraw.C_DIM, UiDraw.SMALL)
 
 
 func _draw_rankings() -> void:
@@ -192,8 +212,8 @@ func _draw_rankings() -> void:
 	var roster: Array[FighterState] = Rankings.roster(s, org.id, wc.id)
 	for k: int in mini(16, roster.size()):
 		var f: FighterState = roster[k]
-		var col: Color = UiDraw.C_GOOD if f.id == s.player_fighter_id else UiDraw.C_TEXT
-		UiDraw.text(self, Vector2(10, 84 + k * 14), "%s  %s" % ["C " if k == 0 else "%2d" % k, f.display_name], col, UiDraw.TEXT)
+		var col: Color = UiDraw.C_GOOD if f.id == s.player_fighter_id else (UiDraw.C_BAD if s.rivals.has(String(f.id)) else UiDraw.C_TEXT)
+		UiDraw.text(self, Vector2(10, 84 + k * 14), "%s  %s%s" % ["C " if k == 0 else "%2d" % k, f.display_name, "  (rival)" if s.rivals.has(String(f.id)) else ""], col, UiDraw.TEXT)
 		UiDraw.text(self, Vector2(220, 84 + k * 14), "%s   rating %.0f   %s   %d anos%s" % [f.record_text(), f.rating,
 			cc.defs.archetype(f.archetype_id).display_key, int(f.age_years(s.week_index)), "  (lesionado)" if not f.injury.is_empty() else ""], col, UiDraw.SMALL)
 
@@ -214,6 +234,12 @@ func _draw_profile() -> void:
 	UiDraw.text(self, Vector2(430, 66), "Altura %d cm · envergadura %d cm" % [ph.height_cm, ph.reach_cm], UiDraw.C_DIM, UiDraw.SMALL)
 	UiDraw.text(self, Vector2(430, 80), "Peso de caminhada %.1f kg" % ph.walk_weight_kg, UiDraw.C_DIM, UiDraw.SMALL)
 	UiDraw.text(self, Vector2(430, 94), "Títulos: %d · sequência %+d" % [p.titles, p.streak], UiDraw.C_DIM, UiDraw.SMALL)
+	var ry: float = 112
+	for rid: String in cc.state.rivals:
+		var rf: FighterState = cc.state.get_fighter(StringName(rid))
+		if rf != null:
+			UiDraw.text(self, Vector2(430, ry), "Rival: %s (%.0f)" % [rf.display_name, float(cc.state.rivals[rid])], UiDraw.C_BAD, UiDraw.SMALL)
+			ry += 12
 	UiDraw.text(self, Vector2(10, 220), "Últimas lutas", UiDraw.C_SEL)
 	var hist: Array = p.history.duplicate()
 	hist.reverse()
@@ -294,6 +320,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				cc.set_plan_block(cursor, activity_ids[(idx + step + activity_ids.size()) % activity_ids.size()])
 			elif tab == 3:
 				rank_wc = (rank_wc + step + wc_ids.size()) % wc_ids.size()
+		KEY_C when tab == 2:
+			if not s.offers.is_empty():
+				message = "Contraproposta aceita!" if cc.counter_offer(cursor) else "Contraproposta recusada ou indisponível."
+				cursor = 0
 		KEY_Z, KEY_C:
 			if tab == 3:
 				rank_org = (rank_org + (1 if key == KEY_C else -1) + 4) % 4
