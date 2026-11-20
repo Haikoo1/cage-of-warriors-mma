@@ -109,7 +109,7 @@ func _look_text(i: int) -> String:
 	match i:
 		0: return Appearance.HAIR_STYLE_NAMES[look_edit.hair_style]
 		1: return Appearance.HAIR_COLOR_NAMES[look_edit.hair_color]
-		2: return "Sim" if look_edit.beard else "Não"
+		2: return ("Sim" if look_edit.beard else "Não") + ("" if cc.defs.weight_class(cc.state.player().weight_class_id).division == WeightClassDef.Division.MALE else " (indisponível)")
 		3: return Appearance.SHORTS_NAMES[look_edit.shorts]
 	return Appearance.GLOVE_NAMES[look_edit.gloves]
 
