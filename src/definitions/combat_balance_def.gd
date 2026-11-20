@@ -65,6 +65,13 @@ extends Resource
 @export var clinch_knee_power: float = 12.0
 @export var clinch_elbow_power: float = 10.0
 @export var clinch_strike_cooldown_frames: int = 30
+@export_group("Cortes (COMBAT §6.4)")
+@export var cut_chance_elbow: float = 0.18
+@export var cut_chance_power: float = 0.05
+@export var cut_chance_other: float = 0.02
+@export var cut_min_head_damage: float = 8.0
+@export var doctor_stop_chance: float = 0.5
+@export_group("Grappling (cont.)")
 @export var squeeze_cycle_frames: int = 60
 @export var squeeze_start: float = 20.0
 @export var squeeze_escape_drop: float = 25.0

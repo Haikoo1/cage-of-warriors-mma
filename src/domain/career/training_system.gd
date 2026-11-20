@@ -33,7 +33,7 @@ static func run_week(c: CareerState, defs: Definitions, rng: RandomNumberGenerat
 			var key: StringName = StringName(attr)
 			var cur: float = float(p.attributes.get(key, 0.0))
 			var ceiling: float = clampf((p.potential - cur) / bal.potential_softness, 0.0, 1.0)
-			var gain: float = float(act.gains[attr]) * specialty * fatigue_factor * age_factor * ceiling * injury_factor
+			var gain: float = float(act.gains[attr]) * bal.training_gain_scale * specialty * fatigue_factor * age_factor * ceiling * injury_factor
 			p.attributes[key] = minf(cur + gain, maxf(cur, p.potential))
 			trained[key] = true
 		p.fatigue = clampf(p.fatigue + act.load, 0.0, 100.0)

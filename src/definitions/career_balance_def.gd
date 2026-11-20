@@ -10,6 +10,8 @@ extends Resource
 @export var fatigue_penalty_start: float = 40.0
 @export var fatigue_block_heavy: float = 90.0
 @export var potential_softness: float = 15.0
+## Escala global dos ganhos de treino (lote M4: carreira fácil demais com 1.0).
+@export var training_gain_scale: float = 0.55
 @export var untrained_decay: float = 0.05
 @export var conditioning_decay: float = 0.35
 
@@ -34,6 +36,8 @@ extends Resource
 
 @export_group("Economia (§10)")
 @export var cost_of_living_week: float = 150.0
+## Custo de vida + equipe + viagens por nível da organização (escoadouro de dinheiro, CAREER §10.3).
+@export var tier_living_cost: Array[float] = [150.0, 400.0, 1200.0, 3000.0]
 @export var team_cut: float = 0.15
 @export var short_notice_bonus: float = 0.25
 

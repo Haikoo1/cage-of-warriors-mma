@@ -24,6 +24,7 @@ var guard_low: bool = false
 var angle_frames: int = 0
 var moved_this_step: bool = false
 var gnp_cooldown: int = 0
+var cut: int = 0  # gravidade do corte 0..3 (COMBAT §6.4)
 
 var stamina: float = 100.0
 var reserve: float = 100.0

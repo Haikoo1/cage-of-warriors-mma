@@ -168,6 +168,10 @@ func _draw_sprite(i: int, f: FighterCombatState, base: Vector2) -> void:
 	var tint: Color = Color.WHITE if i == 0 else Color(1.0, 0.8, 0.75)
 	draw_texture_rect_region(tex, Rect2(-sprites.anchor, size), src, tint)
 	draw_set_transform(Vector2.ZERO)
+	if f.cut > 0 and Settings.store.show_blood:
+		var head: Vector2 = base + Vector2(f.facing * 6, -sprites.anchor.y * scale_px + 22 * scale_px)
+		for k: int in f.cut * 2:
+			draw_rect(Rect2(roundf(head.x + k % 3 - 1), roundf(head.y + k * 2), 1, 2), Color(0.6, 0.02, 0.03))
 	if debug_overlay:
 		_draw_debug(f, base)
 

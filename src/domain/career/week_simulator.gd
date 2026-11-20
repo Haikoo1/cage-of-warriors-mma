@@ -18,7 +18,9 @@ static func simulate_week(c: CareerState, defs: Definitions) -> Dictionary:
 	notes.append_array(Matchmaking.run_week(c, defs, CareerRng.make(c, &"matchmaking")))
 	var bal: CareerBalanceDef = defs.career_balance if defs.career_balance != null else CareerBalanceDef.new()
 	var gym: GymDef = defs.gym(c.gym_id)
-	c.money -= bal.cost_of_living_week + (gym.monthly_cost / 4.0 if gym != null else 0.0)
+	var tier: int = defs.organization(c.player().org_id).tier if c.player() != null and defs.organization(c.player().org_id) else 1
+	var living: float = bal.tier_living_cost[clampi(tier - 1, 0, bal.tier_living_cost.size() - 1)] if not bal.tier_living_cost.is_empty() else bal.cost_of_living_week
+	c.money -= living + (gym.monthly_cost / 4.0 if gym != null else 0.0)
 	var p: FighterState = c.player()
 	if p != null:
 		p.popularity = maxf(0.0, p.popularity - bal.popularity_decay_week)

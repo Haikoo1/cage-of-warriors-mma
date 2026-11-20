@@ -36,7 +36,10 @@ var _feedback_timer: Array[int] = [0, 0]
 
 func present(events: Array[CombatEvent]) -> void:
 	for e: CombatEvent in events:
-		if e.type == CombatEvent.Type.STRIKE_RESOLVED:
+		if e.type == CombatEvent.Type.CUT:
+			feedback[e.attacker] = "Abriu um corte! (%d/3)" % e.shock_state
+			_feedback_timer[e.attacker] = 120
+		elif e.type == CombatEvent.Type.STRIKE_RESOLVED:
 			feedback[e.attacker] = "%s: %s" % [e.strike_id, OUTCOME_TEXT.get(e.outcome, "")]
 			_feedback_timer[e.attacker] = 90
 		elif e.type == CombatEvent.Type.GRAPPLE_RESOLVED or (e.type == CombatEvent.Type.SQUEEZE_TICK and e.grapple_outcome != CombatEvent.GrappleOutcome.NONE):
@@ -85,6 +88,8 @@ func _draw_panel(i: int) -> void:
 		f.stamina, f.reserve, f.zone_damage(&"head"), f.zone_damage(&"body"), f.zone_damage(&"legs")], UiDraw.C_TEXT)
 	var s: Dictionary = f.stats
 	_text(Vector2(x0 + 8, 54), "Golpes %d · acertos %d · bloq. %d · contra %d" % [s["attempts"], s["landed"], s["blocked"], s["counters"]], UiDraw.C_DIM)
+	if f.cut > 0:
+		_text(Vector2(x0 + 190, 19), "CORTE %d/3" % f.cut, UiDraw.C_BAD)
 	if feedback[i] != "":
 		_text(Vector2(x0 + 8, 82), feedback[i], UiDraw.C_SEL)
 

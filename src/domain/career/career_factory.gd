@@ -42,7 +42,7 @@ static func new_career(defs: Definitions, setup: CareerSetup) -> CareerState:
 		p.attributes[attr] = clampf(float(p.attributes[attr]) + age_bonus, 1.0, 100.0)
 	p.birth_week = -setup.age * 52
 	p.archetype_id = origin.archetype
-	p.potential = 78.0 + rng.randf_range(0.0, 14.0)  # oculto (R-035)
+	p.potential = 70.0 + rng.randf_range(0.0, 16.0)  # oculto (R-035)
 	p.peak_age = rng.randi_range(28, 32)
 	p.org_id = &"org_local"
 	p.rating = 900.0

@@ -42,11 +42,13 @@ static func age_month(c: CareerState, defs: Definitions, rng: RandomNumberGenera
 				f.attributes[attr] = maxf(1.0, float(f.attributes[attr]) - loss)
 			f.attributes[&"defesa_em_pe"] = maxf(1.0, float(f.attributes[&"defesa_em_pe"]) - bal.physical_decline_per_month * 0.5)
 		elif f.id != c.player_fighter_id:
-			for k: int in 3:
+			# Evolução agregada dos NPCs (LOD): jovens evoluem mais rápido, como o jogador.
+			var picks: int = 6 if age < bal.development_age else 4
+			for k: int in picks:
 				var attr: StringName = AttributeIds.ALL[rng.randi_range(0, AttributeIds.ALL.size() - 1)]
 				var cur: float = float(f.attributes[attr])
 				if cur < f.potential:
-					f.attributes[attr] = minf(f.potential, cur + rng.randf_range(0.3, 1.2))
+					f.attributes[attr] = minf(f.potential, cur + rng.randf_range(0.4, 1.4))
 		# Desgaste acumulado reduz o queixo de forma permanente (CHARACTER §7.4).
 		if f.career_wear > 30.0:
 			f.attributes[&"queixo"] = maxf(1.0, float(f.attributes[&"queixo"]) - f.career_wear / 400.0)

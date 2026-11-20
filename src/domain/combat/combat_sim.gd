@@ -160,6 +160,7 @@ func build_result(bout_id: StringName) -> FightResult:
 			r.method = FightResult.Method.KO
 		&"tko":
 			r.method = FightResult.Method.TKO
+			r.method_detail = finish_detail
 		&"submission":
 			r.method = FightResult.Method.SUBMISSION
 			r.method_detail = finish_detail
@@ -178,7 +179,7 @@ func build_result(bout_id: StringName) -> FightResult:
 		var f: FighterCombatState = fighters[k]
 		r.medical["a" if k == 0 else "b"] = {
 			"head": snappedf(f.zone_damage(&"head"), 0.1), "body": snappedf(f.zone_damage(&"body"), 0.1),
-			"legs": snappedf(f.zone_damage(&"legs"), 0.1), "knockdowns": int(fight_stats[1 - k].get("knockdowns", 0)),
+			"legs": snappedf(f.zone_damage(&"legs"), 0.1), "knockdowns": int(fight_stats[1 - k].get("knockdowns", 0)), "cut": f.cut,
 		}
 	return r
 
@@ -189,6 +190,12 @@ func state_hash() -> String:
 
 
 func _end_round() -> void:
+	# Revisão médica no intervalo: corte grave pode encerrar a luta (TKO por interrupção médica).
+	for i: int in 2:
+		if fighters[i].cut >= 3 and rng.randf() < balance.doctor_stop_chance:
+			finish_detail = &"doctor_stoppage"
+			finish(1 - i, &"tko")
+			return
 	round_scores.append(Judging.score_round(round_stats[0], round_stats[1], rng))
 	round_stat_history.append([round_stats[0].to_dict(), round_stats[1].to_dict()])
 	if round >= total_rounds:

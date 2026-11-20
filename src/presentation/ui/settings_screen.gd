@@ -11,7 +11,7 @@ const ACTION_NAMES: Dictionary = {
 	&"mod_body": "Modificador corpo", &"guard": "Guarda", &"technique": "Técnica (esquivas)", &"grapple": "Agarrar",
 	&"pause": "Pausa",
 }
-const FIXED_ROWS: int = 5
+const FIXED_ROWS: int = 6
 
 var row: int = 0
 var waiting_key: bool = false
@@ -41,6 +41,7 @@ func _draw() -> void:
 		"Volume geral: %d%%" % roundi(store.master_volume * 100),
 		"Volume da música: %d%%" % roundi(store.music_volume * 100),
 		"Volume dos efeitos: %d%%" % roundi(store.sfx_volume * 100),
+		"Sangue: %s" % ("ligado" if store.show_blood else "desligado"),
 	]
 	var start: int = maxi(0, row - 16)
 	for i: int in range(start, mini(_rows(), start + 22)):
@@ -98,5 +99,7 @@ func _change(step: int) -> void:
 			store.music_volume = clampf(store.music_volume + step * 0.1, 0.0, 1.0)
 		4:
 			store.sfx_volume = clampf(store.sfx_volume + step * 0.1, 0.0, 1.0)
+		5:
+			store.show_blood = not store.show_blood
 	AudioDirector.apply_volumes()
 	AudioDirector.play(&"hit_light", -6.0)  # amostra do volume

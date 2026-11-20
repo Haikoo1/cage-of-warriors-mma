@@ -68,6 +68,7 @@ static func apply_hit(sim: CombatSim, d: FighterCombatState, e: CombatEvent, pow
 		d.stamina = minf(d.stamina, d.reserve)
 	if e.zone != &"head":
 		return
+	_maybe_cut(sim, d, e, blocked, events)
 	var hurt: bool = d.action == FighterCombatState.Action.STUNNED or d.action == FighterCombatState.Action.DOWN
 	var ratio: float = impact / shock_threshold(d, bal)
 	e.impact_ratio = ratio
@@ -85,3 +86,20 @@ static func apply_hit(sim: CombatSim, d: FighterCombatState, e: CombatEvent, pow
 	shock.shock_state = state
 	shock.impact_ratio = ratio
 	events.append(shock)
+
+
+## Cortes: cotoveladas cortam muito, golpes potentes às vezes; exige dano na cabeça acumulado.
+static func _maybe_cut(sim: CombatSim, d: FighterCombatState, e: CombatEvent, blocked: bool, events: Array[CombatEvent]) -> void:
+	var bal: CombatBalanceDef = sim.balance
+	if blocked or d.cut >= 3 or d.zone_damage(&"head") < bal.cut_min_head_damage:
+		return
+	var chance: float = bal.cut_chance_other
+	if e.strike_id == &"clinch_elbow":
+		chance = bal.cut_chance_elbow
+	elif e.strike_id in [&"cross", &"lead_hook", &"uppercut", &"high_kick", &"ground_and_pound"]:
+		chance = bal.cut_chance_power
+	if sim.rng.randf() < chance:
+		d.cut += 1
+		var ev: CombatEvent = CombatEvent.make(CombatEvent.Type.CUT, e.attacker, e.defender)
+		ev.shock_state = d.cut
+		events.append(ev)

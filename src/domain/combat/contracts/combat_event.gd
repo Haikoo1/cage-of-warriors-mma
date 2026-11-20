@@ -3,7 +3,7 @@ extends RefCounted
 ## Algo que aconteceu em um passo da luta; consumido por HUD, efeitos, estatísticas e juízes.
 ## Os rótulos de Outcome são os mesmos do feedback "por que falhou" (COMBAT_DESIGN §8.2).
 
-enum Type { STRIKE_STARTED, STRIKE_RESOLVED, SHOCK, FIGHT_OVER, GRAPPLE_STARTED, GRAPPLE_RESOLVED, SQUEEZE_TICK }
+enum Type { STRIKE_STARTED, STRIKE_RESOLVED, SHOCK, FIGHT_OVER, GRAPPLE_STARTED, GRAPPLE_RESOLVED, SQUEEZE_TICK, CUT }
 ## Resultado da Disputa (COMBAT §4.2): READ = "Defendido (leitura)", PARTIAL/FAIL = "Resistiu", SUCCESS = "Passou".
 enum GrappleOutcome { NONE, READ, PERFECT_READ, SUCCESS, PARTIAL, FAIL, TAPPED, ESCAPED }
 enum Outcome { NONE, MISS_RANGE, MISS_ANGLE, EVADED, BLOCKED, CLEAN, COUNTER }
