@@ -8,6 +8,7 @@ const ROUTES: Dictionary = {
 	&"fight_result": "res://scenes/ui/fight_result.tscn",
 	&"career_create": "res://scenes/ui/career_create.tscn",
 	&"settings": "res://scenes/ui/settings.tscn",
+	&"how_to_play": "res://scenes/ui/how_to_play.tscn",
 	&"career_dashboard": "res://scenes/ui/career_dashboard.tscn",
 }
 
