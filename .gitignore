@@ -1,0 +1,10 @@
+# Godot
+.godot/
+*.import.tmp
+export/
+*.translation
+# Sistema
+Thumbs.db
+.DS_Store
+# Fontes de arte (T-014: fora do repositório até decisão sobre LFS)
+art_source/
