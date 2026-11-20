@@ -13,6 +13,8 @@ var ruleset_id: StringName = &""
 var weight_class_id: StringName = &""
 var is_title: bool = false
 var seed: int = 0
+## Luta Rápida/treino podem encurtar o round sem alterar o RuleSet compartilhado (0 = usar o RuleSet).
+var round_seconds_override: int = 0
 
 
 func validate(defs: Definitions) -> Array[String]:

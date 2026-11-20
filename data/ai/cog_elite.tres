@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CognitiveProfileDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/cognitive_profile_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"cog_elite"
+display_key = "Elite"
+perception_delay_ms = 180
+read_error = 0.12
+decision_interval_ms = 120
+temperature = 0.3
+habit_min_samples = 3
+stamina_discipline = 0.35

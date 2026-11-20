@@ -24,6 +24,9 @@ const DIR_KEYS: Dictionary = {0: "L", 1: "L+D", 2: "L+A", 3: "L+W", 4: "L+S"}
 
 var sim: CombatSim
 var dummy_mode: String = ""
+var names: Array[String] = ["JOGADOR", "BONECO"]
+var training: bool = true
+var player_focus: CombatSim.Focus = CombatSim.Focus.NORMAL
 var feedback: Array[String] = ["", ""]
 var _feedback_timer: Array[int] = [0, 0]
 
@@ -49,14 +52,20 @@ func _draw() -> void:
 	for i: int in 2:
 		_draw_panel(i)
 	_draw_grappling()
-	var help: String = "WASD mover | U/I mãos  J/K pernas | E curvo  Q corpo | Shift guarda | Espaço+W/S/trás esquiva | L clinch, L+S/W quedas\nF1 depuração | F2 boneco: %s | F3 métricas no log | R reiniciar | Esc menu" % dummy_mode
+	_draw_clock()
+	if sim.phase == CombatSim.Phase.ROUND_BREAK:
+		_draw_break()
+		return
+	if sim.is_finished():
+		_draw_end()
+	var help: String = "WASD mover | U/I mãos  J/K pernas | E curvo  Q corpo | Shift guarda | Espaço+W/S/trás esquiva | L clinch, L+S/W quedas\nF1 depuração | F2 boneco: %s | F3 métricas | R reiniciar | Esc menu" % dummy_mode if training else "F1 depuração | Esc sair"
 	draw_multiline_string(ThemeDB.fallback_font, Vector2(8, 322), help, HORIZONTAL_ALIGNMENT_LEFT, 624, 9, -1, Color(1, 1, 1, 0.75))
 
 
 func _draw_panel(i: int) -> void:
 	var f: FighterCombatState = sim.fighters[i]
 	var x0: float = 8.0 if i == 0 else 392.0
-	var title: String = "JOGADOR" if i == 0 else "BONECO"
+	var title: String = names[i]
 	_text(Vector2(x0, 14), title, GreyboxView.COLORS[i])
 	draw_rect(Rect2(x0, 18, 240, 6), Color(0.15, 0.15, 0.15))
 	draw_rect(Rect2(x0, 18, 240 * f.reserve / 100.0, 6), Color(0.3, 0.3, 0.3))
@@ -99,3 +108,57 @@ func _draw_grappling() -> void:
 	lines.sort()
 	for k: int in lines.size():
 		_text(Vector2(8, 82 + k * 11), lines[k], Color(0.8, 1.0, 0.8))
+
+
+func _draw_clock() -> void:
+	if training:
+		return
+	var left: int = maxi(0, sim.round_seconds - sim.round_seconds_elapsed())
+	_text(Vector2(296, 14), "R%d/%d  %d:%02d" % [sim.round, sim.total_rounds, left / 60, left % 60], Color.WHITE)
+
+
+## Intervalo (COMBAT §5.1, §5.3): estatísticas do round, dicas do córner e foco tático.
+func _draw_break() -> void:
+	draw_rect(Rect2(110, 90, 420, 190), Color(0, 0, 0, 0.85))
+	_text(Vector2(124, 108), "INTERVALO — fim do round %d" % (sim.round), Color.YELLOW)
+	var last: Array = sim.round_stat_history[-1]
+	for k: int in 2:
+		var st: Dictionary = last[k]
+		_text(Vector2(124, 126 + k * 12), "%s: dano %.0f · transições %d · controle %.0fs" % [names[k], float(st["damage"]), int(st["grapple"]), float(st["control_s"])], Color.WHITE)
+	var cards: Array = sim.round_scores[-1]
+	_text(Vector2(124, 156), "Juízes no round: %s" % ", ".join(cards.map(func(c: Array) -> String: return "%d-%d" % [c[0], c[1]])), Color(1, 1, 1, 0.8))
+	var y: float = 176
+	for tip: String in corner_tips():
+		_text(Vector2(124, y), "Córner: " + tip, Color(0.7, 1, 0.7))
+		y += 12
+	var focus: String = "Manter o plano (normal)" if player_focus == CombatSim.Focus.NORMAL else "Recuperar o fôlego (+Fôlego, menos recuperação de dano)"
+	_text(Vector2(124, 236), "Foco: 1 = normal · 2 = recuperar fôlego   →  %s" % focus, Color.ORANGE)
+	_text(Vector2(124, 256), "Enter: próximo round", Color(1, 1, 1, 0.7))
+
+
+## Até 2 observações sobre o round (COMBAT §5.1). Sem bônus: só informação.
+func corner_tips() -> Array[String]:
+	var tips: Array[String] = []
+	var last: Array = sim.round_stat_history[-1]
+	var me: Dictionary = last[0]
+	var opp: Dictionary = last[1]
+	var f: FighterCombatState = sim.fighters[0]
+	if float(opp["control_s"]) > float(me["control_s"]) + 20.0:
+		tips.append("ele te controlou no chão/grade. Defenda as quedas com Espaço+S.")
+	if float(opp["damage"]) > float(me["damage"]) * 1.5 + 5.0:
+		tips.append("você está apanhando na trocação. Use o passo lateral (W/S) e a guarda.")
+	if f.stamina_ratio() < 0.4:
+		tips.append("seu fôlego está baixo. Considere o foco 'recuperar'.")
+	if sim.fighters[1].zone_damage(&"head") > 40.0 and tips.size() < 2:
+		tips.append("ele está sentindo a cabeça. Pressione com cuidado.")
+	if tips.is_empty():
+		tips.append("round equilibrado. Mantenha o plano.")
+	return tips.slice(0, 2)
+
+
+func _draw_end() -> void:
+	draw_rect(Rect2(170, 130, 300, 50), Color(0, 0, 0, 0.85))
+	var method: String = {&"ko": "NOCAUTE", &"tko": "NOCAUTE TÉCNICO", &"submission": "FINALIZAÇÃO", &"decision": "DECISÃO DOS JUÍZES"}.get(sim.finish_method, "FIM")
+	_text(Vector2(186, 152), method, Color.YELLOW)
+	var w: int = sim.winner()
+	_text(Vector2(186, 168), ("Vencedor: %s" % names[w]) if w >= 0 else "Empate", Color.WHITE)

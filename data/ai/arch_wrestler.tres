@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ArchetypeDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/archetype_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"arch_wrestler"
+display_key = "Wrestler"
+preferred_distance_m = 1.1
+punch_weight = 0.6
+kick_weight = 0.2
+takedown_weight = 1.4
+clinch_weight = 0.8
+ground_top_weight = 1.4
+ground_bottom_escape_weight = 1
+guard_tendency = 0.35

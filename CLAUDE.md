@@ -25,6 +25,8 @@ Godot: `C:\Users\sousa\Downloads\Godot_v4.7.2-stable_win64.exe` (defina `GODOT_E
 - Bash: `"$GODOT" --headless --path . --import` e depois `"$GODOT" --headless --path . --script res://tests/runner/run_tests.gd`.
 - Rodar o jogo: `"$GODOT" --path .` (Enter na tela inicial abre o treino de combate)
 - Dados de grappling: edite `tools/gen_grappling_data.js` e rode `node tools/gen_grappling_data.js` (gera `data/grappling/*.tres`).
+- Smoke da Luta Rápida IA x IA até o resultado: `"$GODOT" --headless --path . --script res://tests/runner/smoke_quick_fight.gd`
+- Lote de balanceamento IA x IA (~2,5 min): `"$GODOT" --headless --path . --script res://tests/runner/batch_ai.gd`
 - Smoke da cena de combate: `"$GODOT" --headless --path . --script res://tests/runner/smoke_combat.gd`
 
 ## Armadilhas conhecidas (Godot 4.7)

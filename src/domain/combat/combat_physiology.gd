@@ -59,8 +59,9 @@ static func apply_hit(sim: CombatSim, d: FighterCombatState, e: CombatEvent, pow
 	if blocked:
 		spend(d, power * bal.block_stamina_ratio, bal)
 	var mitigation_attr: StringName = &"queixo" if e.zone == &"head" else &"robustez"
-	var damage: float = impact * (1.3 - d.attr(mitigation_attr) * 0.006)
-	d.acute[e.zone] = float(d.acute[e.zone]) + damage
+	var damage: float = impact * bal.damage_scale * (1.3 - d.attr(mitigation_attr) * 0.006)
+	d.acute[e.zone] = float(d.acute[e.zone]) + damage * 0.7
+	d.residual[e.zone] = float(d.residual[e.zone]) + damage * 0.3
 	e.damage = damage
 	if e.zone == &"body":
 		d.reserve = maxf(bal.reserve_floor, d.reserve - damage * bal.body_damage_reserve_ratio)

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ArchetypeDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/archetype_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"arch_striker"
+display_key = "Trocador"
+preferred_distance_m = 0.85
+punch_weight = 1.2
+kick_weight = 1
+takedown_weight = 0.05
+clinch_weight = 0.1
+ground_top_weight = 0.6
+ground_bottom_escape_weight = 1.5
+guard_tendency = 0.5

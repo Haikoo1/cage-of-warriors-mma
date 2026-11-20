@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CognitiveProfileDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/cognitive_profile_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"cog_intermediate"
+display_key = "Intermediário"
+perception_delay_ms = 250
+read_error = 0.25
+decision_interval_ms = 180
+temperature = 0.6
+habit_min_samples = 5
+stamina_discipline = 0.25

@@ -7,6 +7,8 @@ var weight_classes: Dictionary = {}  # StringName -> WeightClassDef
 var strikes: Dictionary = {}  # StringName -> StrikeDef
 var rule_sets: Dictionary = {}  # StringName -> RuleSetDef
 var grapple_techniques: Dictionary = {}  # StringName -> GrappleTechniqueDef
+var archetypes: Dictionary = {}  # StringName -> ArchetypeDef
+var cognitive_profiles: Dictionary = {}  # StringName -> CognitiveProfileDef
 var combat_balance: CombatBalanceDef
 var load_errors: Array[String] = []
 
@@ -40,6 +42,14 @@ func rule_set(id: StringName) -> RuleSetDef:
 	return rule_sets.get(id) as RuleSetDef
 
 
+func archetype(id: StringName) -> ArchetypeDef:
+	return archetypes.get(id) as ArchetypeDef
+
+
+func cognitive_profile(id: StringName) -> CognitiveProfileDef:
+	return cognitive_profiles.get(id) as CognitiveProfileDef
+
+
 func grapple_technique(id: StringName) -> GrappleTechniqueDef:
 	return grapple_techniques.get(id) as GrappleTechniqueDef
 
@@ -62,6 +72,10 @@ func validate_all() -> Array[String]:
 		errors.append_array(d.validate(self))
 	for d: GrappleTechniqueDef in grapple_techniques.values():
 		errors.append_array(d.validate())
+	for d: ArchetypeDef in archetypes.values():
+		errors.append_array(d.validate())
+	for d: CognitiveProfileDef in cognitive_profiles.values():
+		errors.append_array(d.validate())
 	if combat_balance == null:
 		errors.append("CombatBalanceDef ausente")
 	else:
@@ -72,7 +86,7 @@ func validate_all() -> Array[String]:
 ## Hash de todo o conteúdo; usado para detectar alteração acidental de definições (DATA_ARCHITECTURE §4).
 func content_hash() -> String:
 	var parts: PackedStringArray = []
-	for table: Dictionary in [weight_classes, strikes, rule_sets, grapple_techniques]:
+	for table: Dictionary in [weight_classes, strikes, rule_sets, grapple_techniques, archetypes, cognitive_profiles]:
 		var ids: Array = table.keys()
 		ids.sort()
 		for id: StringName in ids:
@@ -91,6 +105,10 @@ func _table_for(def: Resource) -> Variant:
 		return rule_sets
 	if def is GrappleTechniqueDef:
 		return grapple_techniques
+	if def is ArchetypeDef:
+		return archetypes
+	if def is CognitiveProfileDef:
+		return cognitive_profiles
 	return null
 
 

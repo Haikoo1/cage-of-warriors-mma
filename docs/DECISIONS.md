@@ -129,6 +129,8 @@ Registro completo em [architecture/TECH_DECISIONS.md](architecture/TECH_DECISION
 | V-007 | Frente/trás relativos ao adversário × à tela no teclado (COMBAT §3.1) | Padrão: relativo ao adversário; opção em Settings (`directions_relative_to_opponent`). Confirmar no playtest da E-03 |
 | V-009 | E-04 entregou 7 posições (EP, CL, CG, SG, SL, SO, SC, SR); **Meia-guarda**, golpes no clinch (joelhadas/cotoveladas) e as outras 5 finalizações ficam para depois do marco M1 | Escopo do protótipo (ROADMAP E-04); reavaliar após playtest |
 | V-010 | Ao defender queda em pé, Espaço+direção é **leitura** (sprawl = Espaço+S), não esquiva; Agarrar+direção nunca vira esquiva | Implementado e testado na E-04 |
+| V-011 | Lote IA x IA revelou viés de ordem (lado A sempre agia primeiro) e letalidade irreal (KO médio em 26 s) | **Corrigido na E-05:** ordem alternada, IAs dessincronizadas, recalibração `[PROV]`. Detalhes em [playtest/M1_COMBATE.md](playtest/M1_COMBATE.md) |
+| V-012 | Trocador de exemplo perde 7/40 para wrestler na IA x IA | Reavaliar no playtest do M1 (IA e/ou atributos de exemplo) |
 | V-008 | COMBAT §3.1 usava S para esquiva lateral e para abaixar | **Corrigido na E-03:** Espaço+W = slip, Espaço+S = duck, Espaço+trás = pull |
 
 ## 6. Histórico
@@ -137,6 +139,7 @@ Registro completo em [architecture/TECH_DECISIONS.md](architecture/TECH_DECISION
 |---|---|---|
 | 0.1 | 2026-11-19 | Criação do registro na Etapa 01 |
 | 0.2 | 2026-11-19 | Respostas a P-001, P-002, P-003 (método) e P-007 → D-012 a D-015; R-008 revisada; novas R-036 a R-038 |
+| 0.6 | 2026-11-20 | E-05: V-011 e V-012 |
 | 0.5 | 2026-11-19 | E-04: V-009 e V-010 registradas |
 | 0.4 | 2026-11-19 | E-03: usuário pediu controles configuráveis pelo jogador com padrões simples → **D-016** (abaixo). V-008 corrigida |
 | 0.3 | 2026-11-19 | **Etapa 01 aprovada pelo usuário** ("Aprovar e seguir"). Os documentos de design passam a ser a base aprovada; os itens R-xxx continuam como recomendações vigentes até aprovação individual. Seção 5 (decisões técnicas e lacunas V-005 a V-007) adicionada na Etapa 02 |

@@ -37,7 +37,12 @@ static func defs() -> Definitions:
 	d.add(strike(&"low_kick", StrikeDef.Limb.REAR_LEG, StrikeDef.Variant.STRAIGHT, PackedStringArray(["legs"]), 1.1, 0.6, 12, &"kickboxing"))
 	d.add(CombatBalanceDef.new())
 	# Técnicas de grappling vêm dos dados reais (também valida data/grappling).
-	for t: GrappleTechniqueDef in DataLoader.load_from("res://data").grapple_techniques.values():
+	var real: Definitions = DataLoader.load_from("res://data")
+	for t: GrappleTechniqueDef in real.grapple_techniques.values():
+		d.add(t)
+	for t: ArchetypeDef in real.archetypes.values():
+		d.add(t)
+	for t: CognitiveProfileDef in real.cognitive_profiles.values():
 		d.add(t)
 	return d
 
@@ -71,7 +76,7 @@ static func run_until_grapple(s: CombatSim, cmd_a: FighterCommand, cmd_b: Fighte
 	return null
 
 
-static func sim(attr_a: float = 50.0, attr_b: float = 50.0, seed: int = 1) -> CombatSim:
+static func sim(attr_a: float = 50.0, attr_b: float = 50.0, seed: int = 1, round_seconds: int = 300, title: bool = false) -> CombatSim:
 	var setup: FightSetup = FightSetup.new()
 	var fa: FighterState = FighterState.create_blank(&"F-A", attr_a)
 	var fb: FighterState = FighterState.create_blank(&"F-B", attr_b)
@@ -82,7 +87,18 @@ static func sim(attr_a: float = 50.0, attr_b: float = 50.0, seed: int = 1) -> Co
 	setup.ruleset_id = &"rs_test"
 	setup.weight_class_id = &"wc_test"
 	setup.seed = seed
-	return CombatSim.new(setup, defs())
+	setup.is_title = title
+	var d: Definitions = defs()
+	d.rule_set(&"rs_test").round_seconds = round_seconds  # definições novas por teste: sem efeito colateral
+	return CombatSim.new(setup, d)
+
+
+## Roda N passos sem comandos.
+static func idle_steps(s: CombatSim, n: int) -> Array[CombatEvent]:
+	var all: Array[CombatEvent] = []
+	for i: int in n:
+		all.append_array(s.step(idle(), idle()))
+	return all
 
 
 ## Coloca os lutadores a uma distância em X e diferença em Z.

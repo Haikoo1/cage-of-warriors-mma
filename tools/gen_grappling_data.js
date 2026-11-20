@@ -6,8 +6,8 @@ const WO = 'wrestling_ofensivo', WD = 'wrestling_defensivo', CS = 'controle_solo
 // [id, from, role, dir, to, result_top, startup, pressure, resistance, defense_dir, stamina, extra]
 const T = [
   ['enter_clinch', 'EP', 'any', 'NONE', 'CL', 'none', 8, WO, WD, 'BACK', 2, { max_range_m: 0.9 }],
-  ['double_leg', 'EP', 'any', 'DOWN', 'SG', 'attacker', 16, WO, WD, 'DOWN', 5, { max_range_m: 1.3, counter_state: 'SC', counter_top: 'defender' }],
-  ['single_leg', 'EP', 'any', 'UP', 'SG', 'attacker', 12, WO, WD, 'DOWN', 4, { max_range_m: 1.2, counter_state: 'EP', counter_top: 'none' }],
+  ['double_leg', 'EP', 'any', 'DOWN', 'SG', 'attacker', 20, WO, WD, 'DOWN', 5, { max_range_m: 1.3, counter_state: 'SC', counter_top: 'defender' }],
+  ['single_leg', 'EP', 'any', 'UP', 'SG', 'attacker', 15, WO, WD, 'DOWN', 4, { max_range_m: 1.2, counter_state: 'EP', counter_top: 'none' }],
   ['pummel', 'CL', 'any', 'UP', 'CL', 'none', 10, WO, WO, 'UP', 2, { grants_advantage: true }],
   ['push_to_cage', 'CL', 'any', 'FORWARD', 'CG', 'attacker', 14, FO, WD, 'BACK', 3, { requires_advantage: true }],
   ['clinch_trip', 'CL', 'any', 'DOWN', 'SG', 'attacker', 14, WO, WD, 'DOWN', 4, { requires_advantage: true }],

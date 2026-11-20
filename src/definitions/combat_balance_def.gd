@@ -36,7 +36,9 @@ extends Resource
 @export_group("Golpes e choque (COMBAT §3.5, §6.3)")
 @export var counter_mult: float = 1.5
 @export var power_variance: float = 0.05
-@export var shock_base: float = 20.0
+@export var shock_base: float = 28.0
+## Fração do impacto que vira dano por zona (calibrado na E-05 com lotes IA x IA).
+@export var damage_scale: float = 0.5
 @export var rocked_ratio: float = 0.6
 @export var stunned_ratio: float = 1.0
 @export var knockdown_ratio: float = 1.5
