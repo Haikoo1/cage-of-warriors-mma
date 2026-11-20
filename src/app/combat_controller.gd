@@ -57,6 +57,10 @@ func _start() -> void:
 		hud.names = ["VOCÊ", "IA"]
 		if quick.watch_only:
 			hud.names = ["IA A", "IA B"]
+		if career_mode and GameSession.career != null and not GameSession.career.state.booked.is_empty():
+			var org: OrganizationDef = GameSession.career.defs.organization(StringName(GameSession.career.state.booked.get("org", "")))
+			if org != null:
+				hud.event_name = String(org.id).trim_prefix("org_").to_upper()
 		if career_mode and GameSession.career != null:
 			var gym: GymDef = GameSession.career.defs.gym(GameSession.career.state.gym_id)
 			hud.max_tips = 2 if gym != null and gym.structure >= 3 else 1
@@ -77,6 +81,8 @@ func _start() -> void:
 	hud.sim = sim
 	hud.tutorial = tutorial
 	hud.title_fight = setup_data.is_title
+	var wc: WeightClassDef = defs.weight_class(setup_data.weight_class_id)
+	hud.weight_name = wc.display_key if wc != null else ""
 	if tutorial != null and not tutorial.is_done():
 		dummy.mode = tutorial.current()["dummy"]
 	_end_timer = 0
