@@ -36,16 +36,20 @@ static func fighter_for_style(id: StringName, name: String, style: int) -> Fight
 
 
 static func build(defs: Definitions, player_style: int, opp_style: int, profile: int, title: bool,
-		round_length: int, watch_only: bool, seed: int) -> Config:
+		round_length: int, watch_only: bool, seed: int, look: Appearance = null) -> Config:
 	var cfg: Config = Config.new()
 	var setup: FightSetup = FightSetup.new()
 	setup.bout_id = &"QUICK"
-	setup.fighter_a = FighterSnapshot.from_fighter(fighter_for_style(&"F-A", "Você" if not watch_only else STYLES[player_style], player_style))
+	var me: FighterState = fighter_for_style(&"F-A", "Você" if not watch_only else STYLES[player_style], player_style)
+	if look != null:
+		me.appearance = look.duplicate_appearance()
+	setup.fighter_a = FighterSnapshot.from_fighter(me)
 	var opp: FighterState = fighter_for_style(&"F-B", STYLES[opp_style], opp_style)
 	var look_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	look_rng.seed = seed
 	opp.appearance = Appearance.random(look_rng, true)
-	opp.appearance.shorts = 1 if opp.appearance.shorts == 0 else opp.appearance.shorts
+	if opp.appearance.shorts == me.appearance.shorts:  # cores de calção sempre distintas (leitura de quem é quem)
+		opp.appearance.shorts = (me.appearance.shorts + 1) % Appearance.SHORTS_COLORS.size()
 	setup.fighter_b = FighterSnapshot.from_fighter(opp)
 	setup.ruleset_id = &"rs_standard"
 	setup.weight_class_id = &"m_lightweight"
