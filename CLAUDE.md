@@ -31,8 +31,15 @@ Godot: `C:\Users\sousa\Downloads\Godot_v4.7.2-stable_win64.exe` (defina `GODOT_E
 - Smoke dos sprites: `"$GODOT" --headless --path . --script res://tests/runner/smoke_sprites.gd`
 - Dados da carreira: `node tools/gen_career_data.js` (categorias, organizações, origens, treino, academias).
 - Smokes da carreira: `smoke_career.gd` (telas) e `smoke_career_fight.gd` (luta jogada até o resultado).
+- Geradores de conteúdo (node): `tools/gen_strike_data.js`, `gen_grappling_data.js`, `gen_career_data.js`, `gen_audio.js`, `gen_icons.js`.
+- Sprites em camadas (Blender 5.3, ~80 s): corpo + cabelo1..3 + barba por animação; o jogo recolore por shader (assets/shaders/palette_swap.gdshader).
+- Lotes: `calibrate_resolver.gd` (resolvedor x motor), `career_batch.gd` (M4, ~2,5 min), `world_years.gd` (M3, 10 anos).
+- Capturas em HD (precisa de janela): `"$GODOT" --path . --resolution 1920x1080 --script res://tests/runner/screenshots.gd -- <pasta>`
 - Smoke da cena de combate: `"$GODOT" --headless --path . --script res://tests/runner/smoke_combat.gd`
 
 ## Armadilhas conhecidas (Godot 4.7)
 - Nomes de enum/classe que colidem com tipos globais da engine geram erro de parse: evite `Control`, `Corner`, `Side` em enums/classes e métodos com nomes de virtuais do `Object` como `_set`, `_get`, `_init` em uso indevido.
 - Scripts com erro de parse carregam como GDScript "vazio"; o runner trata isso como falha (`can_instantiate()`).
+- Em scripts `--script` (SceneTree), dê `await process_frame` antes de carregar cenas que usam autoloads.
+- O render do Blender sai em sRGB: compare com a paleta convertida para sRGB ao quantizar (pipeline.py).
+- Neste ambiente o heredoc do bash falha com certos textos: para edições grandes, grave um .js no scratchpad e rode com node.

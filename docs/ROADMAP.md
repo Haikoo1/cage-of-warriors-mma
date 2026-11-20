@@ -29,9 +29,9 @@
 | **E-07 Núcleo da carreira** · implementado (autônomo, 2026-11-20), aguardando playtest | SYS-13..17 | E-05 | Criação, calendário semanal, treino (blocos/Fadiga), academias/treinadores, saúde/lesões, peso/pesagem, integração com a luta via contratos | Carreira de 1 lutador por 2 anos de jogo sem mundo (adversários gerados), com lutas jogadas |
 | **E-08 Mundo e ecossistema** · implementado (autônomo), M3 não medido formalmente | SYS-18..21 | E-07 | Organizações (dados), eventos, rankings, matchmaking, contratos, simulação com LOD, resolvedor estatístico | **Marco M3** (§3) |
 | **E-09 Economia, reputação e mídia** · versão enxuta implementada (autônomo), aguardando M4 | SYS-22..24 | E-08 | Economia, Prestígio/Popularidade/Relação, mídia, rivalidades, aposentadoria, legado | Carreira completa jogável do início à aposentadoria (com arte placeholder); **Marco M4** |
-| **E-10 Produção de arte e UI** · UI funcional provisória pronta; arte final pendente (modelo humanoide, D-017) | SYS-27 | E-06, E-05 | Biotipos, animações finais, cenários, UI final, áudio | Luta completa com arte final de 1 biotipo, depois todos |
-| **E-11 Conteúdo completo** · 12 categorias e 4 organizações povoadas; golpes/finalizações ainda parciais (V-009) | REQ-04 | E-08, E-10 | 12 categorias com distribuições físicas, população, todas as organizações, golpes/finalizações completos | Todas as 12 categorias jogáveis e populadas; validação de dados sem erros |
-| **E-12 Persistência, opções e acessibilidade** · save por slot + migração, opções com remapeamento, HUD em 3 níveis, pausa, "Como jogar"; falta gamepad e tutorial interativo | SYS-25, 26 | E-07 (início), E-11 | Save robusto (rotativo, atômico, migração), configurações completas, tutorial | Testes de corrupção/encerramento; remapeamento completo |
+| **E-10 Produção de arte e UI** · UI em HD (D-018), arena, sprites em camadas com criador de visual (D-019), ícones RPG (D-020), áudio sintetizado (D-021); falta modelo humanoide com skinning e animações de solo | SYS-27 | E-06, E-05 | Biotipos, animações finais, cenários, UI final, áudio | Luta completa com arte final de 1 biotipo, depois todos |
+| **E-11 Conteúdo completo** · 12 categorias, 4 organizações, 9 golpes, meia-guarda, 6 finalizações, clinch com golpes, cortes e parada médica | REQ-04 | E-08, E-10 | 12 categorias com distribuições físicas, população, todas as organizações, golpes/finalizações completos | Todas as 12 categorias jogáveis e populadas; validação de dados sem erros |
+| **E-12 Persistência, opções e acessibilidade** · save por slot + migração + poda, opções, HUD em 3 níveis, pausa, gamepad, tutorial interativo (11 lições); falta exportar .exe (export templates) | SYS-25, 26 | E-07 (início), E-11 | Save robusto (rotativo, atômico, migração), configurações completas, tutorial | Testes de corrupção/encerramento; remapeamento completo |
 | **E-13 Balanceamento e beta** | — | Todas | Telemetria local de playtest, ajustes de `[PROV]` | **Marco M5** |
 
 > Persistência aparece em E-02B (formato) e E-12 (robustez). Implementar o esquema de save só no fim é um erro comum e caro.
@@ -117,6 +117,7 @@
 |---|---|---|
 | 0.1 | 2026-11-19 | Criação (Etapa 01) |
 | 0.2 | 2026-11-19 | D-012 a D-015 incorporadas (solo, teclado, spike de arte) |
+| 0.5 | 2026-11-20 | Sessão autônoma noturna: M3 (calibração) e M4 (lotes) medidos; E-10 a E-12 avançadas — ver RELATORIO_SESSAO_AUTONOMA.md |
 | 0.4 | 2026-11-20 | Implementação autônoma autorizada pelo usuário: E-07/E-08/E-09 jogáveis, M3 medido, E-12 parcial |
 | 0.3 | 2026-11-19 | Etapa 02: E-02 vira Arquitetura técnica; nova E-02B Fundação técnica (T-019); E-01 marcada como aprovada. Escopo de gameplay inalterado |
 - **Áudio final, localização completa, marca/nome definitivo.**

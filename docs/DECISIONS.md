@@ -26,6 +26,10 @@
 | D-014 | O pipeline de arte será decidido **após o spike E-06**, com custo medido (P-003 como processo; aprova R-004 como método) | idem |
 | D-015 | Controle principal: **teclado primeiro**, gamepad como alternativa completa (P-007) | idem |
 | D-017 | **Pipeline de arte: 3D → pixel** (resolve P-003 pelo método D-014). Mais detalhe nos sprites fica para a produção de arte (E-10), com modelo humanoide com skinning | Usuário aprovou o M2, 2026-11-20 |
+| D-018 | **Menus e HUD em HD** (UI renderizada na resolução da janela, fonte do sistema); a luta continua em pixel art fiel numa SubViewport 640×360 (revisa T-011) | Pedido do usuário, 2026-11-20 |
+| D-019 | **Criador de visual** estilo Stardew/Terraria: sprites em camadas (corpo, 3 cabelos, barba) e troca de paleta por shader (8 peles, 6 cores de cabelo, 8 calções, 6 luvas) | Pedido do usuário, 2026-11-20 (resolve P-004 de forma inicial) |
+| D-020 | **HUD e telas com elementos de RPG**: ícones em pixel art gerados por código, cinturões, selo de nível, ficha de atributos | Pedido do usuário, 2026-11-20 |
+| D-021 | Áudio provisório **sintetizado por código** (sem assets de terceiros) até haver design de áudio (V-005) | Autonomia autorizada pelo usuário, 2026-11-20 |
 | D-016 | Todas as teclas são **remapeáveis pelo jogador**; padrões simples definidos pelo Claude (U/I mãos, J/K pernas, E curvo, Q corpo, Shift guarda, Espaço técnica, L agarrar) | Usuário, 2026-11-19 (E-03) |
 
 ---
@@ -127,7 +131,7 @@ Registro completo em [architecture/TECH_DECISIONS.md](architecture/TECH_DECISION
 | V-005 | Não há documento de **áudio** (quais sons, música dinâmica, locução) | A arquitetura prevê AudioDirector + mapa evento→som; especificar o design de áudio antes de E-10 |
 | V-006 | O "mundo-modelo" da Luta Rápida (GDD §3) não tem conteúdo definido | Usar um mundo gerado com semente fixa a partir de `data/world_seed/`; confirmar em E-05 |
 | V-007 | Frente/trás relativos ao adversário × à tela no teclado (COMBAT §3.1) | Padrão: relativo ao adversário; opção em Settings (`directions_relative_to_opponent`). Confirmar no playtest da E-03 |
-| V-009 | E-04 entregou 7 posições (EP, CL, CG, SG, SL, SO, SC, SR); **Meia-guarda**, golpes no clinch (joelhadas/cotoveladas) e as outras 5 finalizações ficam para depois do marco M1 | Escopo do protótipo (ROADMAP E-04); reavaliar após playtest |
+| V-009 *(resolvida em 2026-11-20: meia-guarda, 6 finalizações e golpes no clinch implementados)* | E-04 entregou 7 posições (EP, CL, CG, SG, SL, SO, SC, SR); **Meia-guarda**, golpes no clinch (joelhadas/cotoveladas) e as outras 5 finalizações ficam para depois do marco M1 | Escopo do protótipo (ROADMAP E-04); reavaliar após playtest |
 | V-010 | Ao defender queda em pé, Espaço+direção é **leitura** (sprawl = Espaço+S), não esquiva; Agarrar+direção nunca vira esquiva | Implementado e testado na E-04 |
 | V-011 | Lote IA x IA revelou viés de ordem (lado A sempre agia primeiro) e letalidade irreal (KO médio em 26 s) | **Corrigido na E-05:** ordem alternada, IAs dessincronizadas, recalibração `[PROV]`. Detalhes em [playtest/M1_COMBATE.md](playtest/M1_COMBATE.md) |
 | V-012 | Trocador de exemplo perde 7/40 para wrestler na IA x IA | Reavaliar no playtest do M1 (IA e/ou atributos de exemplo) |
@@ -139,6 +143,7 @@ Registro completo em [architecture/TECH_DECISIONS.md](architecture/TECH_DECISION
 |---|---|---|
 | 0.1 | 2026-11-19 | Criação do registro na Etapa 01 |
 | 0.2 | 2026-11-19 | Respostas a P-001, P-002, P-003 (método) e P-007 → D-012 a D-015; R-008 revisada; novas R-036 a R-038 |
+| 0.8 | 2026-11-20 | Sessão autônoma noturna: D-018 a D-021; M3 e M4 medidos; V-009 resolvida (6 finalizações, meia-guarda, golpes no clinch) |
 | 0.7 | 2026-11-20 | M2 aprovado → D-017 (pipeline 3D → pixel); P-003 resolvida |
 | 0.6 | 2026-11-20 | E-05: V-011 e V-012 |
 | 0.5 | 2026-11-19 | E-04: V-009 e V-010 registradas |
