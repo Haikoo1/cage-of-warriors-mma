@@ -51,6 +51,7 @@ func _draw() -> void:
 	UiDraw.text(self, Vector2(30, 62), "PROJETO", UiDraw.C_DIM, 14)
 	UiDraw.text(self, Vector2(28, 98), "JAULA", UiDraw.C_TEXT, 40)
 	draw_rect(Rect2(30, 106, 120, 2), UiDraw.C_ACCENT)
+	UiDraw.icon(self, "belt", Vector2(160, 58), 52)
 	UiDraw.text(self, Vector2(30, 122), "MMA 2.5D · modo carreira", UiDraw.C_DIM, UiDraw.TEXT)
 	for i: int in options.size():
 		UiDraw.menu_item(self, Rect2(30, 136 + i * 24, 300, 20), options[i], i == row, 10)

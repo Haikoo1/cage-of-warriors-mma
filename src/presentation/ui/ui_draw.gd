@@ -74,6 +74,45 @@ static func footer(ci: CanvasItem, s: String) -> void:
 	text(ci, Vector2(12, 355), s, C_DIM, 8, 616)
 
 
+## Ícone em pixel art (assets/ui/icons, gerados por tools/gen_icons.js). Filtro nearest: nítido em HD.
+static func icon(ci: CanvasItem, name: String, pos: Vector2, size: float = 12.0, tint: Color = Color.WHITE) -> void:
+	var tex: Texture2D = _icon_tex(name)
+	if tex != null:
+		ci.draw_texture_rect(tex, Rect2(pos, Vector2(size, size)), false, tint)
+
+
+## Ícone + texto alinhados (estilo RPG).
+static func icon_text(ci: CanvasItem, name: String, pos: Vector2, s: String, color: Color = C_TEXT, size: int = TEXT) -> void:
+	icon(ci, name, pos + Vector2(0, -size - 1), size + 3)
+	text(ci, pos + Vector2(size + 6, 0), s, color, size)
+
+
+## Selo de nível (overall) em círculo dourado.
+static func level_badge(ci: CanvasItem, center: Vector2, level: int, radius: float = 14.0) -> void:
+	ci.draw_circle(center, radius + 2, Color(0.25, 0.16, 0.04))
+	ci.draw_circle(center, radius, Color(0.86, 0.64, 0.18))
+	ci.draw_circle(center, radius - 3, Color(0.98, 0.82, 0.36))
+	ci.draw_string(ThemeDB.fallback_font, center + Vector2(-radius, -radius * 0.32), "NV", HORIZONTAL_ALIGNMENT_CENTER, radius * 2, 6, Color(0.3, 0.18, 0.02))
+	ci.draw_string(ThemeDB.fallback_font, center + Vector2(-radius, radius * 0.55), str(level), HORIZONTAL_ALIGNMENT_CENTER, radius * 2, 12, Color(0.2, 0.1, 0.0))
+
+
+## Fileira de cinturões conquistados.
+static func belts(ci: CanvasItem, pos: Vector2, count: int, size: float = 14.0, max_shown: int = 6) -> void:
+	for k: int in mini(count, max_shown):
+		icon(ci, "belt", pos + Vector2(k * (size + 2), 0), size)
+	if count > max_shown:
+		text(ci, pos + Vector2(max_shown * (size + 2) + 2, size * 0.8), "+%d" % (count - max_shown), C_SEL, SMALL)
+
+
+static var _icons: Dictionary = {}
+
+
+static func _icon_tex(name: String) -> Texture2D:
+	if not _icons.has(name):
+		_icons[name] = load("res://assets/ui/icons/%s.png" % name) as Texture2D
+	return _icons[name]
+
+
 static func money(v: float) -> String:
 	var sign: String = "-" if v < 0 else ""
 	var digits: String = String.num_int64(absi(roundi(v)))

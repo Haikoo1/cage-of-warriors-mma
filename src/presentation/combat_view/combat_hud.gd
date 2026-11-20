@@ -29,7 +29,8 @@ var training: bool = true
 var paused: bool = false
 var career_lock: bool = false  # luta de carreira não pode ser abandonada
 var max_tips: int = 2
-var tutorial: TutorialRunner  # carreira: depende da estrutura da academia (CAREER §4.5)
+var tutorial: TutorialRunner
+var title_fight: bool = false  # carreira: depende da estrutura da academia (CAREER §4.5)
 var player_focus: CombatSim.Focus = CombatSim.Focus.NORMAL
 var feedback: Array[String] = ["", ""]
 var _feedback_timer: Array[int] = [0, 0]
@@ -88,7 +89,9 @@ func _draw_panel(i: int) -> void:
 	var f: FighterCombatState = sim.fighters[i]
 	var x0: float = 8.0 if i == 0 else 390.0
 	UiDraw.panel(self, Rect2(x0, 6, 242, 62))
-	_text(Vector2(x0 + 8, 19), names[i], GreyboxView.COLORS[i].lightened(0.25))
+	UiDraw.icon(self, "mask", Vector2(x0 + 6, 9), 12, GreyboxView.COLORS[i].lightened(0.5))
+	_text(Vector2(x0 + 22, 19), names[i], GreyboxView.COLORS[i].lightened(0.25))
+	UiDraw.icon(self, "heart", Vector2(x0 + 236 - 10, 9), 10)
 	UiDraw.bar(self, Rect2(x0 + 8, 23, 226, 7), f.reserve / 100.0, Color(0.3, 0.32, 0.38))
 	var st: Color = UiDraw.C_GOOD if f.stamina > 50 else (UiDraw.C_SEL if f.stamina >= 25 else UiDraw.C_BAD)
 	UiDraw.bar(self, Rect2(x0 + 8, 23, 226, 7), f.stamina / 100.0, st)
@@ -137,6 +140,9 @@ func _draw_clock() -> void:
 	if training:
 		return
 	var left: int = maxi(0, sim.round_seconds - sim.round_seconds_elapsed())
+	if title_fight:
+		UiDraw.icon(self, "belt", Vector2(296, 32), 48)
+		draw_string(ThemeDB.fallback_font, Vector2(270, 88), "DISPUTA DE CINTURÃO", HORIZONTAL_ALIGNMENT_CENTER, 100, 8, UiDraw.C_SEL)
 	UiDraw.panel(self, Rect2(276, 6, 88, 26))
 	draw_string(ThemeDB.fallback_font, Vector2(276, 24), "R%d/%d  %d:%02d" % [sim.round, sim.total_rounds, left / 60, left % 60], HORIZONTAL_ALIGNMENT_CENTER, 88, 12, UiDraw.C_TEXT)
 

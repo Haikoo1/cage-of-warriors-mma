@@ -75,6 +75,7 @@ func _start() -> void:
 	view.sim = sim
 	hud.sim = sim
 	hud.tutorial = tutorial
+	hud.title_fight = setup_data.is_title
 	if tutorial != null and not tutorial.is_done():
 		dummy.mode = tutorial.current()["dummy"]
 	_end_timer = 0
@@ -95,7 +96,7 @@ func _physics_process(_delta: float) -> void:
 			var result: FightResult = sim.build_result(&"QUICK")
 			if career_mode and GameSession.career != null:
 				GameSession.career.finish_player_fight(result, weigh_in)
-			SceneRouter.go_to(&"fight_result", {"result": result, "names": hud.names, "career": career_mode})
+			SceneRouter.go_to(&"fight_result", {"result": result, "names": hud.names, "career": career_mode, "title": sim.total_rounds == sim.rules.rounds_title and quick.setup.is_title})
 		return
 	if sim.phase == CombatSim.Phase.ROUND_BREAK:
 		_break_timer += 1

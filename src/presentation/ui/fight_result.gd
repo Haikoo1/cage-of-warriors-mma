@@ -11,18 +11,23 @@ const METHOD_TEXT: Dictionary = {
 var result: FightResult
 var names: Array = ["A", "B"]
 var career: bool = false
+var title: bool = false
 
 
 func setup(params: Dictionary) -> void:
 	result = params.get("result")
 	names = params.get("names", names)
 	career = bool(params.get("career", false))
+	title = bool(params.get("title", false))
 
 
 func _draw() -> void:
 	if result == null:
 		return
 	UiDraw.background(self, "RESULTADO DA LUTA")
+	if title and result.winner != FightResult.FighterSlot.NONE:
+		UiDraw.icon(self, "belt", Vector2(470, 44), 120)
+		draw_string(ThemeDB.fallback_font, Vector2(430, 176), "NOVO CAMPEÃO!" if result.winner == FightResult.FighterSlot.A else "O CINTURÃO FICA", HORIZONTAL_ALIGNMENT_CENTER, 200, 14, UiDraw.C_SEL)
 	var font: Font = ThemeDB.fallback_font
 	var winner: String = "Empate" if result.winner == FightResult.FighterSlot.NONE else ("Vencedor: %s" % names[int(result.winner)])
 	draw_string(font, Vector2(30, 66), winner, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, UiDraw.C_SEL)

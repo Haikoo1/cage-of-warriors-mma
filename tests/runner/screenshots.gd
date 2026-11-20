@@ -17,17 +17,25 @@ func _initialize() -> void:
 	var cc: CareerController = CareerController.create(defs, setup, 6)
 	for w: int in 6:
 		cc.simulate_week()
+	cc.state.player().titles = 3
 	root.get_node("GameSession").set("career", cc)
-	var cfg: QuickFight.Config = QuickFight.build(defs, 0, 1, 1, false, 0, true, 7)
-	var shots: Array = [["boot", {}], ["quick_fight", {}], ["career_create", {}], ["career_dashboard", {}],
+	var cfg: QuickFight.Config = QuickFight.build(defs, 0, 1, 1, true, 0, true, 7)
+	var shots: Array = [["boot", {}], ["quick_fight", {}], ["career_create", {}], ["career_dashboard", {}], ["career_dashboard", {"tab": "5"}],
 		["settings", {}], ["how_to_play", {}], ["combat_test", {"quick_fight": cfg}]]
 	for s: Array in shots:
 		router.call("go_to", StringName(s[0]), s[1])
 		var frames: int = 200 if s[0] == "combat_test" else 6
 		for i: int in frames:
 			await process_frame
+		if s[0] == "career_dashboard" and String(s[1].get("tab", "")) == "5":
+			var ev: InputEventKey = InputEventKey.new()
+			ev.physical_keycode = KEY_5
+			ev.pressed = true
+			holder.get_child(holder.get_child_count() - 1).call("_unhandled_input", ev)
+			for i: int in 3:
+				await process_frame
 		var img: Image = root.get_viewport().get_texture().get_image()
-		img.save_png(out.path_join("%s.png" % s[0]))
+		img.save_png(out.path_join("%s%s.png" % [s[0], String(s[1].get("tab", ""))]))
 		print("SHOT ", s[0], " ", img.get_size())
 	CareerController.delete_slot(6)
 	quit(0)

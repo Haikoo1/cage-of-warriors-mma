@@ -3,6 +3,13 @@ extends Control
 ## Só lê o estado e chama o CareerController (nunca altera CareerState direto).
 
 const TABS: Array[String] = ["1 Visão geral", "2 Treino", "3 Ofertas", "4 Rankings", "5 Perfil"]
+## Ícone de cada atributo (ficha estilo RPG).
+const ATTR_ICONS: Dictionary = {
+	&"forca": "dumbbell", &"velocidade": "bolt", &"condicionamento": "heart", &"recuperacao": "heart", &"mobilidade": "bolt",
+	&"queixo": "shield", &"robustez": "shield", &"boxe": "glove", &"kickboxing": "kick", &"defesa_em_pe": "shield",
+	&"wrestling_ofensivo": "link", &"wrestling_defensivo": "link", &"controle_solo": "link", &"jiu_jitsu": "link",
+	&"defesa_finalizacao": "shield", &"qi_luta": "brain", &"compostura": "brain",
+}
 const ATTR_NAMES: Dictionary = {
 	&"forca": "Força", &"velocidade": "Velocidade", &"condicionamento": "Condicionamento", &"recuperacao": "Recuperação",
 	&"mobilidade": "Mobilidade", &"queixo": "Queixo", &"robustez": "Robustez", &"boxe": "Boxe", &"kickboxing": "Kickboxing",
@@ -61,8 +68,12 @@ func _draw() -> void:
 	var rank_text: String = "campeão" if rank == 0 else ("#%d" % rank if rank > 0 else "-")
 	UiDraw.text(self, Vector2(10, 14), "%s  ·  %s  ·  %s %s  ·  %s" % [p.display_name, p.record_text(), wc.display_key,
 		"(M)" if wc.division == WeightClassDef.Division.MALE else "(F)", org.display_name if org else "-"], UiDraw.C_SEL, 11)
-	UiDraw.text(self, Vector2(10, 27), "Semana %d  ·  %.1f anos  ·  ranking %s  ·  %s  ·  popularidade %.0f" % [
-		s.week_index + 1, p.age_years(s.week_index), rank_text, UiDraw.money(s.money), p.popularity], UiDraw.C_TEXT, UiDraw.SMALL)
+	UiDraw.icon_text(self, "calendar", Vector2(10, 29), "Semana %d · %.1f anos · ranking %s" % [s.week_index + 1, p.age_years(s.week_index), rank_text], UiDraw.C_TEXT, UiDraw.SMALL)
+	UiDraw.icon_text(self, "coin", Vector2(230, 29), UiDraw.money(s.money), UiDraw.C_SEL, UiDraw.SMALL)
+	UiDraw.icon_text(self, "star", Vector2(330, 29), "popularidade %.0f" % p.popularity, UiDraw.C_TEXT, UiDraw.SMALL)
+	UiDraw.level_badge(self, Vector2(612, 20), roundi(p.overall()), 13.0)
+	if p.titles > 0:
+		UiDraw.belts(self, Vector2(470, 18), p.titles, 14.0, 6)
 	for i: int in TABS.size():
 		UiDraw.text(self, Vector2(10 + i * 110, 44), TABS[i], UiDraw.C_SEL if i == tab else UiDraw.C_DIM, UiDraw.TEXT)
 	draw_line(Vector2(8, 48), Vector2(632, 48), Color(1, 1, 1, 0.15))
@@ -99,7 +110,9 @@ func _draw_overview() -> void:
 	UiDraw.bar(self, Rect2(120, y - 8, 160, 8), p.fatigue / 100.0, UiDraw.C_GOOD if p.fatigue < 40 else (UiDraw.C_SEL if p.fatigue < 70 else UiDraw.C_BAD))
 	UiDraw.text(self, Vector2(290, y), "%.0f / 100" % p.fatigue, UiDraw.C_DIM, UiDraw.SMALL)
 	y += 14
-	var health: String = "Saudável" if p.injury.is_empty() else "LESIONADO: %s (%d sem.)" % [p.injury["name"], p.injury["weeks"]]
+	if not p.injury.is_empty():
+		UiDraw.icon(self, "injury", Vector2(10, y - 10), 12)
+	var health: String = "Saudável" if p.injury.is_empty() else "      LESIONADO: %s (%d sem.)" % [p.injury["name"], p.injury["weeks"]]
 	if p.unavailable_until > s.week_index and p.injury.is_empty():
 		health = "Suspensão médica até a semana %d" % (p.unavailable_until + 1)
 	UiDraw.text(self, Vector2(10, y), health, UiDraw.C_TEXT if p.injury.is_empty() else UiDraw.C_BAD)
@@ -213,7 +226,9 @@ func _draw_rankings() -> void:
 	for k: int in mini(16, roster.size()):
 		var f: FighterState = roster[k]
 		var col: Color = UiDraw.C_GOOD if f.id == s.player_fighter_id else (UiDraw.C_BAD if s.rivals.has(String(f.id)) else UiDraw.C_TEXT)
-		UiDraw.text(self, Vector2(10, 84 + k * 14), "%s  %s%s" % ["C " if k == 0 else "%2d" % k, f.display_name, "  (rival)" if s.rivals.has(String(f.id)) else ""], col, UiDraw.TEXT)
+		if k == 0:
+			UiDraw.icon(self, "belt", Vector2(8, 74 + k * 14), 13)
+		UiDraw.text(self, Vector2(24, 84 + k * 14), "%s  %s%s" % ["" if k == 0 else "%2d" % k, f.display_name, "  (rival)" if s.rivals.has(String(f.id)) else ""], col, UiDraw.TEXT)
 		UiDraw.text(self, Vector2(220, 84 + k * 14), "%s   rating %.0f   %s   %d anos%s" % [f.record_text(), f.rating,
 			cc.defs.archetype(f.archetype_id).display_key, int(f.age_years(s.week_index)), "  (lesionado)" if not f.injury.is_empty() else ""], col, UiDraw.SMALL)
 
@@ -226,14 +241,17 @@ func _draw_profile() -> void:
 		var y: float = 66 + (k % 9) * 16
 		var v: float = float(p.attributes[attr])
 		var delta: float = v - float(_before_attrs.get(attr, v))
-		UiDraw.text(self, Vector2(x, y), ATTR_NAMES[attr], UiDraw.C_TEXT, UiDraw.SMALL)
-		UiDraw.bar(self, Rect2(x + 96, y - 7, 70, 6), v / 100.0, UiDraw.C_GOOD)
+		UiDraw.icon(self, ATTR_ICONS.get(attr, "target"), Vector2(x, y - 9), 11)
+		UiDraw.text(self, Vector2(x + 14, y), ATTR_NAMES[attr], UiDraw.C_TEXT, UiDraw.SMALL)
+		var tier_col: Color = UiDraw.C_BAD if v < 40 else (UiDraw.C_SEL if v < 65 else (UiDraw.C_GOOD if v < 80 else Color(0.55, 0.75, 1.0)))
+		UiDraw.bar(self, Rect2(x + 96, y - 7, 70, 6), v / 100.0, tier_col)
 		UiDraw.text(self, Vector2(x + 170, y), "%d%s" % [roundi(v), (" %+.1f" % delta) if absf(delta) >= 0.1 else ""], UiDraw.C_TEXT, UiDraw.SMALL)
 		k += 1
 	var ph: Physique = p.physique
 	UiDraw.text(self, Vector2(430, 66), "Altura %d cm · envergadura %d cm" % [ph.height_cm, ph.reach_cm], UiDraw.C_DIM, UiDraw.SMALL)
 	UiDraw.text(self, Vector2(430, 80), "Peso de caminhada %.1f kg" % ph.walk_weight_kg, UiDraw.C_DIM, UiDraw.SMALL)
 	UiDraw.text(self, Vector2(430, 94), "Títulos: %d · sequência %+d" % [p.titles, p.streak], UiDraw.C_DIM, UiDraw.SMALL)
+	UiDraw.belts(self, Vector2(430, 186), p.titles, 18.0, 6)
 	var ry: float = 112
 	for rid: String in cc.state.rivals:
 		var rf: FighterState = cc.state.get_fighter(StringName(rid))
@@ -252,10 +270,12 @@ func _draw_profile() -> void:
 
 func _draw_legacy() -> void:
 	var l: Dictionary = cc.state.legacy
-	UiDraw.text(self, Vector2(10, 80), "CARREIRA ENCERRADA", UiDraw.C_SEL, UiDraw.TITLE)
+	UiDraw.icon(self, "trophy", Vector2(10, 58), 28)
+	UiDraw.text(self, Vector2(46, 80), "CARREIRA ENCERRADA", UiDraw.C_SEL, UiDraw.TITLE)
+	UiDraw.belts(self, Vector2(10, 160), int(l["titles"]), 24.0, 8)
 	UiDraw.text(self, Vector2(10, 110), "Cartel final %s · %d título(s) · %d finalizações · aposentou aos %.1f anos" % [l["record"], int(l["titles"]), int(l["finishes"]), float(l["age"])], UiDraw.C_TEXT, 11)
 	UiDraw.text(self, Vector2(10, 130), "Pontuação de legado: %d" % int(l["score"]), UiDraw.C_TEXT, 11)
-	UiDraw.text(self, Vector2(10, 150), "HALL DA FAMA!" if l["hall_of_fame"] else "Não entrou no Hall da Fama (120 pontos).", UiDraw.C_GOOD if l["hall_of_fame"] else UiDraw.C_DIM, 11)
+	UiDraw.text(self, Vector2(10, 204), "HALL DA FAMA!" if bool(l["hall_of_fame"]) else "Não entrou no Hall da Fama (120 pontos).", UiDraw.C_GOOD if l["hall_of_fame"] else UiDraw.C_DIM, 11)
 
 
 # ------------------------------------------------------------------ entrada
