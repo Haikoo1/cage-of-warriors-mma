@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="OriginDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/origin_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"origin_mma"
+display_name = "Atleta de academia de MMA"
+description = "Sem pontos fortes, sem fraquezas graves."
+base_attributes = {
+&"boxe": 42,
+&"kickboxing": 40,
+&"wrestling_ofensivo": 40,
+&"wrestling_defensivo": 42,
+&"jiu_jitsu": 40,
+&"qi_luta": 45
+}
+default_attribute = 36
+archetype = &"arch_striker"
+starting_money = 1500
+starting_gym = &"gym_garage"

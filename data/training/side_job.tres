@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TrainingActivityDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/training_activity_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"side_job"
+display_name = "Trabalho paralelo"
+area = &"none"
+gains = {
+
+}
+load = 2
+injury_risk = 0
+money_per_block = 120
+requires_fight = false

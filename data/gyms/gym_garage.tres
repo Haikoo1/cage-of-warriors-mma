@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GymDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/gym_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"gym_garage"
+display_name = "Academia do Bairro"
+specialties = {
+&"boxing": 1,
+&"kickboxing": 1,
+&"wrestling": 0.9,
+&"jiujitsu": 0.9,
+&"physical": 0.9
+}
+structure = 1
+monthly_cost = 120
+min_popularity = 0

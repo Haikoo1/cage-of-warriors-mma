@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="OriginDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/origin_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"origin_kickboxer"
+display_name = "Kickboxer / Muay Thai"
+description = "Trocação afiada, defesa de queda fraca."
+base_attributes = {
+&"kickboxing": 58,
+&"boxe": 48,
+&"defesa_em_pe": 50,
+&"robustez": 45
+}
+default_attribute = 36
+archetype = &"arch_striker"
+starting_money = 1500
+starting_gym = &"gym_muaythai"

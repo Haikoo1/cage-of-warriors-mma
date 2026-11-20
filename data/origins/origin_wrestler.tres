@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="OriginDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/origin_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"origin_wrestler"
+display_name = "Wrestler universitário"
+description = "Quedas e cardio fortes, trocação crua."
+base_attributes = {
+&"wrestling_ofensivo": 55,
+&"wrestling_defensivo": 55,
+&"controle_solo": 45,
+&"condicionamento": 50,
+&"forca": 45
+}
+default_attribute = 36
+archetype = &"arch_wrestler"
+starting_money = 900
+starting_gym = &"gym_wrestling"

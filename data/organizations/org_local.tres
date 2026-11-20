@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="OrganizationDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/organization_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"org_local"
+display_name = "Circuito Arena Local"
+tier = 1
+ruleset_id = &"rs_standard"
+event_interval_weeks = 4
+bouts_per_class = 2
+show_purse = 600
+win_purse = 600
+roster_per_class = 10
+attribute_mean = 42
+contract_fights = 1
+min_rating = 0

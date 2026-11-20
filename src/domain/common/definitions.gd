@@ -9,11 +9,21 @@ var rule_sets: Dictionary = {}  # StringName -> RuleSetDef
 var grapple_techniques: Dictionary = {}  # StringName -> GrappleTechniqueDef
 var archetypes: Dictionary = {}  # StringName -> ArchetypeDef
 var cognitive_profiles: Dictionary = {}  # StringName -> CognitiveProfileDef
+var training_activities: Dictionary = {}  # StringName -> TrainingActivityDef
+var gyms: Dictionary = {}  # StringName -> GymDef
+var origins: Dictionary = {}  # StringName -> OriginDef
+var organizations: Dictionary = {}  # StringName -> OrganizationDef
+var career_balance: CareerBalanceDef
 var combat_balance: CombatBalanceDef
 var load_errors: Array[String] = []
 
 
 func add(def: Resource) -> void:
+	if def is CareerBalanceDef:
+		if career_balance != null:
+			load_errors.append("CareerBalanceDef duplicado")
+		career_balance = def
+		return
 	if def is CombatBalanceDef:
 		if combat_balance != null:
 			load_errors.append("CombatBalanceDef duplicado")
@@ -40,6 +50,31 @@ func strike(id: StringName) -> StrikeDef:
 
 func rule_set(id: StringName) -> RuleSetDef:
 	return rule_sets.get(id) as RuleSetDef
+
+
+func organization(id: StringName) -> OrganizationDef:
+	return organizations.get(id) as OrganizationDef
+
+
+func gym(id: StringName) -> GymDef:
+	return gyms.get(id) as GymDef
+
+
+func origin(id: StringName) -> OriginDef:
+	return origins.get(id) as OriginDef
+
+
+func training_activity(id: StringName) -> TrainingActivityDef:
+	return training_activities.get(id) as TrainingActivityDef
+
+
+## Organizações ordenadas por nível (1 local → 4 elite).
+func organizations_by_tier() -> Array[OrganizationDef]:
+	var list: Array[OrganizationDef] = []
+	for o: OrganizationDef in organizations.values():
+		list.append(o)
+	list.sort_custom(func(x: OrganizationDef, y: OrganizationDef) -> bool: return x.tier < y.tier)
+	return list
 
 
 func archetype(id: StringName) -> ArchetypeDef:
@@ -76,6 +111,11 @@ func validate_all() -> Array[String]:
 		errors.append_array(d.validate())
 	for d: CognitiveProfileDef in cognitive_profiles.values():
 		errors.append_array(d.validate())
+	for table: Dictionary in [training_activities, gyms, origins, organizations]:
+		for d: Resource in table.values():
+			errors.append_array(d.call("validate"))
+	if career_balance != null:
+		errors.append_array(career_balance.validate())
 	if combat_balance == null:
 		errors.append("CombatBalanceDef ausente")
 	else:
@@ -86,7 +126,7 @@ func validate_all() -> Array[String]:
 ## Hash de todo o conteúdo; usado para detectar alteração acidental de definições (DATA_ARCHITECTURE §4).
 func content_hash() -> String:
 	var parts: PackedStringArray = []
-	for table: Dictionary in [weight_classes, strikes, rule_sets, grapple_techniques, archetypes, cognitive_profiles]:
+	for table: Dictionary in [weight_classes, strikes, rule_sets, grapple_techniques, archetypes, cognitive_profiles, training_activities, gyms, origins, organizations]:
 		var ids: Array = table.keys()
 		ids.sort()
 		for id: StringName in ids:
@@ -107,6 +147,14 @@ func _table_for(def: Resource) -> Variant:
 		return grapple_techniques
 	if def is ArchetypeDef:
 		return archetypes
+	if def is TrainingActivityDef:
+		return training_activities
+	if def is GymDef:
+		return gyms
+	if def is OriginDef:
+		return origins
+	if def is OrganizationDef:
+		return organizations
 	if def is CognitiveProfileDef:
 		return cognitive_profiles
 	return null

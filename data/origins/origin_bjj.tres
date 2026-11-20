@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="OriginDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/origin_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"origin_bjj"
+display_name = "Competidor de jiu-jitsu"
+description = "Perigoso no chão, precisa aprender a derrubar e trocar."
+base_attributes = {
+&"jiu_jitsu": 58,
+&"defesa_finalizacao": 52,
+&"controle_solo": 45,
+&"mobilidade": 45
+}
+default_attribute = 36
+archetype = &"arch_wrestler"
+starting_money = 900
+starting_gym = &"gym_bjj"

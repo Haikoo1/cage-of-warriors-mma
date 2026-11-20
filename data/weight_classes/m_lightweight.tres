@@ -6,7 +6,10 @@
 script = ExtResource("1")
 id = &"m_lightweight"
 division = 0
-display_key = "WEIGHT_M_LIGHTWEIGHT"
+display_key = "Peso-leve"
 limit_lb = 155
 tolerance_lb = 1
 allowed_biotypes = PackedStringArray("m_medium")
+damage_mult = 1
+move_cost_mult = 1
+move_speed_mult = 1

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="OrganizationDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/organization_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"org_lfc"
+display_name = "Liga Fronteira (LFC)"
+tier = 2
+ruleset_id = &"rs_standard"
+event_interval_weeks = 4
+bouts_per_class = 2
+show_purse = 3000
+win_purse = 3000
+roster_per_class = 9
+attribute_mean = 54
+contract_fights = 4
+min_rating = 1000

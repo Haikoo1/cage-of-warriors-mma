@@ -2,7 +2,7 @@ class_name DataLoader
 extends RefCounted
 ## Carrega as definições de data/ (camada de aplicação: usa ResourceLoader e DirAccess).
 
-const FOLDERS: Array[String] = ["weight_classes", "strikes", "rulesets", "balance", "grappling", "ai"]
+const FOLDERS: Array[String] = ["weight_classes", "strikes", "rulesets", "balance", "grappling", "ai", "training", "gyms", "origins", "organizations"]
 
 
 static func load_from(root: String) -> Definitions:

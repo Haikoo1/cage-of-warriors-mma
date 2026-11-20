@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrainingActivityDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/training_activity_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"wrestling"
+display_name = "Técnico: Wrestling"
+area = &"wrestling"
+gains = {
+&"wrestling_ofensivo": 0.3,
+&"wrestling_defensivo": 0.3,
+&"controle_solo": 0.12
+}
+load = 8
+injury_risk = 0.008
+money_per_block = 0
+requires_fight = false

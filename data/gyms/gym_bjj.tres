@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GymDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/gym_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"gym_bjj"
+display_name = "Equipe Faixa Preta (Jiu-jitsu)"
+specialties = {
+&"jiujitsu": 1.4,
+&"wrestling": 1,
+&"boxing": 0.9,
+&"kickboxing": 0.85,
+&"physical": 1
+}
+structure = 2
+monthly_cost = 260
+min_popularity = 0

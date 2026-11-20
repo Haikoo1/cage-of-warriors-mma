@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TrainingActivityDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/training_activity_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"movement"
+display_name = "Técnico: Movimentação"
+area = &"none"
+gains = {
+&"mobilidade": 0.3
+}
+load = 4
+injury_risk = 0.002
+money_per_block = 0
+requires_fight = false

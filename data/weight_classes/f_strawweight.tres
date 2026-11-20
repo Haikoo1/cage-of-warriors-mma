@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="WeightClassDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/weight_class_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"f_strawweight"
+division = 1
+display_key = "Peso-palha"
+limit_lb = 115
+tolerance_lb = 1
+allowed_biotypes = PackedStringArray("f_light")
+damage_mult = 0.9
+move_cost_mult = 1
+move_speed_mult = 1.06

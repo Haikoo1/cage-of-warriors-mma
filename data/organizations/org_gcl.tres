@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="OrganizationDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/organization_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"org_gcl"
+display_name = "Grand Cage League (GCL)"
+tier = 4
+ruleset_id = &"rs_standard"
+event_interval_weeks = 2
+bouts_per_class = 2
+show_purse = 25000
+win_purse = 25000
+roster_per_class = 10
+attribute_mean = 74
+contract_fights = 4
+min_rating = 1240

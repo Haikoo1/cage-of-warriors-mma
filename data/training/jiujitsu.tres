@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrainingActivityDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/training_activity_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"jiujitsu"
+display_name = "Técnico: Jiu-jitsu"
+area = &"jiujitsu"
+gains = {
+&"jiu_jitsu": 0.32,
+&"defesa_finalizacao": 0.28,
+&"controle_solo": 0.12
+}
+load = 6
+injury_risk = 0.005
+money_per_block = 0
+requires_fight = false

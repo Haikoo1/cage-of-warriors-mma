@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TrainingActivityDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/training_activity_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"study"
+display_name = "Tático: Estudo do adversário"
+area = &"none"
+gains = {
+
+}
+load = 1
+injury_risk = 0
+money_per_block = 0
+requires_fight = true
