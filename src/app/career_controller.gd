@@ -96,6 +96,16 @@ func change_gym(gym_id: StringName) -> bool:
 	return true
 
 
+## Aba Visual (D-019): só aparência, sem efeito em regra. A pele é fixa; lutadoras não têm barba.
+func change_appearance(look: Appearance) -> void:
+	var p: FighterState = state.player()
+	var a: Appearance = look.duplicate_appearance()
+	a.skin = p.appearance.skin
+	if defs.weight_class(p.weight_class_id).division == WeightClassDef.Division.FEMALE:
+		a.beard = false
+	p.appearance = a
+
+
 func accept_offer(index: int) -> bool:
 	return Matchmaking.accept_offer(state, index)
 
