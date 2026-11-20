@@ -66,3 +66,11 @@ func test_sprite_family_by_biotype() -> void:
 	var f: SpriteSet = SpriteSet.for_biotype(&"f_medium")
 	assert_true(f != null, "sprites femininos gerados pelo pipeline")
 	assert_true(SpriteSet.for_biotype(&"f_light") == f, "cache por família")
+
+
+## Regressões medidas com janela (não reproduzíveis em headless): COLOR de entrada já contém a textura
+## (multiplicar de novo escurecia tudo) e arrays de vec3 em uniform ficam desalinhados (troca de cor errada).
+func test_palette_shader_avoids_known_pitfalls() -> void:
+	var code: String = (load("res://assets/shaders/palette_swap.gdshader") as Shader).code
+	assert_false(code.contains("* COLOR"), "não multiplicar a textura duas vezes")
+	assert_false(code.contains("uniform vec3"), "arrays de cor em vec4")

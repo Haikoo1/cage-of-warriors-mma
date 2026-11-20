@@ -240,6 +240,18 @@
     "hit_head": {
       "frames": 6,
       "sim_frames": 16
+    },
+    "clinch": {
+      "frames": 9,
+      "sim_frames": 24
+    },
+    "ground_top": {
+      "frames": 9,
+      "sim_frames": 24
+    },
+    "ground_bottom": {
+      "frames": 9,
+      "sim_frames": 24
     }
   }
 }

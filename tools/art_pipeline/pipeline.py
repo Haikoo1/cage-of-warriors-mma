@@ -305,6 +305,15 @@ def animations():
                 upper_arm_R=-160, forearm_R=-15, thigh_L=-82, shin_L=10, thigh_R=-70, shin_R=30)
     anims["down"] = [(0, down), (4, down)]
     anims["hit_head"] = [(0, GUARD), (4, pose(GUARD, torso=-12, head=24, hips_x=-0.05)), (16, GUARD)]
+    # Grappling (posições do par): clinch em pé, por cima ajoelhado, por baixo na guarda.
+    clinch = pose(GUARD, torso=22, head=-16, upper_arm_L=-98, forearm_L=-38, upper_arm_R=-86, forearm_R=-48, thigh_L=-26, shin_L=24)
+    anims["clinch"] = [(0, clinch), (12, pose(clinch, hips_z=0.94, torso=25)), (24, clinch)]
+    top = pose(GUARD, hips_z=0.5, torso=42, head=-26, upper_arm_L=-72, forearm_L=-36, upper_arm_R=-52, forearm_R=-62,
+               thigh_L=-12, shin_L=96, thigh_R=4, shin_R=92)
+    anims["ground_top"] = [(0, top), (12, pose(top, torso=46, upper_arm_R=-60)), (24, top)]
+    bottom = pose(GUARD, hips_z=0.14, hips_x=0.15, torso=-86, head=14, upper_arm_L=-45, forearm_L=-105, upper_arm_R=-25,
+                  forearm_R=-125, thigh_L=-112, shin_L=78, thigh_R=-100, shin_R=88)
+    anims["ground_bottom"] = [(0, bottom), (12, pose(bottom, thigh_L=-118, thigh_R=-106)), (24, bottom)]
     return anims
 
 

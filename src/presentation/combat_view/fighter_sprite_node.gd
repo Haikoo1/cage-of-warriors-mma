@@ -21,13 +21,8 @@ func configure(sprite_set: SpriteSet, look: Appearance) -> void:
 	var mat: ShaderMaterial = ShaderMaterial.new()
 	mat.shader = SHADER
 	var pairs: Array = look.palette_pairs(sprites.palette, sprites.far_darken)
-	var src: PackedVector3Array = []
-	var dst: PackedVector3Array = []
-	for k: int in (pairs[0] as PackedColorArray).size():
-		var a: Color = pairs[0][k]
-		var b: Color = pairs[1][k]
-		src.append(Vector3(a.r, a.g, a.b))
-		dst.append(Vector3(b.r, b.g, b.b))
+	var src: PackedColorArray = pairs[0]
+	var dst: PackedColorArray = pairs[1]
 	mat.set_shader_parameter("src_colors", src)
 	mat.set_shader_parameter("dst_colors", dst)
 	mat.set_shader_parameter("color_count", src.size())

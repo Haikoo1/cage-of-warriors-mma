@@ -124,6 +124,9 @@ func _draw_grapple_pair() -> void:
 	_draw_ellipse(mid, 40.0, 6.0, Color(0, 0, 0, 0.45))
 	var top_i: int = g.top if g.top >= 0 else 0
 	var bottom_i: int = 1 - top_i
+	if use_sprites and _present_grapple_sprites(g, mid, top_i):
+		_label(Vector2(mid.x - 40, mid.y - 150), POSITION_NAMES.get(g.position, ""), Color.WHITE)
+		return
 	var ct: Color = COLORS[top_i]
 	var cb: Color = COLORS[bottom_i]
 	match g.position:
@@ -147,6 +150,36 @@ func _draw_grapple_pair() -> void:
 	_label(Vector2(mid.x - 40, mid.y - 150), POSITION_NAMES.get(g.position, ""), Color.WHITE)
 	if g.top >= 0:
 		_label(Vector2(mid.x - 40, mid.y - 138), "por cima: %s" % ("JOGADOR" if g.top == 0 else "BONECO"), COLORS[g.top])
+
+
+## Clinch: cada um na própria posição. Chão: quem está por baixo deitado com as pernas para quem está por cima.
+func _present_grapple_sprites(g: CombatGrappling, mid: Vector2, top_i: int) -> bool:
+	if _fighter_nodes.size() != 2:
+		return false
+	var picks: Array = []
+	for i: int in 2:
+		var p: Array = _fighter_nodes[i].sprites.pick_grapple(g.position, i == top_i, sim.frame)
+		if p.is_empty():
+			return false
+		picks.append(p)
+	var bottom_i: int = 1 - top_i
+	var toward_top: float = signf(sim.fighters[top_i].x - sim.fighters[bottom_i].x)
+	if toward_top == 0.0:
+		toward_top = float(sim.fighters[bottom_i].facing)
+	for i: int in 2:
+		var node: FighterSpriteNode = _fighter_nodes[i]
+		var f: FighterCombatState = sim.fighters[i]
+		var base: Vector2 = to_screen(f.x, f.z)
+		var facing: float = float(f.facing)
+		if CombatGrappling.GROUND.has(g.position):
+			base = Vector2(mid.x + (-26.0 if i == bottom_i else 18.0) * toward_top, mid.y)
+			facing = toward_top if i == bottom_i else -toward_top
+		else:
+			base.x -= facing * 7.0  # clinch: cada um um pouco para trás, para ler os dois corpos
+		node.visible = true
+		node.z_index = 12 if i == top_i else 9
+		node.present(base, picks[i], facing, PPM / node.sprites.px_per_m, f.cut)
+	return true
 
 
 func _draw_ellipse(center: Vector2, rx: float, ry: float, color: Color) -> void:

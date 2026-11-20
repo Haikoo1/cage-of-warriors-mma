@@ -102,6 +102,18 @@ func pick(f: FighterCombatState, sim_frame: int, technique: GrappleTechniqueDef 
 	return [anim, clampi(index, 0, int(frames.get(anim, 1)) - 1)]
 
 
+## Pose do par no grappling. Vazio = posição sem sprite (segue em greybox).
+func pick_grapple(position: StringName, is_top: bool, sim_frame: int) -> Array:
+	var anim: String = ""
+	if position == &"CL" or position == &"CG":
+		anim = "clinch"
+	elif CombatGrappling.GROUND.has(position):
+		anim = "ground_top" if is_top else "ground_bottom"
+	if anim == "" or not textures.has(anim):
+		return []
+	return [anim, (sim_frame / sim_frames_per_sprite) % int(frames.get(anim, 1))]
+
+
 func _progress_frame(anim: String, done: int, total: int) -> int:
 	return int(float(clampi(done, 0, total)) / float(maxi(1, total)) * (int(frames.get(anim, 1)) - 1) + 0.5)
 
