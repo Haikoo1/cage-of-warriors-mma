@@ -19,6 +19,7 @@ static func run_week(c: CareerState, defs: Definitions) -> Array[String]:
 			_run_event_class(c, defs, org, wc, event_no, reserved, rng)
 	if c.week_index % 4 == 0:
 		HealthSystem.age_month(c, defs, CareerRng.make(c, &"aging"))
+		prune_retired(c)
 		notes.append_array(_monthly_population(c, defs, rng))
 	return notes
 
@@ -66,6 +67,7 @@ static func _monthly_population(c: CareerState, defs: Definitions, rng: RandomNu
 		var age: float = f.age_years(c.week_index)
 		if age > bal.npc_retire_age + rng.randi_range(0, 4) or f.career_wear > bal.retirement_wear:
 			f.retired = true
+			f.retired_week = c.week_index
 			continue
 		if f.contract_fights_left > 0:
 			continue
@@ -108,3 +110,23 @@ static func _monthly_population(c: CareerState, defs: Definitions, rng: RandomNu
 						f.contract_fights_left = org.contract_fights
 						break
 	return notes
+
+
+## Poda de memória (M3: o save crescia sem limite). Remove NPCs aposentados há mais de 2 anos que não sejam
+## campeões nem ex-adversários/rivais do jogador. O histórico do jogador guarda o nome do adversário.
+static func prune_retired(c: CareerState) -> void:
+	var keep: Dictionary = {}
+	var p: FighterState = c.player()
+	if p != null:
+		for h: Dictionary in p.history:
+			keep[String(h["opponent"])] = true
+	for rid: String in c.rivals:
+		keep[rid] = true
+	for champ: Variant in c.champions.values():
+		keep[String(champ)] = true
+	if not c.booked.is_empty():
+		keep[String(c.booked["opponent"])] = true
+	for id: StringName in c.fighters.keys():
+		var f: FighterState = c.fighters[id]
+		if f.retired and id != c.player_fighter_id and c.week_index - f.retired_week > 104 and not keep.has(String(id)):
+			c.fighters.erase(id)

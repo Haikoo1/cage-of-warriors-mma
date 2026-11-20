@@ -26,3 +26,24 @@ func test_unknown_action_is_ignored() -> void:
 	InputBindings.register_defaults()
 	InputBindings.apply_overrides({&"acao_inexistente": KEY_P})
 	assert_false(InputMap.has_action(&"acao_inexistente"), "não cria ações novas")
+
+
+func test_gamepad_defaults_registered_for_combat_actions() -> void:
+	InputBindings.register_defaults()
+	for action: StringName in [&"lead_hand", &"rear_hand", &"lead_leg", &"rear_leg", &"guard", &"grapple", &"technique", &"mod_curved", &"mod_body"]:
+		var has_joy: bool = false
+		for ev: InputEvent in InputMap.action_get_events(action):
+			if ev is InputEventJoypadButton or ev is InputEventJoypadMotion:
+				has_joy = true
+		assert_true(has_joy, "gamepad em %s" % action)
+
+
+func test_menu_navigation_from_gamepad_maps_to_keys() -> void:
+	var b: InputEventJoypadButton = InputEventJoypadButton.new()
+	b.button_index = JOY_BUTTON_DPAD_DOWN
+	b.pressed = true
+	assert_eq(InputBindings.menu_key_for(b), KEY_DOWN)
+	b.button_index = JOY_BUTTON_A
+	assert_eq(InputBindings.menu_key_for(b), KEY_ENTER)
+	b.button_index = JOY_BUTTON_B
+	assert_eq(InputBindings.menu_key_for(b), KEY_ESCAPE)

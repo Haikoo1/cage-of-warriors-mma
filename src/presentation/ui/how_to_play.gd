@@ -26,6 +26,7 @@ const PAGES: Array = [
 		"3 juízes (10 pontos): dano, quedas e controle. Esc/P pausa. F1 depuração · F4 sprites de teste.",
 	]],
 	["CARREIRA", [
+		"Gamepad: analógico/direcional move · X/Y mãos · A/B pernas · RT curvo · RB corpo · LB guarda · LT agarrar · R3 técnica.",
 		"Comece no circuito local. Espaço simula 1 semana; A avança até algo acontecer.",
 		"Aba 2 (Treino): 12 blocos por semana. Mais carga = mais ganho e mais fadiga; acima de 40 rende menos.",
 		"Aba 3 (Ofertas): aceite lutas (Enter). Vencendo e subindo no ranking chegam convites de ligas maiores.",

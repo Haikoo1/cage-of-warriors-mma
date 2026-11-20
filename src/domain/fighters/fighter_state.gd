@@ -31,6 +31,7 @@ var draws: int = 0
 var streak: int = 0  # >0 vitórias seguidas, <0 derrotas seguidas
 var history: Array = []  # {week, opponent, opponent_name, result, method, round, org, title}
 var retired: bool = false
+var retired_week: int = 0
 
 # Saúde (CAREER §5)
 var fatigue: float = 0.0
@@ -78,7 +79,7 @@ func to_dict() -> Dictionary:
 		"archetype_id": String(archetype_id), "potential": potential, "peak_age": peak_age,
 		"org_id": String(org_id), "contract_fights_left": contract_fights_left, "rating": snappedf(rating, 0.01),
 		"popularity": snappedf(popularity, 0.01), "titles": titles, "wins": wins, "losses": losses, "draws": draws,
-		"streak": streak, "history": history.duplicate(true), "retired": retired,
+		"streak": streak, "history": history.duplicate(true), "retired": retired, "retired_week": retired_week,
 		"fatigue": snappedf(fatigue, 0.01), "career_wear": snappedf(career_wear, 0.01), "injury": injury.duplicate(),
 		"unavailable_until": unavailable_until,
 	}
@@ -115,6 +116,7 @@ static func from_dict(d: Dictionary) -> FighterState:
 				entry[k] = int(entry[k])
 		f.history.append(entry)
 	f.retired = bool(d.get("retired", false))
+	f.retired_week = int(d.get("retired_week", 0))
 	f.fatigue = float(d.get("fatigue", 0.0))
 	f.career_wear = float(d.get("career_wear", 0.0))
 	var inj: Dictionary = d.get("injury", {})

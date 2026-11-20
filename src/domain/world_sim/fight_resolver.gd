@@ -19,8 +19,12 @@ static func resolve(a: FighterState, b: FighterState, rounds: int, rng: RandomNu
 		var loser: FighterState = b if w == 0 else a
 		var striking: bool = winner_plan[1]
 		head[1 - w] += absf(d) * (10.0 if striking else 4.0)
-		var resist: float = _at(loser, &"queixo") if striking else _at(loser, &"defesa_finalizacao")
-		var p_finish: float = clampf(0.08 + 0.09 * absf(d), 0.0, 0.45) * (1.4 - resist / 100.0)
+		# Chance de finalizar cresce com o nível ofensivo de quem venceu o round (calibrado contra o motor, M3).
+		var resist_factor: float = (1.4 - _at(loser, &"queixo") / 100.0) if striking else (1.0 - _at(loser, &"defesa_finalizacao") / 100.0)
+		var offense: float = pow(float(winner_plan[2]) / 60.0, 8.0)
+		# Controle por cima vence rounds sem necessariamente finalizar (motor: wrestler vence mais por decisão).
+		var base: float = (0.03 + 0.08 * absf(d)) if striking else (0.06 + 0.035 * absf(d))
+		var p_finish: float = clampf(base * offense * resist_factor, 0.0, 0.5)
 		if rng.randf() < p_finish:
 			r.winner = FightResult.FighterSlot.A if w == 0 else FightResult.FighterSlot.B
 			if striking:
@@ -56,9 +60,9 @@ static func resolve(a: FighterState, b: FighterState, rounds: int, rng: RandomNu
 static func _edge(x: FighterState, y: FighterState) -> Array:
 	var strike: float = 0.35 * _at(x, &"boxe") + 0.35 * _at(x, &"kickboxing") + 0.15 * _at(x, &"velocidade") + 0.15 * _at(x, &"forca")
 	var grapple: float = 0.4 * _at(x, &"wrestling_ofensivo") + 0.3 * _at(x, &"controle_solo") + 0.3 * _at(x, &"jiu_jitsu")
-	var s_edge: float = strike - 0.5 * _at(y, &"defesa_em_pe")
-	var g_edge: float = grapple - 0.6 * _at(y, &"wrestling_defensivo")
-	return [maxf(s_edge, g_edge), s_edge >= g_edge]
+	var s_edge: float = strike - 0.6 * _at(y, &"defesa_em_pe")
+	var g_edge: float = grapple - 0.35 * _at(y, &"wrestling_defensivo")
+	return [maxf(s_edge, g_edge), s_edge >= g_edge, strike if s_edge >= g_edge else grapple]
 
 
 static func _at(f: FighterState, attr: StringName) -> float:

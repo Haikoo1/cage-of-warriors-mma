@@ -14,6 +14,7 @@ const ROUTES: Dictionary = {
 
 var _screen_root: Node
 var _current: Node
+var current_route: StringName = &""
 
 
 func set_screen_root(root: Node) -> void:
@@ -23,6 +24,7 @@ func set_screen_root(root: Node) -> void:
 func go_to(route: StringName, params: Dictionary = {}) -> void:
 	assert(ROUTES.has(route), "rota desconhecida: %s" % route)
 	AudioDirector.ui_click()
+	current_route = route
 	assert(_screen_root != null, "ScreenRoot não registrado")
 	if _current != null:
 		_current.queue_free()
@@ -31,3 +33,17 @@ func go_to(route: StringName, params: Dictionary = {}) -> void:
 	if _current.has_method("setup"):
 		_current.call("setup", params)
 	_screen_root.add_child(_current)
+
+
+## Gamepad nos menus: botões viram teclas de navegação. Na luta, A/B/X/Y são golpes (InputMap), então não traduz.
+func _unhandled_input(event: InputEvent) -> void:
+	if current_route == &"combat_test" or not event is InputEventJoypadButton or not event.pressed:
+		return
+	var key: Key = InputBindings.menu_key_for(event as InputEventJoypadButton)
+	if key == KEY_NONE:
+		return
+	var ev: InputEventKey = InputEventKey.new()
+	ev.physical_keycode = key
+	ev.keycode = key
+	ev.pressed = true
+	Input.parse_input_event(ev)
