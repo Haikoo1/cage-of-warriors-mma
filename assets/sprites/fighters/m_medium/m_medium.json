@@ -1,0 +1,42 @@
+{
+  "frame_size": [
+    224,
+    160
+  ],
+  "sim_frames_per_sprite": 4,
+  "anchor": [
+    78,
+    152
+  ],
+  "px_per_m": 75.55555555555556,
+  "animations": {
+    "guard": {
+      "frames": 9,
+      "sim_frames": 32
+    },
+    "walk": {
+      "frames": 7,
+      "sim_frames": 24
+    },
+    "jab": {
+      "frames": 5,
+      "sim_frames": 19
+    },
+    "cross": {
+      "frames": 7,
+      "sim_frames": 26
+    },
+    "low_kick": {
+      "frames": 9,
+      "sim_frames": 35
+    },
+    "double_leg": {
+      "frames": 8,
+      "sim_frames": 28
+    },
+    "hit_head": {
+      "frames": 5,
+      "sim_frames": 16
+    }
+  }
+}

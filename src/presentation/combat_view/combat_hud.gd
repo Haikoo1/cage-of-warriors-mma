@@ -58,7 +58,7 @@ func _draw() -> void:
 		return
 	if sim.is_finished():
 		_draw_end()
-	var help: String = "WASD mover | U/I mãos  J/K pernas | E curvo  Q corpo | Shift guarda | Espaço+W/S/trás esquiva | L clinch, L+S/W quedas\nF1 depuração | F2 boneco: %s | F3 métricas | R reiniciar | Esc menu" % dummy_mode if training else "F1 depuração | Esc sair"
+	var help: String = "WASD mover | U/I mãos  J/K pernas | E curvo  Q corpo | Shift guarda | Espaço+W/S/trás esquiva | L clinch, L+S/W quedas\nF1 depuração | F2 boneco: %s | F3 métricas | R reiniciar | Esc menu" % dummy_mode if training else "F1 depuração | F4 sprites (teste de arte) | Esc sair"
 	draw_multiline_string(ThemeDB.fallback_font, Vector2(8, 322), help, HORIZONTAL_ALIGNMENT_LEFT, 624, 9, -1, Color(1, 1, 1, 0.75))
 
 

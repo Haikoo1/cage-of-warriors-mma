@@ -27,6 +27,8 @@ Godot: `C:\Users\sousa\Downloads\Godot_v4.7.2-stable_win64.exe` (defina `GODOT_E
 - Dados de grappling: edite `tools/gen_grappling_data.js` e rode `node tools/gen_grappling_data.js` (gera `data/grappling/*.tres`).
 - Smoke da Luta Rápida IA x IA até o resultado: `"$GODOT" --headless --path . --script res://tests/runner/smoke_quick_fight.gd`
 - Lote de balanceamento IA x IA (~2,5 min): `"$GODOT" --headless --path . --script res://tests/runner/batch_ai.gd`
+- Pipeline de sprites (Blender 5.3): `"C:/Program Files/Blender Foundation/Blender 5.3/blender.exe" -b --factory-startup --python tools/art_pipeline/pipeline.py -- <raiz>`
+- Smoke dos sprites: `"$GODOT" --headless --path . --script res://tests/runner/smoke_sprites.gd`
 - Smoke da cena de combate: `"$GODOT" --headless --path . --script res://tests/runner/smoke_combat.gd`
 
 ## Armadilhas conhecidas (Godot 4.7)

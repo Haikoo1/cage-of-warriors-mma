@@ -11,6 +11,9 @@ const COLORS: Array[Color] = [Color(0.35, 0.6, 1.0), Color(1.0, 0.45, 0.35)]
 
 var sim: CombatSim
 var debug_overlay: bool = true
+## E-06: F4 alterna entre formas greybox e os sprites do pipeline 3D → pixel (só em pé; solo segue greybox).
+var use_sprites: bool = false
+var sprites: SpriteSet = SpriteSet.load_biotype("res://assets/sprites/fighters/m_medium", "m_medium")
 
 
 func _process(_delta: float) -> void:
@@ -46,6 +49,9 @@ func _draw() -> void:
 func _draw_fighter(i: int) -> void:
 	var f: FighterCombatState = sim.fighters[i]
 	var base: Vector2 = to_screen(f.x, f.z)
+	if use_sprites and sprites != null and f.action != FighterCombatState.Action.DOWN and f.action != FighterCombatState.Action.OUT:
+		_draw_sprite(i, f, base)
+		return
 	var color: Color = COLORS[i]
 	draw_set_transform(base)
 	draw_circle(Vector2.ZERO, 3.0, Color(0, 0, 0, 0.0))
@@ -152,3 +158,20 @@ func _draw_ellipse(center: Vector2, rx: float, ry: float, color: Color) -> void:
 
 func _label(pos: Vector2, text: String, color: Color) -> void:
 	draw_string(ThemeDB.fallback_font, pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, color)
+
+
+func _draw_sprite(i: int, f: FighterCombatState, base: Vector2) -> void:
+	_draw_ellipse(base, 18.0, 5.0, Color(0, 0, 0, 0.45))
+	var pick: Array = sprites.pick(f, sim.frame)
+	var tex: Texture2D = sprites.textures[pick[0]]
+	var size: Vector2 = Vector2(sprites.frame_size)
+	var src: Rect2 = Rect2(Vector2(size.x * int(pick[1]), 0), size)
+	# A âncora (pés) cai no ponto do chão; espelha quando o lutador olha para a esquerda.
+	var scale_px: float = PPM / sprites.px_per_m
+	var flip: float = float(f.facing)
+	draw_set_transform(base, 0.0, Vector2(flip * scale_px, scale_px))
+	var tint: Color = Color.WHITE if i == 0 else Color(1.0, 0.8, 0.75)
+	draw_texture_rect_region(tex, Rect2(-sprites.anchor, size), src, tint)
+	draw_set_transform(Vector2.ZERO)
+	if debug_overlay:
+		_draw_debug(f, base)

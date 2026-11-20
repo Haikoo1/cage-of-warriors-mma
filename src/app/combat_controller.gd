@@ -104,6 +104,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	match key:
 		KEY_F1:
 			view.debug_overlay = not view.debug_overlay
+		KEY_F4:
+			view.use_sprites = not view.use_sprites
 		KEY_F2:
 			if quick == null:
 				dummy.cycle()
