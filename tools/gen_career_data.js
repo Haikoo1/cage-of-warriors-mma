@@ -97,8 +97,8 @@ for (const [id, name, desc, base, arch, money, gym] of O) {
 const ORG = [
   ['org_local', 'Circuito Arena Local', 1, 4, 2, 600, 600, 10, 42, 1, 0],
   ['org_lfc', 'Liga Fronteira (LFC)', 2, 4, 2, 3000, 3000, 9, 54, 4, 1000],
-  ['org_pcc', 'Pan-Continental Combat (PCC)', 3, 3, 2, 10000, 10000, 8, 64, 4, 1120],
-  ['org_gcl', 'Grand Cage League (GCL)', 4, 2, 2, 25000, 25000, 10, 74, 4, 1240],
+  ['org_pcc', 'Pan-Continental Combat (PCC)', 3, 3, 2, 10000, 10000, 8, 64, 4, 1080],
+  ['org_gcl', 'Grand Cage League (GCL)', 4, 2, 2, 25000, 25000, 10, 74, 4, 1160],
 ];
 clean('data/organizations');
 for (const [id, name, tier, every, bouts, show, win, roster, mean, fights, minr] of ORG) {

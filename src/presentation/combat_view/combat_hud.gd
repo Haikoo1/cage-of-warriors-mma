@@ -28,7 +28,8 @@ var names: Array[String] = ["JOGADOR", "BONECO"]
 var training: bool = true
 var paused: bool = false
 var career_lock: bool = false  # luta de carreira não pode ser abandonada
-var max_tips: int = 2  # carreira: depende da estrutura da academia (CAREER §4.5)
+var max_tips: int = 2
+var tutorial: TutorialRunner  # carreira: depende da estrutura da academia (CAREER §4.5)
 var player_focus: CombatSim.Focus = CombatSim.Focus.NORMAL
 var feedback: Array[String] = ["", ""]
 var _feedback_timer: Array[int] = [0, 0]
@@ -62,6 +63,13 @@ func _draw() -> void:
 	if level == &"full" or sim.grappling.submission != null:
 		_draw_grappling()
 	_draw_clock()
+	if tutorial != null:
+		UiDraw.panel(self, Rect2(150, 96, 340, 44), true)
+		if tutorial.is_done():
+			_text(Vector2(162, 114), "TUTORIAL CONCLUÍDO! Esc volta ao menu.", UiDraw.C_GOOD)
+		else:
+			_text(Vector2(162, 112), "Lição %d/%d  ·  %d/%d" % [tutorial.index + 1, TutorialRunner.LESSONS.size(), tutorial.progress, int(tutorial.current()["target"])], UiDraw.C_SEL)
+			draw_string(ThemeDB.fallback_font, Vector2(162, 128), String(tutorial.current()["text"]), HORIZONTAL_ALIGNMENT_LEFT, 320, 9, UiDraw.C_TEXT)
 	if sim.phase == CombatSim.Phase.ROUND_BREAK:
 		_draw_break()
 		return

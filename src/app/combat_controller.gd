@@ -14,6 +14,7 @@ var quick: QuickFight.Config
 var career_mode: bool = false
 var weigh_in: Dictionary = {}
 var fighter_names: Array = []
+var tutorial: TutorialRunner
 var player_focus: CombatSim.Focus = CombatSim.Focus.NORMAL
 var paused: bool = false
 var _end_timer: int = 0
@@ -25,6 +26,8 @@ func setup(params: Dictionary) -> void:
 	career_mode = bool(params.get("career", false))
 	weigh_in = params.get("weigh_in", {})
 	fighter_names = params.get("names", [])
+	if bool(params.get("tutorial", false)):
+		tutorial = TutorialRunner.new()
 
 
 func _ready() -> void:
@@ -71,6 +74,9 @@ func _start() -> void:
 	sim = CombatSim.new(setup_data, defs)
 	view.sim = sim
 	hud.sim = sim
+	hud.tutorial = tutorial
+	if tutorial != null and not tutorial.is_done():
+		dummy.mode = tutorial.current()["dummy"]
 	_end_timer = 0
 
 
@@ -79,6 +85,9 @@ func _physics_process(_delta: float) -> void:
 	hud.career_lock = career_mode
 	if paused:
 		hud.present([])
+		return
+	if sim.is_finished() and tutorial != null and not tutorial.is_done():
+		_start()
 		return
 	if sim.is_finished():
 		_end_timer += 1
@@ -110,6 +119,12 @@ func _physics_process(_delta: float) -> void:
 	var round_before: int = sim.round
 	var events: Array[CombatEvent] = sim.step(cmd_a, cmd_b)
 	_play_sounds(events)
+	if tutorial != null and tutorial.feed(events, sim):
+		AudioDirector.play(&"bell", -8.0, 0.0)
+		if not tutorial.is_done():
+			if bool(tutorial.current()["reset"]) or sim.is_finished():
+				_start()
+			dummy.mode = tutorial.current()["dummy"]
 	if sim.phase == CombatSim.Phase.ROUND_BREAK:
 		AudioDirector.play(&"bell", -6.0, 0.0)
 	hud.dummy_mode = TrainingDummy.NAMES[dummy.mode]

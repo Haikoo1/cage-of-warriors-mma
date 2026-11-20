@@ -15,4 +15,4 @@ win_purse = 10000
 roster_per_class = 8
 attribute_mean = 64
 contract_fights = 4
-min_rating = 1120
+min_rating = 1080
