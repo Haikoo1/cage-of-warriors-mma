@@ -26,6 +26,8 @@ var sim: CombatSim
 var dummy_mode: String = ""
 var names: Array[String] = ["JOGADOR", "BONECO"]
 var training: bool = true
+var paused: bool = false
+var career_lock: bool = false  # luta de carreira não pode ser abandonada
 var player_focus: CombatSim.Focus = CombatSim.Focus.NORMAL
 var feedback: Array[String] = ["", ""]
 var _feedback_timer: Array[int] = [0, 0]
@@ -49,15 +51,22 @@ func present(events: Array[CombatEvent]) -> void:
 func _draw() -> void:
 	if sim == null:
 		return
-	for i: int in 2:
-		_draw_panel(i)
-	_draw_grappling()
+	var level: StringName = Settings.store.hud_level
+	if level != &"immersive":
+		for i: int in 2:
+			_draw_panel(i)
+	if level == &"full" or sim.grappling.submission != null:
+		_draw_grappling()
 	_draw_clock()
 	if sim.phase == CombatSim.Phase.ROUND_BREAK:
 		_draw_break()
 		return
 	if sim.is_finished():
 		_draw_end()
+	if paused:
+		draw_rect(Rect2(220, 140, 200, 60), Color(0, 0, 0, 0.85))
+		_text(Vector2(236, 162), "PAUSA", Color.YELLOW)
+		_text(Vector2(236, 180), "P continuar · Esc %s" % ("continuar" if career_lock else "sair"), Color.WHITE)
 	var help: String = "WASD mover | U/I mãos  J/K pernas | E curvo  Q corpo | Shift guarda | Espaço+W/S/trás esquiva | L clinch, L+S/W quedas\nF1 depuração | F2 boneco: %s | F3 métricas | R reiniciar | Esc menu" % dummy_mode if training else "F1 depuração | F4 sprites (teste de arte) | Esc sair"
 	draw_multiline_string(ThemeDB.fallback_font, Vector2(8, 322), help, HORIZONTAL_ALIGNMENT_LEFT, 624, 9, -1, Color(1, 1, 1, 0.75))
 

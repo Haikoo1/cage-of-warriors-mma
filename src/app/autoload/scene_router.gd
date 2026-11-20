@@ -7,6 +7,7 @@ const ROUTES: Dictionary = {
 	&"quick_fight": "res://scenes/ui/quick_fight_menu.tscn",
 	&"fight_result": "res://scenes/ui/fight_result.tscn",
 	&"career_create": "res://scenes/ui/career_create.tscn",
+	&"settings": "res://scenes/ui/settings.tscn",
 	&"career_dashboard": "res://scenes/ui/career_dashboard.tscn",
 }
 

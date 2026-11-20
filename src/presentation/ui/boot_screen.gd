@@ -23,6 +23,7 @@ func _ready() -> void:
 			_add("Continuar — slot %d: %s" % [s, summaries[s - 1]], func() -> void: _continue(slot))
 	_add("Luta Rápida", func() -> void: SceneRouter.go_to(&"quick_fight"))
 	_add("Treino livre (boneco)", func() -> void: SceneRouter.go_to(&"combat_test"))
+	_add("Opções (teclas, HUD, volume)", func() -> void: SceneRouter.go_to(&"settings"))
 	_add("Sair", func() -> void: get_tree().quit())
 	%Info.text = ""
 

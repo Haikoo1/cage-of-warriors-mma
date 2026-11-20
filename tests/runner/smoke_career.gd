@@ -30,6 +30,11 @@ func _initialize() -> void:
 	router.call("set_screen_root", holder)
 	router.call("go_to", &"boot")
 	await _frames(3)
+	router.call("go_to", &"settings")
+	await _frames(2)
+	for k: Key in [KEY_D, KEY_S, KEY_D, KEY_S, KEY_S, KEY_S, KEY_S, KEY_ENTER, KEY_M, KEY_BACKSPACE]:
+		_key(_screen(holder), k)
+		await _frames(1)
 	router.call("go_to", &"career_create")
 	await _frames(3)
 	for k: Key in [KEY_DOWN, KEY_D, KEY_DOWN, KEY_D, KEY_UP]:

@@ -15,6 +15,7 @@ var career_mode: bool = false
 var weigh_in: Dictionary = {}
 var fighter_names: Array = []
 var player_focus: CombatSim.Focus = CombatSim.Focus.NORMAL
+var paused: bool = false
 var _end_timer: int = 0
 var _break_timer: int = 0
 
@@ -58,6 +59,11 @@ func _start() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	hud.paused = paused
+	hud.career_lock = career_mode
+	if paused:
+		hud.present([])
+		return
 	if sim.is_finished():
 		_end_timer += 1
 		if quick != null and _end_timer == END_DELAY_FRAMES:
@@ -126,7 +132,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_R:
 			if quick == null:
 				_start()
+		KEY_P:
+			paused = not paused
 		KEY_ESCAPE:
-			if career_mode:
-				return  # luta de carreira não pode ser abandonada (sem save no meio da luta, R-028)
-			SceneRouter.go_to(&"quick_fight" if quick != null else &"boot")
+			if not paused:
+				paused = true
+			elif not career_mode:  # luta de carreira não pode ser abandonada (sem save no meio da luta, R-028)
+				SceneRouter.go_to(&"quick_fight" if quick != null else &"boot")
+			else:
+				paused = false
