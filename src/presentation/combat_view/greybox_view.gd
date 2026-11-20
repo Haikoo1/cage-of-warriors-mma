@@ -49,7 +49,7 @@ func _draw() -> void:
 func _draw_fighter(i: int) -> void:
 	var f: FighterCombatState = sim.fighters[i]
 	var base: Vector2 = to_screen(f.x, f.z)
-	if use_sprites and sprites != null and f.action != FighterCombatState.Action.DOWN and f.action != FighterCombatState.Action.OUT:
+	if use_sprites and sprites != null:
 		_draw_sprite(i, f, base)
 		return
 	var color: Color = COLORS[i]
@@ -162,7 +162,9 @@ func _label(pos: Vector2, text: String, color: Color) -> void:
 
 func _draw_sprite(i: int, f: FighterCombatState, base: Vector2) -> void:
 	_draw_ellipse(base, 18.0, 5.0, Color(0, 0, 0, 0.45))
-	var pick: Array = sprites.pick(f, sim.frame)
+	var g: CombatGrappling = sim.grappling
+	var technique: GrappleTechniqueDef = g.pending.technique if (g.pending != null and g.pending.attacker == i) else null
+	var pick: Array = sprites.pick(f, sim.frame, technique)
 	var tex: Texture2D = sprites.textures[pick[0]]
 	var size: Vector2 = Vector2(sprites.frame_size)
 	var src: Rect2 = Rect2(Vector2(size.x * int(pick[1]), 0), size)

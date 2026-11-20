@@ -29,23 +29,44 @@ static func load_biotype(dir: String, biotype: String) -> SpriteSet:
 	return s
 
 
-## Animação e quadro para um lutador. `elapsed` = quadros de simulação desde o início da ação.
-func pick(f: FighterCombatState, sim_frame: int) -> Array:
+const EVADE_ANIMS: Dictionary = {
+	FighterCombatState.Evade.SLIP: "slip", FighterCombatState.Evade.DUCK: "duck", FighterCombatState.Evade.PULL: "pull",
+}
+## Técnicas em pé que usam a animação de queda (as demais ficam em guarda até o solo/clinch).
+const TAKEDOWN_TECHNIQUES: Array[StringName] = [&"double_leg", &"single_leg"]
+const EVADE_FRAMES: int = 14
+
+
+## Animação e quadro para um lutador. `technique` = técnica de grappling em preparação por ele, se houver.
+func pick(f: FighterCombatState, sim_frame: int, technique: GrappleTechniqueDef = null) -> Array:
 	var anim: String = "guard"
 	var index: int = (sim_frame / sim_frames_per_sprite) % int(frames.get("guard", 1))
 	if f.is_striking() and f.strike != null and textures.has(String(f.strike.id)):
 		anim = String(f.strike.id)
 		index = _phase_frame(f, anim)
-	elif f.action == FighterCombatState.Action.GRAPPLING and textures.has("double_leg"):
+	elif f.action == FighterCombatState.Action.EVADING and EVADE_ANIMS.has(f.evade):
+		anim = EVADE_ANIMS[f.evade]
+		index = _progress_frame(anim, EVADE_FRAMES - f.action_frames_left, EVADE_FRAMES)
+	elif f.action == FighterCombatState.Action.DOWN or f.action == FighterCombatState.Action.OUT:
+		anim = "down"
+		index = 0
+	elif f.action == FighterCombatState.Action.GRAPPLING and technique != null and TAKEDOWN_TECHNIQUES.has(technique.id):
 		anim = "double_leg"
-		index = mini(int(frames[anim]) - 1, (int(frames[anim]) - 1) * (1.0 - float(f.action_frames_left) / 20.0))
+		index = _progress_frame(anim, technique.startup_frames - f.action_frames_left, technique.startup_frames)
 	elif f.action == FighterCombatState.Action.ROCKED or f.action == FighterCombatState.Action.STUNNED:
 		anim = "hit_head"
 		index = 1
 	elif f.moved_this_step and textures.has("walk"):
 		anim = "walk"
 		index = (sim_frame / sim_frames_per_sprite) % int(frames["walk"])
+	if not textures.has(anim):
+		anim = "guard"
+		index = 0
 	return [anim, clampi(index, 0, int(frames.get(anim, 1)) - 1)]
+
+
+func _progress_frame(anim: String, done: int, total: int) -> int:
+	return int(float(clampi(done, 0, total)) / float(maxi(1, total)) * (int(frames.get(anim, 1)) - 1) + 0.5)
 
 
 ## Progresso dentro do golpe: preparação → execução → recuperação mapeados nos quadros da folha.

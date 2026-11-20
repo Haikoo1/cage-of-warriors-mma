@@ -1,33 +1,57 @@
 {
-  "total_seconds": 37.9,
+  "total_seconds": 17.0,
   "animations": {
     "guard": {
       "sprite_frames": 9,
-      "seconds": 31.84
+      "seconds": 3.78
     },
     "walk": {
       "sprite_frames": 7,
-      "seconds": 0.95
+      "seconds": 1.45
     },
     "jab": {
       "sprite_frames": 5,
-      "seconds": 0.68
+      "seconds": 0.96
     },
     "cross": {
       "sprite_frames": 7,
-      "seconds": 1.01
+      "seconds": 1.26
     },
     "low_kick": {
       "sprite_frames": 9,
-      "seconds": 1.29
+      "seconds": 1.58
     },
     "double_leg": {
       "sprite_frames": 8,
-      "seconds": 1.16
+      "seconds": 1.37
+    },
+    "lead_hook": {
+      "sprite_frames": 8,
+      "seconds": 1.34
+    },
+    "body_kick": {
+      "sprite_frames": 11,
+      "seconds": 1.88
+    },
+    "slip": {
+      "sprite_frames": 4,
+      "seconds": 0.66
+    },
+    "duck": {
+      "sprite_frames": 4,
+      "seconds": 0.64
+    },
+    "pull": {
+      "sprite_frames": 4,
+      "seconds": 0.69
+    },
+    "down": {
+      "sprite_frames": 2,
+      "seconds": 0.36
     },
     "hit_head": {
       "sprite_frames": 5,
-      "seconds": 0.71
+      "seconds": 0.8
     }
   },
   "blender": "5.3.0"

@@ -25,6 +25,7 @@
 | D-013 | As 12 categorias são exigidas na **versão 1.0**; o protótipo usa 1 categoria (P-002, aprova R-002) | idem |
 | D-014 | O pipeline de arte será decidido **após o spike E-06**, com custo medido (P-003 como processo; aprova R-004 como método) | idem |
 | D-015 | Controle principal: **teclado primeiro**, gamepad como alternativa completa (P-007) | idem |
+| D-017 | **Pipeline de arte: 3D → pixel** (resolve P-003 pelo método D-014). Mais detalhe nos sprites fica para a produção de arte (E-10), com modelo humanoide com skinning | Usuário aprovou o M2, 2026-11-20 |
 | D-016 | Todas as teclas são **remapeáveis pelo jogador**; padrões simples definidos pelo Claude (U/I mãos, J/K pernas, E curvo, Q corpo, Shift guarda, Espaço técnica, L agarrar) | Usuário, 2026-11-19 (E-03) |
 
 ---
@@ -82,7 +83,6 @@ Nenhuma no momento. P-001, P-002 e P-007 foram respondidas (D-012, D-013, D-015)
 ### 3.2 Não bloqueiam agora
 | ID | Pergunta | Quando decidir |
 |---|---|---|
-| P-003 | Pipeline de arte final (3D→pixel × à mão × misto), segundo o método D-014 | Ao fim do spike E-06 (marco M2) |
 | P-004 | Profundidade da personalização visual (quantos cabelos, barbas, tatuagens, biotipos selecionáveis) | Após E-06 |
 | P-005 | Idioma(s) de lançamento (PT-BR? EN?) | E-02 (textos já em tabelas de localização) |
 | P-006 | Nível de violência gráfica / classificação etária alvo | Antes de E-10 |
@@ -139,6 +139,7 @@ Registro completo em [architecture/TECH_DECISIONS.md](architecture/TECH_DECISION
 |---|---|---|
 | 0.1 | 2026-11-19 | Criação do registro na Etapa 01 |
 | 0.2 | 2026-11-19 | Respostas a P-001, P-002, P-003 (método) e P-007 → D-012 a D-015; R-008 revisada; novas R-036 a R-038 |
+| 0.7 | 2026-11-20 | M2 aprovado → D-017 (pipeline 3D → pixel); P-003 resolvida |
 | 0.6 | 2026-11-20 | E-05: V-011 e V-012 |
 | 0.5 | 2026-11-19 | E-04: V-009 e V-010 registradas |
 | 0.4 | 2026-11-19 | E-03: usuário pediu controles configuráveis pelo jogador com padrões simples → **D-016** (abaixo). V-008 corrigida |

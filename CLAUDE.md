@@ -32,5 +32,5 @@ Godot: `C:\Users\sousa\Downloads\Godot_v4.7.2-stable_win64.exe` (defina `GODOT_E
 - Smoke da cena de combate: `"$GODOT" --headless --path . --script res://tests/runner/smoke_combat.gd`
 
 ## Armadilhas conhecidas (Godot 4.7)
-- Nomes de enum/classe que colidem com tipos globais da engine geram erro de parse: evite `Control`, `Corner`, `Side` (e confira outros nomes genéricos).
+- Nomes de enum/classe que colidem com tipos globais da engine geram erro de parse: evite `Control`, `Corner`, `Side` em enums/classes e métodos com nomes de virtuais do `Object` como `_set`, `_get`, `_init` em uso indevido.
 - Scripts com erro de parse carregam como GDScript "vazio"; o runner trata isso como falha (`can_instantiate()`).

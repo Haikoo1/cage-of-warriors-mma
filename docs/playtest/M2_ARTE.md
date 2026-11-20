@@ -37,9 +37,14 @@ Conclusão provisória: **o pipeline 3D → pixel cabe no escopo de um desenvolv
 3. Camadas de personalização como passes de render separados (P-004).
 4. Animações de solo pareadas com âncoras comuns.
 
-## 6. Critério do M2
+## 6. Avaliação do usuário (2026-11-20)
+- **Leitura e direção visual: aprovadas** ("Sim").
+- **Bug relatado:** "algumas vezes o sprite não funciona". Causa: lacunas de cobertura. Gancho, chute ao corpo, esquivas e "caído" não tinham animação e mostravam a guarda; qualquer técnica de agarrar usava a double leg. **Corrigido:** +6 animações (13 no total), mapeamento por técnica com o tempo real e teste de cobertura (`tests/integration/test_sprite_coverage.gd`) que falha se um golpe dos dados não tiver sprite.
+- **Pedido para o futuro:** sprites com mais detalhes. Registrado para a produção de arte (E-10): depende do modelo humanoide com skinning (§5).
+
+## 7. Critério do M2
 | Critério (ROADMAP §3) | Situação |
 |---|---|
 | Custo medido permite estimar o inventário completo | ✅ render medido; autoria estimada (§3) |
-| Leitura aprovada pelo usuário em jogo | ⏳ **Aguardando:** jogue com F4 ligado |
-| Legibilidade de Z e golpes | ⏳ Avaliar junto: sombra de contato + deslocamento vertical com sprites |
+| Leitura aprovada pelo usuário em jogo | ✅ 2026-11-20 |
+| Legibilidade de Z e golpes | ✅ aprovada junto com a leitura |

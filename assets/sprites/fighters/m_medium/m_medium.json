@@ -34,6 +34,30 @@
       "frames": 8,
       "sim_frames": 28
     },
+    "lead_hook": {
+      "frames": 8,
+      "sim_frames": 31
+    },
+    "body_kick": {
+      "frames": 11,
+      "sim_frames": 42
+    },
+    "slip": {
+      "frames": 4,
+      "sim_frames": 14
+    },
+    "duck": {
+      "frames": 4,
+      "sim_frames": 14
+    },
+    "pull": {
+      "frames": 4,
+      "sim_frames": 14
+    },
+    "down": {
+      "frames": 2,
+      "sim_frames": 4
+    },
     "hit_head": {
       "frames": 5,
       "sim_frames": 16

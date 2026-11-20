@@ -240,6 +240,22 @@ def animations():
     shoot = pose(GUARD, hips_x=0.45, hips_z=0.58, torso=62, head=-40, thigh_L=-80, shin_L=95, thigh_R=55, shin_R=10,
                  upper_arm_L=-80, forearm_L=-20, upper_arm_R=-75, forearm_R=-25)
     anims["double_leg"] = [(0, GUARD), (s // 2, level), (s, shoot), (s + 8, shoot)]
+    s, a, r = strike_phases("lead_hook")
+    hook_out = pose(GUARD, torso=20, head=-10, upper_arm_L=-78, forearm_L=-80)
+    anims["lead_hook"] = [(0, GUARD), (s, hook_out), (s + a, hook_out), (s + a + r, GUARD)]
+    s, a, r = strike_phases("body_kick")
+    chamber_b = pose(GUARD, torso=-8, thigh_R=-45, shin_R=75)
+    body_out = pose(GUARD, torso=-28, thigh_R=-88, shin_R=20, upper_arm_R=15, forearm_R=-100)
+    anims["body_kick"] = [(0, GUARD), (s // 2, chamber_b), (s, body_out), (s + a, body_out), (s + a + r, GUARD)]
+    # Esquivas: duração = evade_frames do balanceamento (14 quadros [PROV])
+    slip = pose(GUARD, hips_z=0.9, torso=20, head=-18, thigh_L=-28, shin_L=26)
+    duck = pose(GUARD, hips_z=0.76, torso=36, head=-20, thigh_L=-55, shin_L=75, thigh_R=38, shin_R=60)
+    pull = pose(GUARD, hips_x=-0.08, torso=-24, head=12, thigh_R=24, shin_R=22)
+    for name, p in (("slip", slip), ("duck", duck), ("pull", pull)):
+        anims[name] = [(0, GUARD), (4, p), (10, p), (14, GUARD)]
+    down = pose(GUARD, hips_z=0.16, hips_x=-0.3, torso=-88, head=10, upper_arm_L=-150, forearm_L=-20,
+                upper_arm_R=-160, forearm_R=-15, thigh_L=-82, shin_L=10, thigh_R=-70, shin_R=30)
+    anims["down"] = [(0, down), (4, down)]
     hit = pose(GUARD, torso=-12, head=24, hips_x=-0.05)
     anims["hit_head"] = [(0, GUARD), (4, hit), (16, GUARD)]
     return anims
