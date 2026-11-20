@@ -25,6 +25,7 @@
 | D-013 | As 12 categorias são exigidas na **versão 1.0**; o protótipo usa 1 categoria (P-002, aprova R-002) | idem |
 | D-014 | O pipeline de arte será decidido **após o spike E-06**, com custo medido (P-003 como processo; aprova R-004 como método) | idem |
 | D-015 | Controle principal: **teclado primeiro**, gamepad como alternativa completa (P-007) | idem |
+| D-016 | Todas as teclas são **remapeáveis pelo jogador**; padrões simples definidos pelo Claude (U/I mãos, J/K pernas, E curvo, Q corpo, Shift guarda, Espaço técnica, L agarrar) | Usuário, 2026-11-19 (E-03) |
 
 ---
 
@@ -125,7 +126,8 @@ Registro completo em [architecture/TECH_DECISIONS.md](architecture/TECH_DECISION
 |---|---|---|
 | V-005 | Não há documento de **áudio** (quais sons, música dinâmica, locução) | A arquitetura prevê AudioDirector + mapa evento→som; especificar o design de áudio antes de E-10 |
 | V-006 | O "mundo-modelo" da Luta Rápida (GDD §3) não tem conteúdo definido | Usar um mundo gerado com semente fixa a partir de `data/world_seed/`; confirmar em E-05 |
-| V-007 | Frente/trás relativos ao adversário × à tela no teclado (COMBAT §3.1) | Testar em E-03 |
+| V-007 | Frente/trás relativos ao adversário × à tela no teclado (COMBAT §3.1) | Padrão: relativo ao adversário; opção em Settings (`directions_relative_to_opponent`). Confirmar no playtest da E-03 |
+| V-008 | COMBAT §3.1 usava S para esquiva lateral e para abaixar | **Corrigido na E-03:** Espaço+W = slip, Espaço+S = duck, Espaço+trás = pull |
 
 ## 6. Histórico
 
@@ -133,4 +135,5 @@ Registro completo em [architecture/TECH_DECISIONS.md](architecture/TECH_DECISION
 |---|---|---|
 | 0.1 | 2026-11-19 | Criação do registro na Etapa 01 |
 | 0.2 | 2026-11-19 | Respostas a P-001, P-002, P-003 (método) e P-007 → D-012 a D-015; R-008 revisada; novas R-036 a R-038 |
+| 0.4 | 2026-11-19 | E-03: usuário pediu controles configuráveis pelo jogador com padrões simples → **D-016** (abaixo). V-008 corrigida |
 | 0.3 | 2026-11-19 | **Etapa 01 aprovada pelo usuário** ("Aprovar e seguir"). Os documentos de design passam a ser a base aprovada; os itens R-xxx continuam como recomendações vigentes até aprovação individual. Seção 5 (decisões técnicas e lacunas V-005 a V-007) adicionada na Etapa 02 |

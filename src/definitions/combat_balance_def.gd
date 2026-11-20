@@ -1,0 +1,57 @@
+class_name CombatBalanceDef
+extends Resource
+## Constantes globais de balanceamento do combate (BalanceConstants, DATA_ARCHITECTURE §2).
+## TODOS os valores são [PROV] (COMBAT_DESIGN): precisam de playtest no marco M1.
+
+@export_group("Movimento (COMBAT §2)")
+@export var walk_speed_mps: float = 2.2
+@export var back_speed_factor: float = 0.85
+@export var lateral_speed_mps: float = 1.4
+@export var guard_move_factor: float = 0.6
+@export var cage_half_width_m: float = 4.5
+@export var depth_half_m: float = 1.4
+@export var cornered_distance_m: float = 1.0
+@export var body_min_distance_m: float = 0.55
+@export var collision_depth_m: float = 0.45
+@export var angle_frames: int = 36
+@export var angle_tolerance_factor: float = 0.7
+@export var reference_reach_cm: float = 180.0
+
+@export_group("Fôlego e Reserva (COMBAT §6.1)")
+@export var move_stamina_per_s: float = 1.0
+@export var lateral_stamina_per_s: float = 2.0
+@export var regen_per_s: float = 8.0
+@export var reserve_loss_ratio: float = 0.15
+@export var reserve_floor: float = 20.0
+@export var body_damage_reserve_ratio: float = 0.3
+
+@export_group("Defesa (COMBAT §3.6)")
+@export var block_damage_ratio: float = 0.2
+@export var block_stamina_ratio: float = 0.4
+@export var evade_frames: int = 14
+@export var evade_stamina: float = 2.5
+@export var slip_offset_m: float = 0.35
+@export var pull_range_m: float = 0.25
+
+@export_group("Golpes e choque (COMBAT §3.5, §6.3)")
+@export var counter_mult: float = 1.5
+@export var power_variance: float = 0.05
+@export var shock_base: float = 20.0
+@export var rocked_ratio: float = 0.6
+@export var stunned_ratio: float = 1.0
+@export var knockdown_ratio: float = 1.5
+@export var knockout_ratio: float = 2.2
+@export var rocked_frames: int = 20
+@export var stunned_frames: int = 150
+@export var knockdown_frames: int = 120
+
+
+func validate() -> Array[String]:
+	var errors: Array[String] = []
+	if walk_speed_mps <= 0.0 or lateral_speed_mps <= 0.0:
+		errors.append("CombatBalanceDef: velocidades devem ser > 0")
+	if not (rocked_ratio < stunned_ratio and stunned_ratio < knockdown_ratio and knockdown_ratio < knockout_ratio):
+		errors.append("CombatBalanceDef: limiares de choque devem ser crescentes")
+	if cage_half_width_m <= body_min_distance_m:
+		errors.append("CombatBalanceDef: jaula menor que a distância mínima entre corpos")
+	return errors

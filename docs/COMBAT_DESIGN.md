@@ -107,7 +107,7 @@ Controle principal: **teclado**, com gamepad como alternativa completa. Tudo rem
 | Pausa | Esc | Start |
 
 **Direção de técnica no teclado:**
-- **Em pé:** Espaço + direção = esquiva (lado = *slip*, baixo = *duck*, trás = *pull*). Sem Espaço, WASD é movimento.
+- **Em pé:** Espaço + W = esquiva lateral (*slip*), Espaço + S = abaixar (*duck*), Espaço + trás = recuar o tronco (*pull*). Espaço + frente fica reservado. Sem Espaço, WASD é movimento. (Corrigido na E-03: a versão anterior usava S para duas esquivas.)
 - **No clinch e no solo:** não há locomoção livre, então **WASD é diretamente a direção de técnica** (sem Espaço). L + direção inicia uma técnica; a direção sozinha durante o *telegraph* do adversário é a defesa (§4.2). No Aperto de finalização, atacante e defensor usam WASD (§4.6).
 - **Quedas a partir de em pé:** L + S (abaixar o nível) = double leg; L + Q = single leg; L sozinho em curta distância = entrar no clinch `[PROV]`.
 
@@ -175,8 +175,8 @@ Sem atributo "Precisão" separado (decisão `R-013`). O resultado de um golpe de
 | Guarda alta | Segurar Guarda | Bloqueia socos e chutes à cabeça; reduz muito o dano | Custo de Fôlego por golpe bloqueado; deixa o corpo exposto a chutes e golpes ao corpo; movimento mais lento |
 | Guarda baixa | Guarda + Modificador Corpo | Protege corpo | Cabeça exposta |
 | Bloqueio de chute baixo (*check*) | Guarda + Técnica + baixo no momento do chute | Anula o chute baixo e causa dano à perna do atacante | Timing; se errar, fica parado |
-| Esquiva lateral (*slip*) | Técnica + W ou S (lado em Z) | Desloca a cabeça em Z: golpes retos erram; abre contra-golpe | Não evita golpes curvos; janela curta |
-| Abaixar (*duck*) | Técnica + baixo | Evita golpes altos curvos | Vulnerável a joelhada e uppercut |
+| Esquiva lateral (*slip*) | Técnica + W | Desloca a cabeça em Z: golpes retos erram; abre contra-golpe | Não evita golpes curvos; janela curta |
+| Abaixar (*duck*) | Técnica + S | Evita golpes altos curvos | Vulnerável a joelhada e uppercut |
 | Recuar o tronco (*pull*) | Técnica + trás | Evita golpes na ponta do alcance | Não funciona contra golpes em curta distância |
 | Movimentação | Passos | A defesa mais segura: sair de alcance ou de Z | Custo de Fôlego; perto da grade fica limitado |
 

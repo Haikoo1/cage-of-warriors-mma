@@ -23,7 +23,8 @@ O repositório é a fonte oficial. Antes de qualquer tarefa, consulte:
 Godot: `C:\Users\sousa\Downloads\Godot_v4.7.2-stable_win64.exe` (defina `GODOT_EXE`).
 - Testes: `.\tests\run_tests.ps1 -Godot $env:GODOT_EXE` (falha também se houver "SCRIPT ERROR").
 - Bash: `"$GODOT" --headless --path . --import` e depois `"$GODOT" --headless --path . --script res://tests/runner/run_tests.gd`.
-- Rodar o jogo: `"$GODOT" --path .`
+- Rodar o jogo: `"$GODOT" --path .` (Enter na tela inicial abre o treino de combate)
+- Smoke da cena de combate: `"$GODOT" --headless --path . --script res://tests/runner/smoke_combat.gd`
 
 ## Armadilhas conhecidas (Godot 4.7)
 - Nomes de enum/classe que colidem com tipos globais da engine geram erro de parse: evite `Control`, `Corner`, `Side` (e confira outros nomes genéricos).

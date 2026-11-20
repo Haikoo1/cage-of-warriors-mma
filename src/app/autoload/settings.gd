@@ -9,6 +9,7 @@ var store: SettingsStore = SettingsStore.new()
 func _ready() -> void:
 	InputBindings.register_defaults()
 	store.load_from(PATH)  # ausência do arquivo mantém os padrões
+	InputBindings.apply_overrides(store.key_overrides)
 
 
 func save() -> Error:

@@ -6,10 +6,16 @@ extends RefCounted
 var weight_classes: Dictionary = {}  # StringName -> WeightClassDef
 var strikes: Dictionary = {}  # StringName -> StrikeDef
 var rule_sets: Dictionary = {}  # StringName -> RuleSetDef
+var combat_balance: CombatBalanceDef
 var load_errors: Array[String] = []
 
 
 func add(def: Resource) -> void:
+	if def is CombatBalanceDef:
+		if combat_balance != null:
+			load_errors.append("CombatBalanceDef duplicado")
+		combat_balance = def
+		return
 	var table: Dictionary = _table_for(def)
 	if table == null:
 		load_errors.append("tipo de definição não suportado: %s" % def)
@@ -41,6 +47,10 @@ func validate_all() -> Array[String]:
 		errors.append_array(d.validate())
 	for d: RuleSetDef in rule_sets.values():
 		errors.append_array(d.validate(self))
+	if combat_balance == null:
+		errors.append("CombatBalanceDef ausente")
+	else:
+		errors.append_array(combat_balance.validate())
 	return errors
 
 
@@ -52,6 +62,8 @@ func content_hash() -> String:
 		ids.sort()
 		for id: StringName in ids:
 			parts.append(_serialize(table[id]))
+	if combat_balance != null:
+		parts.append(_serialize(combat_balance))
 	return "\n".join(parts).sha256_text()
 
 

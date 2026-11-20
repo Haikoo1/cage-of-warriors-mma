@@ -3,6 +3,7 @@ extends Node
 
 const ROUTES: Dictionary = {
 	&"boot": "res://scenes/ui/boot_screen.tscn",
+	&"combat_test": "res://scenes/combat/combat_test.tscn",
 }
 
 var _screen_root: Node

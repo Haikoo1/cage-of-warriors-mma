@@ -9,3 +9,9 @@ func _ready() -> void:
 		ProjectSettings.get_setting("application/config/version"),
 		defs.weight_classes.size(), defs.strikes.size(), defs.rule_sets.size(), status,
 	]
+	%Info.text += "\n\nEnter: treino de combate (greybox, E-03)"
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and (event as InputEventKey).physical_keycode == KEY_ENTER:
+		SceneRouter.go_to(&"combat_test")
