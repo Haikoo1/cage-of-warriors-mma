@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StrikeDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/strike_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"lead_hook"
+limb = 0
+variant = 1
+targets = PackedStringArray("head", "body")
+base_reach_m = 0.6
+depth_tolerance_m = 0.6
+startup_frames = 11
+active_frames = 4
+recovery_frames = 16
+chain_window_frames = 8
+power = 18
+stamina_cost = 3
+technique_attribute = &"boxe"
+feint_cutoff = 0.6

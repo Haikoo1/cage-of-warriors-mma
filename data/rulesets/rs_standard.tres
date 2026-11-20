@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="RuleSetDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/rule_set_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"rs_standard"
+rounds_normal = 3
+rounds_title = 5
+round_seconds = 300
+break_seconds = 60
+scoring_system = &"ten_point_must"
+clinch_inactivity_seconds = 10
+ground_inactivity_seconds = 15
+weight_tolerance_lb = 1

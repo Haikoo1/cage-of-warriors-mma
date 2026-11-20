@@ -22,6 +22,7 @@
 | Termos de jogo no código | **Inglês** no código, com correspondência 1:1 ao [GLOSSARY](../GLOSSARY.md) mantida no §6 abaixo | `stamina` = Fôlego, `reserve` = Reserva |
 
 ## 2. GDScript
+- **Evite nomes que colidem com tipos globais da Godot** em enums e classes (verificado na 4.7.2: `Control`, `Corner`, `Side` quebram o parse).
 - **Tipagem estática obrigatória** em variáveis, parâmetros e retornos (`var x: float`, `func f(a: int) -> void`). Ativar como **erro** os avisos de variável/parâmetro sem tipo nas configurações do projeto (nome exato da configuração a confirmar em E-02B). Motivo: erros aparecem antes da execução e o código fica legível para IA e humanos.
 - Arrays e dicionários tipados quando possível (`Array[CombatEvent]`).
 - `@export` só em definições e em nós de apresentação; nunca em classes de domínio.

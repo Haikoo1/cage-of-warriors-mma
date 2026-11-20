@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StrikeDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/strike_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"cross"
+limb = 1
+variant = 0
+targets = PackedStringArray("head", "body")
+base_reach_m = 0.9
+depth_tolerance_m = 0.3
+startup_frames = 9
+active_frames = 3
+recovery_frames = 14
+chain_window_frames = 8
+power = 16
+stamina_cost = 3
+technique_attribute = &"boxe"
+feint_cutoff = 0.6

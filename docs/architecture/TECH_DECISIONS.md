@@ -8,7 +8,8 @@
 
 ## 1. Plataforma, linguagem e ferramentas
 
-### T-001 — Versão da Godot · RECOMENDAÇÃO / versão exata PENDENTE
+### T-001 — Versão da Godot · **APROVADA: 4.7.2-stable** (instalada pelo usuário em 2026-11-19)
+- Configurações de T-011 confirmadas por teste automatizado (`tests/integration/test_project_settings.gd`).
 - **Contexto:** D-008 fixa Godot 4. A Godot não está instalada no ambiente atual (verificado em 2026-11-19), então nenhuma versão foi testada.
 - **Decisão proposta:** usar a **versão 4.x estável mais recente disponível no início de E-02B**, versão padrão (não .NET), e **fixá-la** no `README` e no `project.godot`. Atualizar de versão menor só entre etapas, com a suíte de testes passando.
 - **Alternativas:** versão LTS antiga (menos recursos de 2D/pixel), versões beta (instáveis).
@@ -108,4 +109,5 @@
 | Versão | Data | Alteração |
 |---|---|---|
 | 0.1 | 2026-11-19 | Criação na Etapa 02 |
+| 0.3 | 2026-11-19 | E-02B: T-001 fixada em 4.7.2; configurações de T-011, autoloads e InputMap (teclado) implementados e testados. Enums renomeados por colisão com tipos globais (`ControlMode`, `FighterSlot`) |
 | 0.2 | 2026-11-19 | **Etapa 02 aprovada pelo usuário.** T-009 aprovada (runner próprio). Git com commits locais autorizado (T-014, sem LFS por enquanto). Godot será instalada pelo usuário (T-001) |
