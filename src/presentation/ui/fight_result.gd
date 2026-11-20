@@ -22,13 +22,14 @@ func setup(params: Dictionary) -> void:
 func _draw() -> void:
 	if result == null:
 		return
+	UiDraw.background(self, "RESULTADO DA LUTA")
 	var font: Font = ThemeDB.fallback_font
 	var winner: String = "Empate" if result.winner == FightResult.FighterSlot.NONE else ("Vencedor: %s" % names[int(result.winner)])
-	draw_string(font, Vector2(30, 40), winner, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color.YELLOW)
+	draw_string(font, Vector2(30, 66), winner, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, UiDraw.C_SEL)
 	var mins: int = result.time_seconds / 60
-	draw_string(font, Vector2(30, 64), "%s — round %d, %d:%02d" % [METHOD_TEXT.get(result.method, "?"), result.round, mins, result.time_seconds % 60],
+	draw_string(font, Vector2(30, 84), "%s — round %d, %d:%02d" % [METHOD_TEXT.get(result.method, "?"), result.round, mins, result.time_seconds % 60],
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
-	var y: float = 92
+	var y: float = 108
 	draw_string(font, Vector2(30, y), "Juízes (total %s x %s):" % names, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1, 0.85))
 	var judge_names: Array[String] = ["Juiz 1 (equilibrado)", "Juiz 2 (trocação)", "Juiz 3 (grappling)"]
 	for j: int in result.scorecards.size():
@@ -55,7 +56,7 @@ func _draw() -> void:
 		draw_string(font, Vector2(30, y + k * 14), "%s: golpes %d, acertos %d, bloqueados %d · dano recebido cabeça %.0f corpo %.0f pernas %.0f" % [
 			names[k], int(s.get("attempts", 0)), int(s.get("landed", 0)), int(s.get("blocked", 0)),
 			float(med.get("head", 0)), float(med.get("body", 0)), float(med.get("legs", 0))], HORIZONTAL_ALIGNMENT_LEFT, 590, 10, Color(1, 1, 1, 0.8))
-	draw_string(font, Vector2(30, 340), "Enter: voltar à carreira" if career else "Enter: nova Luta Rápida  ·  Esc: menu", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(1, 1, 1, 0.6))
+	UiDraw.footer(self, "Enter: voltar à carreira" if career else "Enter: nova Luta Rápida  ·  Esc: menu")
 
 
 func _unhandled_input(event: InputEvent) -> void:

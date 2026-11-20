@@ -46,16 +46,28 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	UiDraw.text(self, Vector2(40, 60), "PROJETO JAULA", UiDraw.C_SEL, 26)
-	UiDraw.text(self, Vector2(42, 80), "MMA 2.5D · protótipo jogável (arte provisória)", UiDraw.C_DIM, UiDraw.SMALL)
+	UiDraw.background(self)
+	UiDraw.text(self, Vector2(30, 62), "PROJETO", UiDraw.C_DIM, 14)
+	UiDraw.text(self, Vector2(28, 98), "JAULA", UiDraw.C_TEXT, 40)
+	draw_rect(Rect2(30, 106, 120, 2), UiDraw.C_ACCENT)
+	UiDraw.text(self, Vector2(30, 122), "MMA 2.5D · modo carreira", UiDraw.C_DIM, UiDraw.TEXT)
 	for i: int in options.size():
-		var col: Color = UiDraw.C_SEL if i == row else UiDraw.C_TEXT
-		UiDraw.text(self, Vector2(40, 120 + i * 22), ("> " if i == row else "  ") + options[i], col, 12)
+		UiDraw.menu_item(self, Rect2(30, 136 + i * 24, 300, 20), options[i], i == row, 10)
+	UiDraw.panel(self, Rect2(370, 136, 240, 150))
+	UiDraw.text(self, Vector2(384, 156), "Status do protótipo", UiDraw.C_SEL, 11)
 	var defs: Definitions = DataRegistry.definitions
 	var status: String = "dados OK" if DataRegistry.errors.is_empty() else "%d erro(s) nos dados" % DataRegistry.errors.size()
-	UiDraw.text(self, Vector2(40, 340), "v%s · %d categorias · %d organizações · %s · W/S escolher · Enter confirmar" % [
-		ProjectSettings.get_setting("application/config/version"), defs.weight_classes.size(), defs.organizations.size(), status],
-		UiDraw.C_DIM, UiDraw.SMALL)
+	var lines: Array[String] = [
+		"Versão %s" % ProjectSettings.get_setting("application/config/version"),
+		"%d categorias · %d organizações" % [defs.weight_classes.size(), defs.organizations.size()],
+		"%d golpes · %d técnicas de grappling" % [defs.strikes.size(), defs.grapple_techniques.size()],
+		status,
+		"",
+		"Novo por aqui? Abra \"Como jogar\".",
+	]
+	for k: int in lines.size():
+		UiDraw.text(self, Vector2(384, 176 + k * 16), lines[k], UiDraw.C_TEXT if k < 4 else UiDraw.C_DIM, UiDraw.TEXT)
+	UiDraw.footer(self, "W/S escolher · Enter confirmar")
 
 
 func _unhandled_input(event: InputEvent) -> void:

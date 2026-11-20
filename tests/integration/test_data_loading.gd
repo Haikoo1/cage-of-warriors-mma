@@ -6,7 +6,7 @@ func test_example_data_loads_without_errors() -> void:
 	var errors: Array[String] = defs.validate_all()
 	assert_eq(errors.size(), 0, "erros: %s" % str(errors))
 	assert_eq(defs.weight_classes.size(), 12, "12 categorias (D-007)")
-	assert_eq(defs.strikes.size(), 5, "golpes")
+	assert_eq(defs.strikes.size(), 9, "golpes (COMBAT §3.2)")
 	assert_eq(defs.rule_sets.size(), 1, "rulesets")
 
 

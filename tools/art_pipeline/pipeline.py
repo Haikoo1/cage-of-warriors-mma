@@ -28,7 +28,7 @@ OUT_DIR = os.path.join(ROOT, "assets", "sprites", "fighters", "m_medium")
 TMP_DIR = os.path.join(ROOT, "art_source", "render_tmp")
 
 SIM_FPS = 60
-SIM_FRAMES_PER_SPRITE = 4  # 15 fps de sprite
+SIM_FRAMES_PER_SPRITE = 3  # 20 fps de sprite (refino da E-06)
 FIGHTER_HEIGHT_M = 1.80
 TARGET_HEIGHT_PX = 136  # ART §3 [PROV]
 FRAME_W, FRAME_H = 224, 160
@@ -38,10 +38,11 @@ CAM_Z = 0.95
 
 # Paleta (ART §4): rampas de 3 tons por material + contorno escuro colorido.
 PALETTE = {
-    "skin": [(0.42, 0.25, 0.17), (0.66, 0.43, 0.30), (0.85, 0.62, 0.46)],
-    "shorts": [(0.10, 0.16, 0.36), (0.18, 0.30, 0.62), (0.32, 0.48, 0.85)],
-    "glove": [(0.38, 0.06, 0.06), (0.68, 0.12, 0.10), (0.90, 0.30, 0.22)],
-    "hair": [(0.07, 0.05, 0.04), (0.14, 0.10, 0.08), (0.24, 0.18, 0.14)],
+    "skin": [(0.36, 0.20, 0.14), (0.58, 0.36, 0.25), (0.78, 0.53, 0.38), (0.93, 0.72, 0.56)],
+    "shorts": [(0.06, 0.08, 0.20), (0.12, 0.20, 0.46), (0.20, 0.34, 0.72), (0.38, 0.56, 0.92)],
+    "glove": [(0.30, 0.04, 0.05), (0.56, 0.08, 0.08), (0.80, 0.16, 0.13), (0.98, 0.42, 0.32)],
+    "hair": [(0.05, 0.04, 0.03), (0.11, 0.08, 0.06), (0.19, 0.14, 0.11), (0.30, 0.23, 0.18)],
+    "tape": [(0.52, 0.60, 0.74), (0.68, 0.76, 0.88), (0.82, 0.88, 0.96), (0.94, 0.97, 1.0)],  # branco azulado: longe dos tons de pele
 }
 OUTLINE = (0.12, 0.07, 0.08)
 FAR_SIDE_DARKEN = 0.72  # membros do lado longe da câmera mais escuros (leitura de profundidade)
@@ -99,9 +100,9 @@ def toon_material(name, ramp, darken=1.0):
     to_rgb = nodes.new("ShaderNodeShaderToRGB")
     cramp = nodes.new("ShaderNodeValToRGB")
     cramp.color_ramp.interpolation = "CONSTANT"
-    stops = [0.0, 0.25, 0.6]
+    stops = [0.0, 0.18, 0.45, 0.8]  # 4 tons: sombra, meio-tom, luz, brilho
     els = cramp.color_ramp.elements
-    while len(els) < 3:
+    while len(els) < len(ramp):
         els.new(0.5)
     for el, pos, col in zip(els, stops, ramp):
         el.position = pos
@@ -149,7 +150,8 @@ def ball(name, parent, location, radius, material, scale=(1, 1, 1)):
 
 
 def build_mannequin():
-    """Proporção ~7 cabeças, luvas levemente maiores (ART §5.1). Base ortodoxa: lado esquerdo (longe) à frente."""
+    """Proporção ~7 cabeças (ART §5.1). Refino E-06: tronco anatômico, pescoço, articulações arredondadas,
+    luvas com punho de fita, calção com cintura. Base ortodoxa: lado esquerdo (longe da câmera) à frente."""
     m = {k: toon_material(k, v) for k, v in PALETTE.items()}
     far = {k: toon_material(k + "_far", v, FAR_SIDE_DARKEN) for k, v in PALETTE.items()}
     head_h = FIGHTER_HEIGHT_M / 7.0
@@ -159,18 +161,36 @@ def build_mannequin():
     hips.name = "hips"
     hips.rotation_mode = "XYZ"
     parts["hips"] = hips
-    parts["pelvis"] = ball("pelvis", hips, (0, 0, -0.02), 0.17, m["shorts"], (1.0, 1.15, 0.8))
-    parts["torso"] = segment("torso", hips, (0, 0, 0.05), 0.52, 0.2, 0.15, m["skin"], up=True)
-    parts["head"] = segment("head", parts["torso"], (0, 0, 0.52), 0.06, 0.05, 0.06, m["skin"], up=True)
-    ball("skull", parts["head"], (0.02, 0, head_h * 0.55), head_h * 0.5, m["skin"], (0.9, 0.85, 1.05))
-    ball("hair", parts["head"], (-0.02, 0, head_h * 0.72), head_h * 0.42, m["hair"], (1.0, 0.95, 0.7))
-    for side, y, mats in (("L", 0.17, far), ("R", -0.17, m)):
-        ua = segment("upper_arm_" + side, parts["torso"], (0, y, 0.47), 0.29, 0.055, 0.045, mats["skin"])
-        fa = segment("forearm_" + side, ua, (0, 0, -0.29), 0.26, 0.045, 0.04, mats["skin"])
-        ball("glove_" + side, fa, (0, 0, -0.29), 0.065, mats["glove"], (1.15, 1.0, 1.0))
-        th = segment("thigh_" + side, hips, (0, y * 0.6, -0.05), 0.45, 0.085, 0.065, mats["shorts"] if True else mats["skin"])
-        sh = segment("shin_" + side, th, (0, 0, -0.45), 0.44, 0.06, 0.045, mats["skin"])
-        segment("foot_" + side, sh, (0, 0, -0.44), 0.05, 0.04, 0.05, mats["skin"], offset=(0.06, 0, 0))
+    # quadril + calção
+    ball("pelvis", hips, (0, 0, -0.03), 0.16, m["shorts"], (0.95, 1.25, 0.85))
+    ball("waistband", hips, (0, 0, 0.06), 0.15, m["shorts"], (0.95, 1.2, 0.35))
+    # tronco: abdômen + peito + ombros (o "torso" é o pivô que inclina)
+    torso = segment("torso", hips, (0, 0, 0.05), 0.24, 0.15, 0.14, m["skin"], up=True)
+    parts["torso"] = torso
+    ball("abdomen", torso, (0.01, 0, 0.14), 0.15, m["skin"], (0.85, 1.05, 1.0))
+    ball("chest", torso, (0.02, 0, 0.36), 0.19, m["skin"], (0.8, 1.15, 0.9))
+    ball("pec", torso, (0.07, 0, 0.36), 0.12, m["skin"], (0.7, 1.4, 0.75))
+    neck = segment("neck", torso, (0, 0, 0.47), 0.08, 0.055, 0.065, m["skin"], up=True)
+    parts["head"] = segment("head", neck, (0, 0, 0.06), 0.04, 0.05, 0.055, m["skin"], up=True)
+    ball("skull", parts["head"], (0.015, 0, head_h * 0.5), head_h * 0.47, m["skin"], (0.92, 0.85, 1.08))
+    ball("jaw", parts["head"], (0.045, 0, head_h * 0.28), head_h * 0.3, m["skin"], (0.9, 0.8, 0.75))
+    ball("hair", parts["head"], (-0.02, 0, head_h * 0.7), head_h * 0.44, m["hair"], (1.0, 0.95, 0.68))
+    ball("ear", parts["head"], (-0.01, -0.09, head_h * 0.5), 0.025, m["skin"], (0.6, 0.6, 1.0))
+    for side, y, mats in (("L", 0.19, far), ("R", -0.19, m)):
+        ball("shoulder_" + side, torso, (0, y, 0.42), 0.075, mats["skin"], (1.0, 0.9, 0.95))
+        ua = segment("upper_arm_" + side, torso, (0, y, 0.42), 0.28, 0.06, 0.048, mats["skin"])
+        ball("elbow_" + side, ua, (0, 0, -0.28), 0.046, mats["skin"])
+        fa = segment("forearm_" + side, ua, (0, 0, -0.28), 0.24, 0.048, 0.042, mats["skin"])
+        ball("wrap_" + side, fa, (0, 0, -0.23), 0.048, mats["tape"], (1.0, 1.0, 0.8))
+        ball("glove_" + side, fa, (0.01, 0, -0.29), 0.068, mats["glove"], (1.2, 1.0, 1.05))
+        ball("hip_" + side, hips, (0, y * 0.55, -0.06), 0.085, mats["shorts"])
+        th = segment("thigh_" + side, hips, (0, y * 0.55, -0.06), 0.44, 0.085, 0.062, mats["shorts"])
+        ball("knee_" + side, th, (0, 0, -0.44), 0.058, mats["skin"])
+        sh = segment("shin_" + side, th, (0, 0, -0.44), 0.42, 0.06, 0.042, mats["skin"])
+        ball("calf_" + side, sh, (-0.015, 0, -0.14), 0.06, mats["skin"], (1.0, 1.0, 1.6))
+        ball("ankle_" + side, sh, (0, 0, -0.42), 0.04, mats["skin"])
+        foot = segment("foot_" + side, sh, (0, 0, -0.43), 0.045, 0.035, 0.045, mats["skin"], offset=(0.065, 0, 0))
+        ball("toe_" + side, foot, (0.11, 0, -0.035), 0.035, mats["skin"], (1.4, 1.0, 0.7))
         parts.update({"upper_arm_" + side: ua, "forearm_" + side: fa, "thigh_" + side: th, "shin_" + side: sh})
     return parts
 
@@ -256,6 +276,21 @@ def animations():
     down = pose(GUARD, hips_z=0.16, hips_x=-0.3, torso=-88, head=10, upper_arm_L=-150, forearm_L=-20,
                 upper_arm_R=-160, forearm_R=-15, thigh_L=-82, shin_L=10, thigh_R=-70, shin_R=30)
     anims["down"] = [(0, down), (4, down)]
+    s, a, r = strike_phases("uppercut")
+    dip = pose(GUARD, hips_z=0.9, torso=14, upper_arm_R=-10, forearm_R=-140)
+    upper_out = pose(GUARD, hips_z=0.97, torso=0, head=-14, upper_arm_R=-60, forearm_R=-115)
+    anims["uppercut"] = [(0, GUARD), (s // 2, dip), (s, upper_out), (s + a, upper_out), (s + a + r, GUARD)]
+    s, a, r = strike_phases("teep")
+    teep_chamber = pose(GUARD, torso=-8, thigh_L=-75, shin_L=95)
+    teep_out = pose(GUARD, torso=-20, hips_x=-0.05, thigh_L=-88, shin_L=8)
+    anims["teep"] = [(0, GUARD), (s // 2, teep_chamber), (s, teep_out), (s + a, teep_out), (s + a + r, GUARD)]
+    s, a, r = strike_phases("calf_kick")
+    calf_out = pose(GUARD, torso=-10, thigh_L=-30, shin_L=35)
+    anims["calf_kick"] = [(0, GUARD), (s, calf_out), (s + a, calf_out), (s + a + r, GUARD)]
+    s, a, r = strike_phases("high_kick")
+    high_chamber = pose(GUARD, torso=-15, thigh_R=-70, shin_R=90, upper_arm_R=20, forearm_R=-90)
+    high_out = pose(GUARD, torso=-38, head=20, thigh_R=-125, shin_R=8, upper_arm_R=30, forearm_R=-60, thigh_L=-5, shin_L=8)
+    anims["high_kick"] = [(0, GUARD), (s // 2, high_chamber), (s, high_out), (s + a, high_out), (s + a + r, GUARD)]
     hit = pose(GUARD, torso=-12, head=24, hips_x=-0.05)
     anims["hit_head"] = [(0, GUARD), (4, hit), (16, GUARD)]
     return anims

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StrikeDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/strike_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"calf_kick"
+limb = 2
+variant = 1
+targets = PackedStringArray("legs")
+base_reach_m = 0.95
+depth_tolerance_m = 0.5
+startup_frames = 9
+active_frames = 3
+recovery_frames = 13
+chain_window_frames = 6
+feint_cutoff = 0.6
+power = 10.0
+stamina_cost = 2.5
+technique_attribute = &"kickboxing"

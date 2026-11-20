@@ -3,7 +3,7 @@
     224,
     160
   ],
-  "sim_frames_per_sprite": 4,
+  "sim_frames_per_sprite": 3,
   "anchor": [
     78,
     152
@@ -11,55 +11,71 @@
   "px_per_m": 75.55555555555556,
   "animations": {
     "guard": {
-      "frames": 9,
+      "frames": 11,
       "sim_frames": 32
     },
     "walk": {
-      "frames": 7,
+      "frames": 9,
       "sim_frames": 24
     },
     "jab": {
-      "frames": 5,
+      "frames": 7,
       "sim_frames": 19
     },
     "cross": {
-      "frames": 7,
+      "frames": 9,
       "sim_frames": 26
     },
     "low_kick": {
-      "frames": 9,
+      "frames": 12,
       "sim_frames": 35
     },
     "double_leg": {
-      "frames": 8,
+      "frames": 10,
       "sim_frames": 28
     },
     "lead_hook": {
-      "frames": 8,
+      "frames": 11,
       "sim_frames": 31
     },
     "body_kick": {
-      "frames": 11,
+      "frames": 15,
       "sim_frames": 42
     },
     "slip": {
-      "frames": 4,
+      "frames": 5,
       "sim_frames": 14
     },
     "duck": {
-      "frames": 4,
+      "frames": 5,
       "sim_frames": 14
     },
     "pull": {
-      "frames": 4,
+      "frames": 5,
       "sim_frames": 14
     },
     "down": {
       "frames": 2,
       "sim_frames": 4
     },
+    "uppercut": {
+      "frames": 11,
+      "sim_frames": 30
+    },
+    "teep": {
+      "frames": 11,
+      "sim_frames": 31
+    },
+    "calf_kick": {
+      "frames": 9,
+      "sim_frames": 25
+    },
+    "high_kick": {
+      "frames": 17,
+      "sim_frames": 50
+    },
     "hit_head": {
-      "frames": 5,
+      "frames": 6,
       "sim_frames": 16
     }
   }

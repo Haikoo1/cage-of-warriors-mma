@@ -68,24 +68,24 @@ func _draw() -> void:
 		_text(Vector2(236, 162), "PAUSA", Color.YELLOW)
 		_text(Vector2(236, 180), "P continuar · Esc %s" % ("continuar" if career_lock else "sair"), Color.WHITE)
 	var help: String = "WASD mover | U/I mãos  J/K pernas | E curvo  Q corpo | Shift guarda | Espaço+W/S/trás esquiva | L clinch, L+S/W quedas\nF1 depuração | F2 boneco: %s | F3 métricas | R reiniciar | Esc menu" % dummy_mode if training else "F1 depuração | F4 sprites (teste de arte) | Esc sair"
-	draw_multiline_string(ThemeDB.fallback_font, Vector2(8, 322), help, HORIZONTAL_ALIGNMENT_LEFT, 624, 9, -1, Color(1, 1, 1, 0.75))
+	UiDraw.footer(self, help.replace("
+", "  ·  "))
 
 
 func _draw_panel(i: int) -> void:
 	var f: FighterCombatState = sim.fighters[i]
-	var x0: float = 8.0 if i == 0 else 392.0
-	var title: String = names[i]
-	_text(Vector2(x0, 14), title, GreyboxView.COLORS[i])
-	draw_rect(Rect2(x0, 18, 240, 6), Color(0.15, 0.15, 0.15))
-	draw_rect(Rect2(x0, 18, 240 * f.reserve / 100.0, 6), Color(0.3, 0.3, 0.3))
-	var st: Color = Color.GREEN if f.stamina > 50 else (Color.YELLOW if f.stamina >= 25 else Color.RED)
-	draw_rect(Rect2(x0, 18, 240 * f.stamina / 100.0, 6), st)
-	_text(Vector2(x0, 36), "Fôlego %d / Reserva %d   Cabeça %d  Corpo %d  Pernas %d" % [
-		f.stamina, f.reserve, f.zone_damage(&"head"), f.zone_damage(&"body"), f.zone_damage(&"legs")], Color.WHITE)
+	var x0: float = 8.0 if i == 0 else 390.0
+	UiDraw.panel(self, Rect2(x0, 6, 242, 62))
+	_text(Vector2(x0 + 8, 19), names[i], GreyboxView.COLORS[i].lightened(0.25))
+	UiDraw.bar(self, Rect2(x0 + 8, 23, 226, 7), f.reserve / 100.0, Color(0.3, 0.32, 0.38))
+	var st: Color = UiDraw.C_GOOD if f.stamina > 50 else (UiDraw.C_SEL if f.stamina >= 25 else UiDraw.C_BAD)
+	UiDraw.bar(self, Rect2(x0 + 8, 23, 226, 7), f.stamina / 100.0, st)
+	_text(Vector2(x0 + 8, 42), "Fôlego %d / %d   Cabeça %d · Corpo %d · Pernas %d" % [
+		f.stamina, f.reserve, f.zone_damage(&"head"), f.zone_damage(&"body"), f.zone_damage(&"legs")], UiDraw.C_TEXT)
 	var s: Dictionary = f.stats
-	_text(Vector2(x0, 48), "Golpes %d  acertos %d  bloq %d  erros %d  esquivados %d  contra %d" % [
-		s["attempts"], s["landed"], s["blocked"], s["missed"], s["evaded"], s["counters"]], Color(1, 1, 1, 0.7))
-	_text(Vector2(x0, 62), feedback[i], Color.YELLOW)
+	_text(Vector2(x0 + 8, 54), "Golpes %d · acertos %d · bloq. %d · contra %d" % [s["attempts"], s["landed"], s["blocked"], s["counters"]], UiDraw.C_DIM)
+	if feedback[i] != "":
+		_text(Vector2(x0 + 8, 82), feedback[i], UiDraw.C_SEL)
 
 
 func _text(pos: Vector2, t: String, c: Color) -> void:
@@ -116,14 +116,15 @@ func _draw_grappling() -> void:
 		lines.append(">> DEFENDA: toque a direção da técnica (%s)" % g.pending.technique.id)
 	lines.sort()
 	for k: int in lines.size():
-		_text(Vector2(8, 82 + k * 11), lines[k], Color(0.8, 1.0, 0.8))
+		_text(Vector2(10, 102 + k * 11), lines[k], Color(0.8, 1.0, 0.8))
 
 
 func _draw_clock() -> void:
 	if training:
 		return
 	var left: int = maxi(0, sim.round_seconds - sim.round_seconds_elapsed())
-	_text(Vector2(296, 14), "R%d/%d  %d:%02d" % [sim.round, sim.total_rounds, left / 60, left % 60], Color.WHITE)
+	UiDraw.panel(self, Rect2(276, 6, 88, 26))
+	draw_string(ThemeDB.fallback_font, Vector2(276, 24), "R%d/%d  %d:%02d" % [sim.round, sim.total_rounds, left / 60, left % 60], HORIZONTAL_ALIGNMENT_CENTER, 88, 12, UiDraw.C_TEXT)
 
 
 ## Intervalo (COMBAT §5.1, §5.3): estatísticas do round, dicas do córner e foco tático.

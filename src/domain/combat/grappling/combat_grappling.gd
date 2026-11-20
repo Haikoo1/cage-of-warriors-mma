@@ -4,9 +4,10 @@ extends RefCounted
 ## `transition()` é a ÚNICA função que muda a posição. Combinações inválidas não são representáveis:
 ## existe um só estado para os dois lutadores, mais o índice de quem está "por cima".
 
-const POSITIONS: Array[StringName] = [&"EP", &"CL", &"CG", &"SG", &"SL", &"SO", &"SC", &"SR"]
+const POSITIONS: Array[StringName] = [&"EP", &"CL", &"CG", &"SG", &"SM", &"SL", &"SO", &"SC", &"SR"]
 const NEUTRAL: Array[StringName] = [&"EP", &"CL"]
-const GROUND: Array[StringName] = [&"SG", &"SL", &"SO", &"SC"]
+const GROUND: Array[StringName] = [&"SG", &"SM", &"SL", &"SO", &"SC"]
+const CLINCH: Array[StringName] = [&"CL", &"CG"]
 
 
 class Attempt:
@@ -54,6 +55,9 @@ func apply_command(sim: CombatSim, i: int, cmd: FighterCommand, events: Array[Co
 		return
 	if GROUND.has(position) and i == top and (cmd.strike_limb == StrikeDef.Limb.LEAD_HAND or cmd.strike_limb == StrikeDef.Limb.REAR_HAND):
 		_ground_and_pound(sim, i, events)
+		return
+	if CLINCH.has(position) and cmd.strike_limb >= 0 and not cmd.grapple:
+		_clinch_strike(sim, i, cmd, events)
 		return
 	if not cmd.grapple or pending != null:
 		return
@@ -215,7 +219,7 @@ func _ground_and_pound(sim: CombatSim, i: int, events: Array[CombatEvent]) -> vo
 	if f.gnp_cooldown > 0:
 		return
 	f.gnp_cooldown = bal.gnp_cooldown_frames
-	var mult: float = {&"SG": bal.gnp_mult_guard, &"SL": bal.gnp_mult_side, &"SO": bal.gnp_mult_mount, &"SC": bal.gnp_mult_back}[position]
+	var mult: float = {&"SG": bal.gnp_mult_guard, &"SM": bal.gnp_mult_half, &"SL": bal.gnp_mult_side, &"SO": bal.gnp_mult_mount, &"SC": bal.gnp_mult_back}[position]
 	var variance: float = sim.rng.randf_range(1.0 - bal.power_variance, 1.0 + bal.power_variance)
 	var power: float = bal.gnp_power * mult * (0.7 + f.attr(&"forca") * 0.006) * (0.8 + f.attr(&"controle_solo") * 0.004) \
 		* CombatPhysiology.power_multiplier(f) * variance
@@ -234,10 +238,39 @@ func _ground_and_pound(sim: CombatSim, i: int, events: Array[CombatEvent]) -> vo
 		d.set_action(FighterCombatState.Action.STUNNED, bal.stunned_frames)
 
 
-## Guarda por baixo no solo (cobertura contra ground and pound).
+## Joelhadas (perna) e cotoveladas (mão) no clinch (COMBAT §4.3). Quem tem a pegada joelha a cabeça;
+## sem pegada, a joelhada vai ao corpo. Cobrir-se (Shift) reduz como bloqueio.
+func _clinch_strike(sim: CombatSim, i: int, cmd: FighterCommand, events: Array[CombatEvent]) -> void:
+	var f: FighterCombatState = sim.fighters[i]
+	var d: FighterCombatState = sim.fighters[1 - i]
+	var bal: CombatBalanceDef = sim.balance
+	if f.gnp_cooldown > 0:
+		return
+	f.gnp_cooldown = bal.clinch_strike_cooldown_frames
+	var knee: bool = cmd.strike_limb == StrikeDef.Limb.LEAD_LEG or cmd.strike_limb == StrikeDef.Limb.REAR_LEG
+	var e: CombatEvent = CombatEvent.make(CombatEvent.Type.STRIKE_RESOLVED, i, 1 - i)
+	e.strike_id = &"clinch_knee" if knee else &"clinch_elbow"
+	e.zone = &"head" if (not knee or clinch_owner == i) else &"body"
+	var blocked: bool = d.guard_high and e.zone == &"head"
+	e.outcome = CombatEvent.Outcome.BLOCKED if blocked else CombatEvent.Outcome.CLEAN
+	var variance: float = sim.rng.randf_range(1.0 - bal.power_variance, 1.0 + bal.power_variance)
+	var power: float = (bal.clinch_knee_power if knee else bal.clinch_elbow_power) * (0.7 + f.attr(&"forca") * 0.006) 		* (0.8 + f.attr(&"kickboxing") * 0.004) * CombatPhysiology.power_multiplier(f) * variance
+	CombatPhysiology.spend(f, 2.5 if knee else 2.0, bal)
+	f.stats["attempts"] += 1
+	f.stats["blocked" if blocked else "landed"] += 1
+	events.append(e)
+	CombatPhysiology.apply_hit(sim, d, e, power, blocked, events)
+	# No clinch o knockdown separa a dupla: a posição volta a "em pé".
+	if d.action == FighterCombatState.Action.DOWN:
+		transition(sim, &"EP", -1)
+		d.set_action(FighterCombatState.Action.DOWN, bal.knockdown_frames)
+
+
+## Cobertura por baixo no solo (contra ground and pound) e no clinch (contra cotoveladas/joelhadas).
 func apply_ground_guard(sim: CombatSim, i: int, cmd: FighterCommand) -> void:
 	var f: FighterCombatState = sim.fighters[i]
-	f.guard_high = GROUND.has(position) and i != top and cmd.guard and f.action == FighterCombatState.Action.IDLE
+	var can_cover: bool = (GROUND.has(position) and i != top) or CLINCH.has(position)
+	f.guard_high = can_cover and cmd.guard and f.action == FighterCombatState.Action.IDLE
 
 
 func _start_submission(sim: CombatSim, t: GrappleTechniqueDef, attacker: int) -> void:
@@ -290,6 +323,7 @@ func _advance_submission(sim: CombatSim, events: Array[CombatEvent]) -> void:
 	if s.meter >= 100.0:
 		e.grapple_outcome = CombatEvent.GrappleOutcome.TAPPED
 		submission = null
+		sim.finish_detail = t.id
 		sim.finish(s.attacker, &"submission")
 	elif s.meter <= 0.0 or s.escapes >= t.escapes_needed:
 		e.grapple_outcome = CombatEvent.GrappleOutcome.ESCAPED

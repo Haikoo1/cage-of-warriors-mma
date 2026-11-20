@@ -54,7 +54,7 @@ func _draw() -> void:
 		return
 	var s: CareerState = cc.state
 	var p: FighterState = s.player()
-	draw_rect(Rect2(0, 0, 640, 360), Color(0.06, 0.06, 0.08))
+	UiDraw.background(self)
 	var org: OrganizationDef = cc.defs.organization(p.org_id)
 	var wc: WeightClassDef = cc.defs.weight_class(p.weight_class_id)
 	var rank: int = Rankings.rank_of(s, p)
@@ -76,8 +76,8 @@ func _draw() -> void:
 			3: _draw_rankings()
 			4: _draw_profile()
 	if message != "":
-		UiDraw.text(self, Vector2(10, 330), message, UiDraw.C_GOOD, UiDraw.SMALL, 620)
-	UiDraw.text(self, Vector2(10, 350), _help(), UiDraw.C_DIM, 8, 620)
+		UiDraw.text(self, Vector2(10, 336), message, UiDraw.C_GOOD, UiDraw.SMALL, 620)
+	UiDraw.footer(self, _help())
 
 
 func _help() -> String:

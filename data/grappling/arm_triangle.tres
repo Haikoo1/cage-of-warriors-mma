@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="GrappleTechniqueDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/grapple_technique_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"arm_triangle"
+kind = &"submission"
+from_state = &"SL"
+role = &"top"
+direction = 4
+to_state = &""
+result_top = &"keep"
+startup_frames = 22
+pressure_attr = &"jiu_jitsu"
+resistance_attr = &"defesa_finalizacao"
+defense_direction = 4
+stamina_cost = 5.0
+squeeze_rate = 16.0
+escapes_needed = 3
+escape_state = &"SM"
+escape_top = &"attacker"

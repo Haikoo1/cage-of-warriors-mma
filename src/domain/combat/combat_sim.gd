@@ -27,6 +27,7 @@ var round_scores: Array = []
 var round_stat_history: Array = []
 var fight_stats: Array = [{}, {}]
 var finish_method: StringName = &""
+var finish_detail: StringName = &""  # ex.: id da finalização
 var decision: Array = []  # [FightResult.Method, FighterSlot] quando vai aos juízes
 var _finished: bool = false
 var _winner: int = -1
@@ -61,6 +62,10 @@ func step(cmd_a: FighterCommand, cmd_b: FighterCommand) -> Array[CombatEvent]:
 	# Ordem alternada a cada quadro: em ações simultâneas, nenhum lado tem prioridade fixa.
 	var first: int = frame % 2
 	var order: Array[int] = [first, 1 - first]
+	# Cobertura no clinch/solo vale no mesmo passo do golpe recebido.
+	if grappling.position != &"EP":
+		for i: int in 2:
+			grappling.apply_ground_guard(self, i, cmds[i])
 	for i: int in order:
 		grappling.apply_command(self, i, cmds[i], events)
 	var consumed: Array[bool] = [grappling.register_read(0, cmd_a), grappling.register_read(1, cmd_b)]
@@ -157,7 +162,7 @@ func build_result(bout_id: StringName) -> FightResult:
 			r.method = FightResult.Method.TKO
 		&"submission":
 			r.method = FightResult.Method.SUBMISSION
-			r.method_detail = &"rear_naked_choke"
+			r.method_detail = finish_detail
 		&"decision":
 			r.method = decision[0]
 	if finish_method == &"decision":

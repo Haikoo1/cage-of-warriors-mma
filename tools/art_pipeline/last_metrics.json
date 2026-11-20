@@ -1,57 +1,73 @@
 {
-  "total_seconds": 17.0,
+  "total_seconds": 15.5,
   "animations": {
     "guard": {
-      "sprite_frames": 9,
-      "seconds": 3.78
+      "sprite_frames": 11,
+      "seconds": 1.63
     },
     "walk": {
-      "sprite_frames": 7,
-      "seconds": 1.45
+      "sprite_frames": 9,
+      "seconds": 0.89
     },
     "jab": {
-      "sprite_frames": 5,
-      "seconds": 0.96
+      "sprite_frames": 7,
+      "seconds": 0.71
     },
     "cross": {
-      "sprite_frames": 7,
-      "seconds": 1.26
+      "sprite_frames": 9,
+      "seconds": 0.87
     },
     "low_kick": {
-      "sprite_frames": 9,
-      "seconds": 1.58
+      "sprite_frames": 12,
+      "seconds": 1.15
     },
     "double_leg": {
-      "sprite_frames": 8,
-      "seconds": 1.37
+      "sprite_frames": 10,
+      "seconds": 0.95
     },
     "lead_hook": {
-      "sprite_frames": 8,
-      "seconds": 1.34
+      "sprite_frames": 11,
+      "seconds": 1.04
     },
     "body_kick": {
-      "sprite_frames": 11,
-      "seconds": 1.88
+      "sprite_frames": 15,
+      "seconds": 1.42
     },
     "slip": {
-      "sprite_frames": 4,
-      "seconds": 0.66
+      "sprite_frames": 5,
+      "seconds": 0.47
     },
     "duck": {
-      "sprite_frames": 4,
-      "seconds": 0.64
+      "sprite_frames": 5,
+      "seconds": 0.48
     },
     "pull": {
-      "sprite_frames": 4,
-      "seconds": 0.69
+      "sprite_frames": 5,
+      "seconds": 0.48
     },
     "down": {
       "sprite_frames": 2,
-      "seconds": 0.36
+      "seconds": 0.21
+    },
+    "uppercut": {
+      "sprite_frames": 11,
+      "seconds": 1.04
+    },
+    "teep": {
+      "sprite_frames": 11,
+      "seconds": 1.04
+    },
+    "calf_kick": {
+      "sprite_frames": 9,
+      "seconds": 0.84
+    },
+    "high_kick": {
+      "sprite_frames": 17,
+      "seconds": 1.58
     },
     "hit_head": {
-      "sprite_frames": 5,
-      "seconds": 0.8
+      "sprite_frames": 6,
+      "seconds": 0.55
     }
   },
   "blender": "5.3.0"

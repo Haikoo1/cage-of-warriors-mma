@@ -25,15 +25,14 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	var font: Font = ThemeDB.fallback_font
-	draw_string(font, Vector2(40, 50), "LUTA RÁPIDA", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color.WHITE)
+	UiDraw.background(self, "LUTA RÁPIDA", "lutadores de exemplo · peso-leve")
 	for i: int in ROWS.size():
-		var y: float = 90 + i * 26
-		var col: Color = Color.YELLOW if i == row else Color(1, 1, 1, 0.75)
-		draw_string(font, Vector2(40, y), ROWS[i], HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
-		draw_string(font, Vector2(260, y), "< %s >" % _options(i)[values[i]], HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
-	draw_string(font, Vector2(40, 270), "W/S escolher  ·  A/D mudar  ·  Enter lutar  ·  Esc voltar", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(1, 1, 1, 0.6))
-	draw_string(font, Vector2(40, 290), "Lutadores de exemplo do peso-leve com atributos provisórios. Regras: 3x5 min oficial; duração ajustável aqui.", HORIZONTAL_ALIGNMENT_LEFT, 560, 9, Color(1, 1, 1, 0.5))
+		var rect: Rect2 = Rect2(40, 62 + i * 30, 560, 24)
+		UiDraw.panel(self, rect, i == row)
+		UiDraw.text(self, rect.position + Vector2(14, 16), ROWS[i], UiDraw.C_SEL if i == row else UiDraw.C_DIM, 10)
+		UiDraw.text(self, rect.position + Vector2(220, 16), "‹  %s  ›" % _options(i)[values[i]], UiDraw.C_TEXT, 11)
+	UiDraw.text(self, Vector2(40, 260), "Regras oficiais: 3 x 5 min. A duração aqui é ajustável para lutas rápidas.", UiDraw.C_DIM, UiDraw.SMALL)
+	UiDraw.footer(self, "W/S escolher · A/D mudar · Enter lutar · Esc voltar")
 
 
 func _unhandled_input(event: InputEvent) -> void:

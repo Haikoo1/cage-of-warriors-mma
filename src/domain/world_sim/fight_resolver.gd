@@ -28,7 +28,7 @@ static func resolve(a: FighterState, b: FighterState, rounds: int, rng: RandomNu
 			else:
 				r.method = FightResult.Method.SUBMISSION if rng.randf() < 0.7 else FightResult.Method.TKO
 				if r.method == FightResult.Method.SUBMISSION:
-					r.method_detail = &"rear_naked_choke"
+					r.method_detail = [&"rear_naked_choke", &"triangle", &"armbar", &"kimura", &"arm_triangle", &"guillotine"][rng.randi_range(0, 5)]
 			r.round = round
 			r.time_seconds = rng.randi_range(10, 299)
 			break

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StrikeDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/strike_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"uppercut"
+limb = 1
+variant = 1
+targets = PackedStringArray("head")
+base_reach_m = 0.5
+depth_tolerance_m = 0.45
+startup_frames = 10
+active_frames = 4
+recovery_frames = 16
+chain_window_frames = 8
+feint_cutoff = 0.6
+power = 19.0
+stamina_cost = 3.0
+technique_attribute = &"boxe"

@@ -53,16 +53,18 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	UiDraw.text(self, Vector2(40, 46), "NOVA CARREIRA", UiDraw.C_SEL, UiDraw.TITLE)
+	UiDraw.background(self, "NOVA CARREIRA", "do circuito local ao cinturão")
 	for i: int in ROWS.size():
-		var y: float = 82 + i * 24
-		var col: Color = UiDraw.C_SEL if i == row else UiDraw.C_TEXT
-		UiDraw.text(self, Vector2(40, y), ROWS[i], col, 11)
-		UiDraw.text(self, Vector2(190, y), ("< %s >" if i > 0 else "%s") % _value_text(i), col, 11)
+		var rect: Rect2 = Rect2(30, 56 + i * 28, 580, 22)
+		UiDraw.panel(self, rect, i == row)
+		UiDraw.text(self, rect.position + Vector2(12, 15), ROWS[i], UiDraw.C_SEL if i == row else UiDraw.C_DIM, 10)
+		UiDraw.text(self, rect.position + Vector2(150, 15), ("‹  %s  ›" if i > 0 else "%s") % _value_text(i), UiDraw.C_TEXT, 10, 420)
 	var origin: OriginDef = DataRegistry.definitions.origin(origin_ids[values[2]])
-	UiDraw.text(self, Vector2(40, 240), origin.description, UiDraw.C_DIM, UiDraw.TEXT)
-	UiDraw.text(self, Vector2(40, 256), "Mais novo = atributos baixos e carreira longa; mais velho = começa melhor, com menos tempo até o pico.", UiDraw.C_DIM, UiDraw.SMALL)
-	UiDraw.text(self, Vector2(40, 300), "W/S linha · A/D mudar · digite o nome na 1ª linha · Enter criar · Esc voltar", UiDraw.C_DIM, UiDraw.SMALL)
+	UiDraw.panel(self, Rect2(30, 232, 580, 56))
+	UiDraw.text(self, Vector2(42, 250), origin.display_name, UiDraw.C_SEL, 11)
+	UiDraw.text(self, Vector2(42, 266), origin.description, UiDraw.C_TEXT, UiDraw.TEXT)
+	UiDraw.text(self, Vector2(42, 280), "Mais novo: atributos baixos e carreira longa. Mais velho: começa melhor, com menos tempo até o pico.", UiDraw.C_DIM, UiDraw.SMALL)
+	UiDraw.footer(self, "↑/↓ linha · A/D mudar · digite o nome na 1ª linha · Enter criar · Esc voltar")
 
 
 func _unhandled_input(event: InputEvent) -> void:

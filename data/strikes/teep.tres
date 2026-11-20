@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StrikeDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/definitions/strike_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"teep"
+limb = 2
+variant = 0
+targets = PackedStringArray("body")
+base_reach_m = 1.15
+depth_tolerance_m = 0.3
+startup_frames = 11
+active_frames = 4
+recovery_frames = 16
+chain_window_frames = 6
+feint_cutoff = 0.6
+power = 9.0
+stamina_cost = 3.0
+technique_attribute = &"kickboxing"

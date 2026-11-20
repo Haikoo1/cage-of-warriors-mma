@@ -10,9 +10,9 @@ const CENTER_X: float = 320.0
 const COLORS: Array[Color] = [Color(0.35, 0.6, 1.0), Color(1.0, 0.45, 0.35)]
 
 var sim: CombatSim
-var debug_overlay: bool = true
+var debug_overlay: bool = false
 ## E-06: F4 alterna entre formas greybox e os sprites do pipeline 3D → pixel (só em pé; solo segue greybox).
-var use_sprites: bool = false
+var use_sprites: bool = true
 var sprites: SpriteSet = SpriteSet.load_biotype("res://assets/sprites/fighters/m_medium", "m_medium")
 
 
@@ -27,14 +27,7 @@ func to_screen(x: float, z: float) -> Vector2:
 func _draw() -> void:
 	if sim == null:
 		return
-	var bal: CombatBalanceDef = sim.balance
-	# Lona (faixa de profundidade) e grades nas extremidades X.
-	var tl: Vector2 = to_screen(-bal.cage_half_width_m, bal.depth_half_m)
-	var br: Vector2 = to_screen(bal.cage_half_width_m, -bal.depth_half_m)
-	draw_rect(Rect2(tl, br - tl), Color(0.22, 0.22, 0.25))
-	for side: float in [-1.0, 1.0]:
-		var top: Vector2 = to_screen(side * bal.cage_half_width_m, bal.depth_half_m)
-		draw_line(top + Vector2(0, -150), to_screen(side * bal.cage_half_width_m, -bal.depth_half_m), Color(0.6, 0.6, 0.6), 2.0)
+	_draw_arena(sim.balance)
 	if sim.grappling.position != &"EP":
 		_draw_grapple_pair()
 		return
@@ -109,7 +102,7 @@ func _draw_debug(f: FighterCombatState, base: Vector2) -> void:
 
 
 const POSITION_NAMES: Dictionary = {
-	&"CL": "CLINCH", &"CG": "CLINCH NA GRADE", &"SG": "GUARDA", &"SL": "CONTROLE LATERAL",
+	&"CL": "CLINCH", &"CG": "CLINCH NA GRADE", &"SG": "GUARDA", &"SM": "MEIA-GUARDA", &"SL": "CONTROLE LATERAL",
 	&"SO": "MONTADA", &"SC": "COSTAS", &"SR": "LEVANTANDO",
 }
 
@@ -140,7 +133,7 @@ func _draw_grapple_pair() -> void:
 		_:
 			draw_rect(Rect2(mid.x - 55, mid.y - 16, 110, 16), cb)  # quem está por baixo, deitado
 			draw_circle(Vector2(mid.x - 58 * sim.fighters[bottom_i].facing, mid.y - 8), 10.0, cb.lightened(0.2))
-			var h: float = {&"SG": 40.0, &"SL": 30.0, &"SO": 50.0, &"SC": 36.0}.get(g.position, 36.0)
+			var h: float = {&"SG": 40.0, &"SM": 36.0, &"SL": 30.0, &"SO": 50.0, &"SC": 36.0}.get(g.position, 36.0)
 			draw_rect(Rect2(mid.x - 14, mid.y - 16 - h, 28, h), ct)
 			draw_circle(Vector2(mid.x, mid.y - 26 - h), 11.0, ct.lightened(0.2))
 	_label(Vector2(mid.x - 40, mid.y - 150), POSITION_NAMES.get(g.position, ""), Color.WHITE)
@@ -177,3 +170,64 @@ func _draw_sprite(i: int, f: FighterCombatState, base: Vector2) -> void:
 	draw_set_transform(Vector2.ZERO)
 	if debug_overlay:
 		_draw_debug(f, base)
+
+
+const CROWD_SEED: int = 1337
+
+
+## Arena (ART §7): fundo escuro, público em silhueta em camadas, holofotes, lona com logo e grade com tela.
+## Tudo desenhado em pixels inteiros na SubViewport 640x360 (pixel art fiel).
+func _draw_arena(bal: CombatBalanceDef) -> void:
+	draw_rect(Rect2(0, 0, 640, 360), Color(0.035, 0.035, 0.05))
+	var floor_top: float = FLOOR_Y - bal.depth_half_m * DEPTH_PPM
+	var floor_bottom: float = FLOOR_Y + bal.depth_half_m * DEPTH_PPM
+	# Público: 4 fileiras de cabeças/ombros com leve balanço (reage em momentos fortes no futuro).
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	rng.seed = CROWD_SEED
+	var bob: float = sin(Time.get_ticks_msec() / 400.0)
+	for row: int in 4:
+		var y: float = 150.0 + row * 22.0
+		var shade: float = 0.06 + row * 0.025
+		var x: float = -10.0 + row * 7.0
+		while x < 650.0:
+			var w: float = rng.randf_range(9.0, 14.0)
+			var hy: float = y - rng.randf_range(0.0, 5.0) + (bob if rng.randf() < 0.3 else 0.0)
+			var col: Color = Color(shade, shade, shade + 0.02)
+			draw_rect(Rect2(roundf(x), roundf(hy + 7), roundf(w), 30), col)
+			draw_circle(Vector2(roundf(x + w / 2), roundf(hy + 3)), roundf(w * 0.32), col)
+			if rng.randf() < 0.04:
+				draw_rect(Rect2(roundf(x + w / 2), roundf(hy - 2), 2, 2), Color(0.9, 0.9, 1.0, 0.8))  # celular
+			x += w + rng.randf_range(1.0, 4.0)
+	# Holofotes.
+	for k: int in 3:
+		var cx: float = 160.0 + k * 160.0
+		draw_colored_polygon(PackedVector2Array([Vector2(cx - 6, 0), Vector2(cx + 6, 0), Vector2(cx + 70, floor_bottom), Vector2(cx - 70, floor_bottom)]),
+			Color(1.0, 0.95, 0.8, 0.035))
+	# Grade do fundo (tela em losangos) acima da lona.
+	var left: float = CENTER_X - bal.cage_half_width_m * PPM
+	var right: float = CENTER_X + bal.cage_half_width_m * PPM
+	var fence_top: float = floor_top - 78.0
+	draw_rect(Rect2(left, fence_top, right - left, floor_top - fence_top), Color(0.02, 0.02, 0.03, 0.55))
+	var step: float = 8.0
+	var xx: float = left
+	while xx < right:
+		draw_line(Vector2(roundf(xx), fence_top), Vector2(roundf(xx + 39), floor_top), Color(0.35, 0.37, 0.42, 0.35))
+		draw_line(Vector2(roundf(xx + 39), fence_top), Vector2(roundf(xx), floor_top), Color(0.35, 0.37, 0.42, 0.35))
+		xx += step * 2.0
+	draw_rect(Rect2(left, fence_top - 3, right - left, 3), Color(0.12, 0.12, 0.15))
+	# Lona com borda, logo central e sombra de vinheta.
+	draw_rect(Rect2(left, floor_top, right - left, floor_bottom - floor_top), Color(0.82, 0.82, 0.8))
+	draw_rect(Rect2(left, floor_top, right - left, 3), Color(0.6, 0.6, 0.6))
+	draw_rect(Rect2(left, floor_bottom - 4, right - left, 4), Color(0.12, 0.12, 0.14))
+	var logo: PackedVector2Array = []
+	for k2: int in 8:
+		var a: float = TAU * k2 / 8.0 + TAU / 16.0
+		logo.append(Vector2(roundf(CENTER_X + cos(a) * 46), roundf((floor_top + floor_bottom) / 2 + sin(a) * 18)))
+	draw_colored_polygon(logo, Color(0.72, 0.12, 0.14, 0.35))
+	draw_string(ThemeDB.fallback_font, Vector2(CENTER_X - 22, (floor_top + floor_bottom) / 2 + 4), "JAULA", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1, 0.35))
+	# Postes da grade nas extremidades X (interativos, COMBAT §2.5).
+	for side: float in [-1.0, 1.0]:
+		var px: float = CENTER_X + side * bal.cage_half_width_m * PPM
+		draw_rect(Rect2(px - 3, fence_top - 10, 6, floor_bottom - fence_top + 10), Color(0.18, 0.18, 0.21))
+		draw_rect(Rect2(px - 2, fence_top - 10, 2, floor_bottom - fence_top + 10), Color(0.4, 0.4, 0.45))
+		draw_rect(Rect2(px - 5, fence_top - 14, 10, 6), Color(0.05, 0.05, 0.06))

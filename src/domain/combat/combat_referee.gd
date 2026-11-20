@@ -6,7 +6,7 @@ extends RefCounted
 const TKO_STRIKES: int = 5  # [PROV]
 const TKO_WINDOW_FRAMES: int = 240  # 4 s [PROV]
 const CLINCH: Array[StringName] = [&"CL", &"CG"]
-const GROUND: Array[StringName] = [&"SG", &"SL", &"SO", &"SC", &"SR"]
+const GROUND: Array[StringName] = [&"SG", &"SM", &"SL", &"SO", &"SC", &"SR"]
 
 var last_activity_frame: int = 0
 var _last_position: StringName = &"EP"

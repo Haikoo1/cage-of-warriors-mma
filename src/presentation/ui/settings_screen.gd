@@ -34,8 +34,7 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(0, 0, 640, 360), Color(0.06, 0.06, 0.08))
-	UiDraw.text(self, Vector2(30, 30), "OPÇÕES", UiDraw.C_SEL, UiDraw.TITLE)
+	UiDraw.background(self, "OPÇÕES", "controles · HUD · áudio")
 	var fixed: Array[String] = [
 		"Nível de HUD: %s" % HUD_NAMES[HUD_LEVELS.find(store.hud_level)],
 		"Frente/trás: %s" % ("relativo ao adversário" if store.directions_relative_to_opponent else "relativo à tela"),
@@ -55,7 +54,7 @@ func _draw() -> void:
 			var key_name: String = "aperte uma tecla..." if (waiting_key and i == row) else OS.get_keycode_string(InputBindings.key_for(action))
 			label = "Tecla — %s: %s" % [ACTION_NAMES.get(action, action), key_name]
 		UiDraw.text(self, Vector2(30, y), ("> " if i == row else "  ") + label, col, UiDraw.TEXT)
-	UiDraw.text(self, Vector2(30, 348), "W/S linha · A/D mudar · Enter trocar tecla · Backspace teclas padrão · Esc salvar e voltar", UiDraw.C_DIM, UiDraw.SMALL)
+	UiDraw.footer(self, "W/S linha · A/D mudar · Enter trocar tecla · Backspace teclas padrão · Esc salvar e voltar")
 
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -44,12 +44,11 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(0, 0, 640, 360), Color(0.06, 0.06, 0.08))
-	UiDraw.text(self, Vector2(30, 36), "COMO JOGAR — %s  (%d/%d)" % [PAGES[page][0], page + 1, PAGES.size()], UiDraw.C_SEL, 14)
+	UiDraw.background(self, "COMO JOGAR — %s" % PAGES[page][0], "página %d de %d" % [page + 1, PAGES.size()])
 	var lines: Array = PAGES[page][1]
 	for i: int in lines.size():
 		UiDraw.text(self, Vector2(30, 70 + i * 22), "• " + String(lines[i]), UiDraw.C_TEXT, UiDraw.TEXT, 590)
-	UiDraw.text(self, Vector2(30, 340), "A/D página · Esc voltar · as teclas podem ser trocadas em Opções", UiDraw.C_DIM, UiDraw.SMALL)
+	UiDraw.footer(self, "A/D página · Esc voltar · as teclas podem ser trocadas em Opções")
 
 
 func _unhandled_input(event: InputEvent) -> void:
