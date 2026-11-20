@@ -68,8 +68,7 @@ func _process(delta: float) -> void:
 
 func _open_look_tab() -> void:
 	look_edit = cc.state.player().appearance.duplicate_appearance()
-	if sprites == null:
-		sprites = SpriteSet.load_biotype("res://assets/sprites/fighters/m_medium", "m_medium")
+	sprites = SpriteSet.for_biotype(cc.state.player().physique.biotype_id)
 	if sprites != null and preview == null:
 		preview = FighterSpriteNode.new()
 		add_child(preview)

@@ -170,7 +170,8 @@ func _ensure_fighter_nodes() -> void:
 	_fighter_nodes.clear()
 	for k: int in 2:
 		var node: FighterSpriteNode = FighterSpriteNode.new()
-		node.configure(sprites, sim.fighters[k].snapshot.appearance)
+		var own: SpriteSet = SpriteSet.for_biotype(sim.fighters[k].snapshot.biotype_id)
+		node.configure(own if own != null else sprites, sim.fighters[k].snapshot.appearance)
 		add_child(node)
 		_fighter_nodes.append(node)
 	_configured_for = sim
@@ -185,7 +186,7 @@ func _draw_sprite(i: int, f: FighterCombatState, base: Vector2) -> void:
 		node.visible = true
 		node.z_index = 10 - roundi(f.z * 4.0)
 		node.show_blood = show_blood
-		node.present(base, sprites.pick(f, sim.frame, tech), float(f.facing), PPM / sprites.px_per_m, f.cut)
+		node.present(base, node.sprites.pick(f, sim.frame, tech), float(f.facing), PPM / node.sprites.px_per_m, f.cut)
 		if debug_overlay:
 			_draw_debug(f, base)
 		return

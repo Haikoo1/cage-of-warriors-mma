@@ -22,8 +22,9 @@ import time
 import bpy
 import numpy as np
 
-ROOT = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else os.getcwd()
-OUT_DIR = os.path.join(ROOT, "assets", "sprites", "fighters", "m_medium")
+ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+ROOT = ARGS[0] if ARGS else os.getcwd()
+OUT_DIR = ""  # definido por biótipo em main()
 TMP_DIR = os.path.join(ROOT, "art_source", "render_tmp")
 
 SIM_FPS = 60
@@ -53,6 +54,13 @@ LAYER_MATERIALS = {
 }
 OUTLINE = (0.10, 0.06, 0.07)
 HAIR_STYLES = [1, 2, 3]  # 0 = careca (sem camada)
+# Biótipos renderizados. A escala é uniforme sobre o boneco inteiro (px por metro constante = tamanho físico real);
+# as proporções mudam ombro, peito e quadril. O top esportivo usa o material do calção (mesma cor no criador).
+BIOTYPES = {
+    "m_medium": {"scale": 1.0, "shoulder": 0.19, "chest": (0.8, 1.15, 0.9), "pec": True, "top": False, "pelvis": (0.95, 1.25, 0.85)},
+    "f_medium": {"scale": 0.935, "shoulder": 0.165, "chest": (0.76, 1.0, 0.84), "pec": False, "top": True, "pelvis": (0.98, 1.36, 0.88)},
+}
+BODY = BIOTYPES["m_medium"]
 
 
 def read_tres(path):
@@ -160,13 +168,18 @@ def build_mannequin():
     hips.name = "hips"
     hips.rotation_mode = "XYZ"
     parts["hips"] = hips
-    ball("pelvis", hips, (0, 0, -0.03), 0.16, m["shorts"], (0.95, 1.25, 0.85))
+    hips.scale = (BODY["scale"],) * 3
+    ball("pelvis", hips, (0, 0, -0.03), 0.16, m["shorts"], BODY["pelvis"])
     ball("waistband", hips, (0, 0, 0.065), 0.152, m["stripe"], (0.96, 1.21, 0.22))
     torso = segment("torso", hips, (0, 0, 0.05), 0.24, 0.15, 0.14, m["skin"], up=True)
     parts["torso"] = torso
     ball("abdomen", torso, (0.012, 0, 0.14), 0.15, m["skin"], (0.85, 1.05, 1.0))
-    ball("chest", torso, (0.02, 0, 0.36), 0.19, m["skin"], (0.8, 1.15, 0.9))
-    ball("pec", torso, (0.075, 0, 0.36), 0.12, m["skin"], (0.7, 1.4, 0.72))
+    ball("chest", torso, (0.02, 0, 0.36), 0.19, m["skin"], BODY["chest"])
+    if BODY["pec"]:
+        ball("pec", torso, (0.075, 0, 0.36), 0.12, m["skin"], (0.7, 1.4, 0.72))
+    if BODY["top"]:
+        ball("top", torso, (0.03, 0, 0.34), 0.18, m["shorts"], (0.92, 1.12, 0.58))
+        ball("top_band", torso, (0.03, 0, 0.26), 0.172, m["stripe"], (0.9, 1.1, 0.1))
     ball("trap", torso, (-0.02, 0, 0.45), 0.1, m["skin"], (0.9, 1.5, 0.6))
     neck = segment("neck", torso, (0, 0, 0.47), 0.08, 0.055, 0.068, m["skin"], up=True)
     head = segment("head", neck, (0, 0, 0.06), 0.04, 0.05, 0.055, m["skin"], up=True)
@@ -182,7 +195,8 @@ def build_mannequin():
     ball("hair3_cap", head, (-0.025, 0, hh * 0.68), hh * 0.47, m["hair"], (1.02, 0.97, 0.7))
     ball("hair3_bun", head, (-0.11, 0, hh * 0.8), 0.055, m["hair"])
     ball("beard_jaw", head, (0.05, 0, hh * 0.24), hh * 0.31, m["hair"], (0.95, 0.88, 0.62))
-    for side, y, mats in (("L", 0.19, far), ("R", -0.19, m)):
+    sh_y = BODY["shoulder"]
+    for side, y, mats in (("L", sh_y, far), ("R", -sh_y, m)):
         ball("shoulder_" + side, torso, (0, y, 0.42), 0.078, mats["skin"], (1.0, 0.9, 0.95))
         ua = segment("upper_arm_" + side, torso, (0, y, 0.42), 0.28, 0.062, 0.048, mats["skin"])
         ball("bicep_" + side, ua, (0.02, 0, -0.12), 0.05, mats["skin"], (1.0, 1.0, 1.7))
@@ -236,7 +250,7 @@ def pose(base, **changes):
 
 def apply_pose(parts, p, frame):
     hips = parts["hips"]
-    hips.location = (p["hips_x"], 0, p["hips_z"])
+    hips.location = (p["hips_x"] * BODY["scale"], 0, p["hips_z"] * BODY["scale"])
     hips.keyframe_insert("location", frame=frame)
     for key, val in p.items():
         if key in ("hips_z", "hips_x"):
@@ -380,7 +394,21 @@ def render_layer(scene, keys, name, layer, suffix):
 
 
 def main():
+    global OUT_DIR, BODY
     t0 = time.time()
+    wanted = ARGS[1:] or list(BIOTYPES)
+    all_metrics = {}
+    for bt in wanted:
+        BODY = BIOTYPES[bt]
+        OUT_DIR = os.path.join(ROOT, "assets", "sprites", "fighters", bt)
+        all_metrics[bt] = render_biotype(bt)
+    total = round(time.time() - t0, 1)
+    with open(os.path.join(ROOT, "tools", "art_pipeline", "last_metrics.json"), "w", encoding="utf-8", newline="\n") as fh:
+        json.dump({"total_seconds": total, "layers": 5, "biotypes": all_metrics, "blender": bpy.app.version_string}, fh, indent=2)
+    print("PIPELINE_OK total=%ss" % total)
+
+
+def render_biotype(bt):
     scene = reset_scene()
     parts = build_mannequin()
     setup_camera_and_lights()
@@ -406,13 +434,10 @@ def main():
         render_layer(scene, keys, name, "beard", "__beard")
         meta["animations"][name] = {"frames": frames, "sim_frames": last}
         metrics[name] = {"sprite_frames": frames, "seconds": round(time.time() - ta, 2)}
-        print("ANIM", name, metrics[name])
-    with open(os.path.join(OUT_DIR, "m_medium.json"), "w", encoding="utf-8", newline="\n") as fh:
+        print("ANIM", bt, name, metrics[name])
+    with open(os.path.join(OUT_DIR, bt + ".json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(meta, fh, indent=2)
-    total = round(time.time() - t0, 1)
-    with open(os.path.join(ROOT, "tools", "art_pipeline", "last_metrics.json"), "w", encoding="utf-8", newline="\n") as fh:
-        json.dump({"total_seconds": total, "layers": 5, "animations": metrics, "blender": bpy.app.version_string}, fh, indent=2)
-    print("PIPELINE_OK total=%ss" % total)
+    return metrics
 
 
 main()

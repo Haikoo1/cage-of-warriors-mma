@@ -56,3 +56,13 @@ func test_sprite_layers_exist_for_every_animation() -> void:
 			assert_true(s.hair_layer(style, anim) != null, "cabelo %d em %s" % [style, anim])
 		assert_true(s.beard_layer(anim) != null, "barba em %s" % anim)
 	assert_false(s.palette.is_empty(), "paleta de origem no JSON")
+
+
+func test_sprite_family_by_biotype() -> void:
+	assert_eq(SpriteSet.family_for(&"f_light"), "f_medium")
+	assert_eq(SpriteSet.family_for(&"f_medium"), "f_medium")
+	assert_eq(SpriteSet.family_for(&"m_heavy"), "m_medium")
+	assert_eq(SpriteSet.family_for(&""), "m_medium")
+	var f: SpriteSet = SpriteSet.for_biotype(&"f_medium")
+	assert_true(f != null, "sprites femininos gerados pelo pipeline")
+	assert_true(SpriteSet.for_biotype(&"f_light") == f, "cache por família")

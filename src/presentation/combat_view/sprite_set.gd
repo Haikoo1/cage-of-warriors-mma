@@ -15,6 +15,21 @@ var palette: Dictionary = {}
 var far_darken: float = 0.72
 
 
+static var _cache: Dictionary = {}
+
+
+## Família de sprites disponível para um biótipo de dados (por enquanto 1 masculina e 1 feminina).
+static func family_for(biotype_id: StringName) -> String:
+	return "f_medium" if String(biotype_id).begins_with("f_") else "m_medium"
+
+
+static func for_biotype(biotype_id: StringName) -> SpriteSet:
+	var fam: String = family_for(biotype_id)
+	if not _cache.has(fam):
+		_cache[fam] = load_biotype("res://assets/sprites/fighters/" + fam, fam)
+	return _cache[fam]
+
+
 static func load_biotype(dir: String, biotype: String) -> SpriteSet:
 	var meta_path: String = dir.path_join(biotype + ".json")
 	if not FileAccess.file_exists(meta_path):

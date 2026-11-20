@@ -30,7 +30,7 @@ func _ready() -> void:
 		origin_ids.append(o)
 	origin_ids.sort()
 	values[1] = wc_ids.find(&"m_lightweight")
-	sprites = SpriteSet.load_biotype("res://assets/sprites/fighters/m_medium", "m_medium")
+	sprites = SpriteSet.for_biotype(&"m_medium")
 	if sprites != null:
 		preview = FighterSpriteNode.new()
 		add_child(preview)
@@ -109,6 +109,9 @@ func _value_text(i: int) -> String:
 
 
 func _refresh_preview() -> void:
+	var fam: SpriteSet = SpriteSet.for_biotype(&"f_medium" if _is_female() else &"m_medium")
+	if fam != null:
+		sprites = fam
 	if preview != null:
 		preview.configure(sprites, look)
 
