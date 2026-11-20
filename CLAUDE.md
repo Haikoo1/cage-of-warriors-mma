@@ -29,6 +29,8 @@ Godot: `C:\Users\sousa\Downloads\Godot_v4.7.2-stable_win64.exe` (defina `GODOT_E
 - Lote de balanceamento IA x IA (~2,5 min): `"$GODOT" --headless --path . --script res://tests/runner/batch_ai.gd`
 - Pipeline de sprites (Blender 5.3): `"C:/Program Files/Blender Foundation/Blender 5.3/blender.exe" -b --factory-startup --python tools/art_pipeline/pipeline.py -- <raiz>`
 - Smoke dos sprites: `"$GODOT" --headless --path . --script res://tests/runner/smoke_sprites.gd`
+- Dados da carreira: `node tools/gen_career_data.js` (categorias, organizações, origens, treino, academias).
+- Smokes da carreira: `smoke_career.gd` (telas) e `smoke_career_fight.gd` (luta jogada até o resultado).
 - Smoke da cena de combate: `"$GODOT" --headless --path . --script res://tests/runner/smoke_combat.gd`
 
 ## Armadilhas conhecidas (Godot 4.7)

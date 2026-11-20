@@ -60,3 +60,15 @@ func test_envelope_contains_version_metadata() -> void:
 	var env: Dictionary = SaveSystem.build_envelope(_career(), "week_start")
 	assert_eq(env["schema_version"], SaveSystem.CURRENT_SCHEMA)
 	assert_true(env.has("game_version") and env.has("saved_at") and env.has("career"), "campos")
+
+
+func test_v1_save_migrates_to_current() -> void:
+	_clean()
+	DirAccess.make_dir_recursive_absolute(DIR)
+	var path: String = DIR.path_join("v1.json.gz")
+	var file: FileAccess = FileAccess.open_compressed(path, FileAccess.WRITE, FileAccess.COMPRESSION_GZIP)
+	file.store_string(JSON.stringify({"schema_version": 1, "career": _career().to_dict()}))
+	file.close()
+	var res: SaveSystem.LoadResult = SaveSystem.load_career(path)
+	assert_eq(res.error_message, "", "migrou")
+	assert_eq(res.career.week_index, 10)

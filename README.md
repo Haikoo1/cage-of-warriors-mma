@@ -4,7 +4,7 @@ Jogo de MMA 2.5D em pixel art para PC (Windows), com foco em modo carreira. Proj
 
 - **Engine:** Godot **4.7.2-stable** (versão padrão, não .NET) — fixada em T-001.
 - **Linguagem:** GDScript com tipagem obrigatória (avisos de declaração sem tipo são erro).
-- **Estado atual:** fundação técnica (E-02B). Nenhuma mecânica de jogo implementada ainda.
+- **Estado atual:** protótipo jogável — combate completo (trocação, grappling, rounds, árbitro, juízes, IA), Luta Rápida e modo carreira (criação, treino, mundo simulado com 12 categorias e 4 organizações, ofertas, contratos, títulos, economia, entrevistas, aposentadoria, saves). Arte provisória (greybox + sprites de teste com F4).
 
 ## Abrir e rodar
 1. Instale a Godot 4.7.2 e abra `project.godot` pelo gerenciador de projetos, ou rode `Godot_v4.7.2-stable_win64.exe --path .`.

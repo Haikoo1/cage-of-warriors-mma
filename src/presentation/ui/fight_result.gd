@@ -9,12 +9,14 @@ const METHOD_TEXT: Dictionary = {
 }
 
 var result: FightResult
-var names: Array[String] = ["A", "B"]
+var names: Array = ["A", "B"]
+var career: bool = false
 
 
 func setup(params: Dictionary) -> void:
 	result = params.get("result")
 	names = params.get("names", names)
+	career = bool(params.get("career", false))
 
 
 func _draw() -> void:
@@ -53,7 +55,7 @@ func _draw() -> void:
 		draw_string(font, Vector2(30, y + k * 14), "%s: golpes %d, acertos %d, bloqueados %d · dano recebido cabeça %.0f corpo %.0f pernas %.0f" % [
 			names[k], int(s.get("attempts", 0)), int(s.get("landed", 0)), int(s.get("blocked", 0)),
 			float(med.get("head", 0)), float(med.get("body", 0)), float(med.get("legs", 0))], HORIZONTAL_ALIGNMENT_LEFT, 590, 10, Color(1, 1, 1, 0.8))
-	draw_string(font, Vector2(30, 340), "Enter: nova Luta Rápida  ·  Esc: menu", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(1, 1, 1, 0.6))
+	draw_string(font, Vector2(30, 340), "Enter: voltar à carreira" if career else "Enter: nova Luta Rápida  ·  Esc: menu", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(1, 1, 1, 0.6))
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -61,6 +63,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	match (event as InputEventKey).physical_keycode:
 		KEY_ENTER, KEY_KP_ENTER:
-			SceneRouter.go_to(&"quick_fight")
+			SceneRouter.go_to(&"career_dashboard" if career else &"quick_fight")
 		KEY_ESCAPE:
-			SceneRouter.go_to(&"boot")
+			SceneRouter.go_to(&"career_dashboard" if career else &"boot")

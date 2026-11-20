@@ -2,11 +2,9 @@ class_name SaveSystem
 extends RefCounted
 ## Persistência da carreira (SAVE_AND_TESTING §1, T-007): JSON + gzip, escrita atômica, autosaves rotativos.
 
-const CURRENT_SCHEMA: int = 1
+const CURRENT_SCHEMA: int = 2
 const AUTOSAVE_COUNT: int = 3
 const EXT: String = ".json.gz"
-## Migrações: schema_version de origem -> Callable(Dictionary) -> Dictionary. Vazio até a v2.
-const MIGRATIONS: Dictionary = {}
 
 
 class LoadResult:
@@ -71,10 +69,11 @@ static func load_career(path: String) -> LoadResult:
 		res.error_message = "save de versão mais nova (%d) que o jogo (%d)" % [version, CURRENT_SCHEMA]
 		return res
 	while version < CURRENT_SCHEMA:
-		if not MIGRATIONS.has(version):
+		var migrated: Variant = migrate(version, doc)
+		if migrated == null:
 			res.error_message = "sem migração a partir da versão %d" % version
 			return res
-		doc = (MIGRATIONS[version] as Callable).call(doc)
+		doc = migrated
 		version += 1
 	if not doc.get("career") is Dictionary:
 		res.error_message = "save sem dados de carreira"
@@ -108,3 +107,14 @@ static func _read_text(path: String) -> String:
 	var text: String = file.get_as_text()
 	file.close()
 	return text
+
+
+## Migrações em cadeia v_n → v_n+1 (SAVE_AND_TESTING §1.6). Devolve null se não houver migração.
+static func migrate(from_version: int, doc: Dictionary) -> Variant:
+	match from_version:
+		1:
+			# v2 (E-07): carreira completa. Campos novos têm padrão em from_dict; nada a converter.
+			var d: Dictionary = doc.duplicate(true)
+			d["schema_version"] = 2
+			return d
+	return null

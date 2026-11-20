@@ -11,6 +11,9 @@ var sim: CombatSim
 var player: PlayerInputController = PlayerInputController.new()
 var dummy: TrainingDummy = TrainingDummy.new()
 var quick: QuickFight.Config
+var career_mode: bool = false
+var weigh_in: Dictionary = {}
+var fighter_names: Array = []
 var player_focus: CombatSim.Focus = CombatSim.Focus.NORMAL
 var _end_timer: int = 0
 var _break_timer: int = 0
@@ -18,6 +21,9 @@ var _break_timer: int = 0
 
 func setup(params: Dictionary) -> void:
 	quick = params.get("quick_fight")
+	career_mode = bool(params.get("career", false))
+	weigh_in = params.get("weigh_in", {})
+	fighter_names = params.get("names", [])
 
 
 func _ready() -> void:
@@ -33,6 +39,8 @@ func _start() -> void:
 		hud.names = ["VOCÊ", "IA"]
 		if quick.watch_only:
 			hud.names = ["IA A", "IA B"]
+		if fighter_names.size() == 2:
+			hud.names = [String(fighter_names[0]), String(fighter_names[1])]
 		hud.training = false
 	else:
 		setup_data = FightSetup.new()
@@ -53,7 +61,10 @@ func _physics_process(_delta: float) -> void:
 	if sim.is_finished():
 		_end_timer += 1
 		if quick != null and _end_timer == END_DELAY_FRAMES:
-			SceneRouter.go_to(&"fight_result", {"result": sim.build_result(&"QUICK"), "names": hud.names})
+			var result: FightResult = sim.build_result(&"QUICK")
+			if career_mode and GameSession.career != null:
+				GameSession.career.finish_player_fight(result, weigh_in)
+			SceneRouter.go_to(&"fight_result", {"result": result, "names": hud.names, "career": career_mode})
 		return
 	if sim.phase == CombatSim.Phase.ROUND_BREAK:
 		_break_timer += 1
@@ -116,4 +127,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			if quick == null:
 				_start()
 		KEY_ESCAPE:
+			if career_mode:
+				return  # luta de carreira não pode ser abandonada (sem save no meio da luta, R-028)
 			SceneRouter.go_to(&"quick_fight" if quick != null else &"boot")
