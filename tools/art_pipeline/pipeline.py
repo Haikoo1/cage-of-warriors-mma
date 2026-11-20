@@ -1,17 +1,16 @@
-"""Spike do pipeline 3D -> pixel art (E-06, R-036, ART_DIRECTION §11).
+"""Pipeline 3D -> pixel art em CAMADAS (E-06 v2, D-017, criador de visual).
 
 Uso (headless):
   blender -b --factory-startup --python tools/art_pipeline/pipeline.py -- <raiz_do_projeto>
 
 O que faz:
-  1. Gera por script um manequim humanoide de segmentos rígidos articulados (sem assets de terceiros).
-  2. Anima guarda, andar, jab, direto, chute baixo e double leg. Os tempos vêm dos dados do jogo
-     (data/strikes, data/grappling): a animação casa com a regra (ART §6.1), não o contrário.
-  3. Renderiza em câmera ortográfica lateral com sombreamento toon de 3 tons, sem antisserrilhado.
-  4. Pós-processa: quantiza para a paleta, adiciona contorno de 1 px, monta spritesheets PNG + JSON.
-  5. Registra métricas (tempo por animação, quadros) para o marco M2.
-
-Limitação conhecida: segmentos rígidos (sem skinning). Mede o pipeline, não a qualidade final da arte.
+  1. Gera por script um manequim humanoide de segmentos rígidos (sem assets de terceiros): tronco anatômico,
+     rosto (olho, sobrancelha, nariz, orelha), luvas com fita e polegar, calção com cós e faixa lateral.
+  2. Anima as ações com tempos lidos dos dados do jogo (data/strikes, data/grappling): a arte acompanha a regra.
+  3. Renderiza em câmera ortográfica lateral, toon de 4 tons + luz de contorno, sem antisserrilhado, em CAMADAS:
+       corpo · cabelo (estilos 1..3) · barba   (as outras camadas viram holdout: oclusão correta)
+  4. Quantiza CADA camada só com as rampas dos seus materiais (sem manchas entre materiais), contorno de 1 px,
+     spritesheets PNG + JSON com a paleta de origem — o jogo troca as cores em tempo real (criador de visual).
 """
 import json
 import math
@@ -28,27 +27,34 @@ OUT_DIR = os.path.join(ROOT, "assets", "sprites", "fighters", "m_medium")
 TMP_DIR = os.path.join(ROOT, "art_source", "render_tmp")
 
 SIM_FPS = 60
-SIM_FRAMES_PER_SPRITE = 3  # 20 fps de sprite (refino da E-06)
+SIM_FRAMES_PER_SPRITE = 3  # 20 fps de sprite
 FIGHTER_HEIGHT_M = 1.80
 TARGET_HEIGHT_PX = 136  # ART §3 [PROV]
 FRAME_W, FRAME_H = 224, 160
 PX_PER_M = TARGET_HEIGHT_PX / FIGHTER_HEIGHT_M
-CAM_X_OFFSET = 0.45  # golpes avançam para +X: câmera deslocada para frente
+CAM_X_OFFSET = 0.45
 CAM_Z = 0.95
+FAR_SIDE_DARKEN = 0.72
 
-# Paleta (ART §4): rampas de 3 tons por material + contorno escuro colorido.
+# Paleta de ORIGEM (4 tons por material). O jogo recolore skin/hair/shorts/stripe/glove por shader.
 PALETTE = {
-    "skin": [(0.36, 0.20, 0.14), (0.58, 0.36, 0.25), (0.78, 0.53, 0.38), (0.93, 0.72, 0.56)],
-    "shorts": [(0.06, 0.08, 0.20), (0.12, 0.20, 0.46), (0.20, 0.34, 0.72), (0.38, 0.56, 0.92)],
-    "glove": [(0.30, 0.04, 0.05), (0.56, 0.08, 0.08), (0.80, 0.16, 0.13), (0.98, 0.42, 0.32)],
-    "hair": [(0.05, 0.04, 0.03), (0.11, 0.08, 0.06), (0.19, 0.14, 0.11), (0.30, 0.23, 0.18)],
-    "tape": [(0.52, 0.60, 0.74), (0.68, 0.76, 0.88), (0.82, 0.88, 0.96), (0.94, 0.97, 1.0)],  # branco azulado: longe dos tons de pele
+    "skin": [(0.40, 0.22, 0.14), (0.62, 0.38, 0.25), (0.80, 0.55, 0.39), (0.94, 0.74, 0.58)],
+    "hair": [(0.10, 0.06, 0.03), (0.22, 0.13, 0.07), (0.36, 0.22, 0.12), (0.52, 0.34, 0.20)],
+    "shorts": [(0.05, 0.07, 0.30), (0.10, 0.16, 0.55), (0.16, 0.28, 0.80), (0.32, 0.48, 0.98)],
+    "stripe": [(0.55, 0.55, 0.50), (0.75, 0.75, 0.70), (0.90, 0.90, 0.86), (1.00, 1.00, 0.97)],
+    "glove": [(0.32, 0.03, 0.04), (0.58, 0.06, 0.07), (0.82, 0.13, 0.12), (1.00, 0.38, 0.30)],
+    "tape": [(0.45, 0.62, 0.60), (0.60, 0.78, 0.76), (0.76, 0.90, 0.88), (0.90, 0.99, 0.97)],
+    "eye": [(0.04, 0.03, 0.04), (0.06, 0.05, 0.06), (0.08, 0.07, 0.08), (0.10, 0.09, 0.10)],
 }
-OUTLINE = (0.12, 0.07, 0.08)
-FAR_SIDE_DARKEN = 0.72  # membros do lado longe da câmera mais escuros (leitura de profundidade)
+LAYER_MATERIALS = {
+    "body": ["skin", "shorts", "stripe", "glove", "tape", "eye", "hair"],  # sobrancelha usa "hair"
+    "hair": ["hair"],
+    "beard": ["hair"],
+}
+OUTLINE = (0.10, 0.06, 0.07)
+HAIR_STYLES = [1, 2, 3]  # 0 = careca (sem camada)
 
 
-# ---------------------------------------------------------------------------- dados do jogo
 def read_tres(path):
     values = {}
     with open(path, encoding="utf-8") as fh:
@@ -69,7 +75,6 @@ def grapple_startup(tech_id):
     return int(v["startup_frames"])
 
 
-# ---------------------------------------------------------------------------- cena e materiais
 def reset_scene():
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
@@ -89,7 +94,6 @@ def reset_scene():
 
 
 def toon_material(name, ramp, darken=1.0):
-    """Diffuse -> Shader to RGB -> ColorRamp constante (3 tons) -> Emission. Cores exatas da paleta."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nodes, links = mat.node_tree.nodes, mat.node_tree.links
@@ -100,11 +104,10 @@ def toon_material(name, ramp, darken=1.0):
     to_rgb = nodes.new("ShaderNodeShaderToRGB")
     cramp = nodes.new("ShaderNodeValToRGB")
     cramp.color_ramp.interpolation = "CONSTANT"
-    stops = [0.0, 0.18, 0.45, 0.8]  # 4 tons: sombra, meio-tom, luz, brilho
     els = cramp.color_ramp.elements
-    while len(els) < len(ramp):
+    while len(els) < 4:
         els.new(0.5)
-    for el, pos, col in zip(els, stops, ramp):
+    for el, pos, col in zip(els, [0.0, 0.16, 0.42, 0.78], ramp):
         el.position = pos
         el.color = (col[0] * darken, col[1] * darken, col[2] * darken, 1.0)
     links.new(diffuse.outputs["BSDF"], to_rgb.inputs["Shader"])
@@ -114,19 +117,15 @@ def toon_material(name, ramp, darken=1.0):
     return mat
 
 
-# ---------------------------------------------------------------------------- manequim
 def segment(name, parent, joint, length, radius_top, radius_bottom, material, up=False, offset=(0, 0, 0)):
-    """Segmento com origem na junta. Por padrão aponta para -Z (membros); up=True aponta para +Z (tronco)."""
-    bpy.ops.mesh.primitive_cone_add(vertices=10, radius1=radius_bottom if not up else radius_top,
+    bpy.ops.mesh.primitive_cone_add(vertices=12, radius1=radius_bottom if not up else radius_top,
                                     radius2=radius_top if not up else radius_bottom, depth=length)
     obj = bpy.context.active_object
     obj.name = name
     obj.data.materials.append(material)
-    # move a geometria para que a origem fique na junta
     shift = length / 2.0 if up else -length / 2.0
     for v in obj.data.vertices:
         v.co.z += shift
-    for v in obj.data.vertices:
         v.co.x += offset[0]
         v.co.y += offset[1]
     bpy.ops.object.shade_smooth()
@@ -138,7 +137,7 @@ def segment(name, parent, joint, length, radius_top, radius_bottom, material, up
 
 
 def ball(name, parent, location, radius, material, scale=(1, 1, 1)):
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=16, ring_count=8, radius=radius)
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=18, ring_count=10, radius=radius)
     obj = bpy.context.active_object
     obj.name = name
     obj.scale = scale
@@ -150,44 +149,54 @@ def ball(name, parent, location, radius, material, scale=(1, 1, 1)):
 
 
 def build_mannequin():
-    """Proporção ~7 cabeças (ART §5.1). Refino E-06: tronco anatômico, pescoço, articulações arredondadas,
-    luvas com punho de fita, calção com cintura. Base ortodoxa: lado esquerdo (longe da câmera) à frente."""
+    """~7 cabeças (ART §5.1). Base ortodoxa: lado esquerdo (longe) à frente.
+    Objetos de cabelo têm prefixo hair<N>_ e barba beard_ (camadas separadas)."""
     m = {k: toon_material(k, v) for k, v in PALETTE.items()}
     far = {k: toon_material(k + "_far", v, FAR_SIDE_DARKEN) for k, v in PALETTE.items()}
-    head_h = FIGHTER_HEIGHT_M / 7.0
+    hh = FIGHTER_HEIGHT_M / 7.0
     parts = {}
     bpy.ops.object.empty_add(location=(0, 0, 0.98))
     hips = bpy.context.active_object
     hips.name = "hips"
     hips.rotation_mode = "XYZ"
     parts["hips"] = hips
-    # quadril + calção
     ball("pelvis", hips, (0, 0, -0.03), 0.16, m["shorts"], (0.95, 1.25, 0.85))
-    ball("waistband", hips, (0, 0, 0.06), 0.15, m["shorts"], (0.95, 1.2, 0.35))
-    # tronco: abdômen + peito + ombros (o "torso" é o pivô que inclina)
+    ball("waistband", hips, (0, 0, 0.065), 0.152, m["stripe"], (0.96, 1.21, 0.22))
     torso = segment("torso", hips, (0, 0, 0.05), 0.24, 0.15, 0.14, m["skin"], up=True)
     parts["torso"] = torso
-    ball("abdomen", torso, (0.01, 0, 0.14), 0.15, m["skin"], (0.85, 1.05, 1.0))
+    ball("abdomen", torso, (0.012, 0, 0.14), 0.15, m["skin"], (0.85, 1.05, 1.0))
     ball("chest", torso, (0.02, 0, 0.36), 0.19, m["skin"], (0.8, 1.15, 0.9))
-    ball("pec", torso, (0.07, 0, 0.36), 0.12, m["skin"], (0.7, 1.4, 0.75))
-    neck = segment("neck", torso, (0, 0, 0.47), 0.08, 0.055, 0.065, m["skin"], up=True)
-    parts["head"] = segment("head", neck, (0, 0, 0.06), 0.04, 0.05, 0.055, m["skin"], up=True)
-    ball("skull", parts["head"], (0.015, 0, head_h * 0.5), head_h * 0.47, m["skin"], (0.92, 0.85, 1.08))
-    ball("jaw", parts["head"], (0.045, 0, head_h * 0.28), head_h * 0.3, m["skin"], (0.9, 0.8, 0.75))
-    ball("hair", parts["head"], (-0.02, 0, head_h * 0.7), head_h * 0.44, m["hair"], (1.0, 0.95, 0.68))
-    ball("ear", parts["head"], (-0.01, -0.09, head_h * 0.5), 0.025, m["skin"], (0.6, 0.6, 1.0))
+    ball("pec", torso, (0.075, 0, 0.36), 0.12, m["skin"], (0.7, 1.4, 0.72))
+    ball("trap", torso, (-0.02, 0, 0.45), 0.1, m["skin"], (0.9, 1.5, 0.6))
+    neck = segment("neck", torso, (0, 0, 0.47), 0.08, 0.055, 0.068, m["skin"], up=True)
+    head = segment("head", neck, (0, 0, 0.06), 0.04, 0.05, 0.055, m["skin"], up=True)
+    parts["head"] = head
+    ball("skull", head, (0.015, 0, hh * 0.5), hh * 0.47, m["skin"], (0.92, 0.85, 1.08))
+    ball("jaw", head, (0.05, 0, hh * 0.27), hh * 0.3, m["skin"], (0.9, 0.8, 0.72))
+    ball("nose", head, (0.11, 0, hh * 0.45), 0.018, m["skin"], (1.3, 0.8, 1.2))
+    ball("ear", head, (-0.005, -0.085, hh * 0.48), 0.026, m["skin"], (0.6, 0.6, 1.0))
+    ball("eye", head, (0.085, -0.04, hh * 0.53), 0.012, m["eye"], (0.7, 1.0, 1.0))
+    ball("brow", head, (0.09, -0.035, hh * 0.6), 0.014, m["hair"], (0.9, 1.6, 0.45))
+    ball("hair1_cap", head, (-0.02, 0, hh * 0.7), hh * 0.45, m["hair"], (1.0, 0.95, 0.66))
+    ball("hair2_strip", head, (-0.005, 0, hh * 0.86), hh * 0.36, m["hair"], (1.1, 0.32, 0.55))
+    ball("hair3_cap", head, (-0.025, 0, hh * 0.68), hh * 0.47, m["hair"], (1.02, 0.97, 0.7))
+    ball("hair3_bun", head, (-0.11, 0, hh * 0.8), 0.055, m["hair"])
+    ball("beard_jaw", head, (0.05, 0, hh * 0.24), hh * 0.31, m["hair"], (0.95, 0.88, 0.62))
     for side, y, mats in (("L", 0.19, far), ("R", -0.19, m)):
-        ball("shoulder_" + side, torso, (0, y, 0.42), 0.075, mats["skin"], (1.0, 0.9, 0.95))
-        ua = segment("upper_arm_" + side, torso, (0, y, 0.42), 0.28, 0.06, 0.048, mats["skin"])
+        ball("shoulder_" + side, torso, (0, y, 0.42), 0.078, mats["skin"], (1.0, 0.9, 0.95))
+        ua = segment("upper_arm_" + side, torso, (0, y, 0.42), 0.28, 0.062, 0.048, mats["skin"])
+        ball("bicep_" + side, ua, (0.02, 0, -0.12), 0.05, mats["skin"], (1.0, 1.0, 1.7))
         ball("elbow_" + side, ua, (0, 0, -0.28), 0.046, mats["skin"])
-        fa = segment("forearm_" + side, ua, (0, 0, -0.28), 0.24, 0.048, 0.042, mats["skin"])
-        ball("wrap_" + side, fa, (0, 0, -0.23), 0.048, mats["tape"], (1.0, 1.0, 0.8))
-        ball("glove_" + side, fa, (0.01, 0, -0.29), 0.068, mats["glove"], (1.2, 1.0, 1.05))
-        ball("hip_" + side, hips, (0, y * 0.55, -0.06), 0.085, mats["shorts"])
-        th = segment("thigh_" + side, hips, (0, y * 0.55, -0.06), 0.44, 0.085, 0.062, mats["shorts"])
+        fa = segment("forearm_" + side, ua, (0, 0, -0.28), 0.24, 0.05, 0.042, mats["skin"])
+        ball("wrap_" + side, fa, (0, 0, -0.23), 0.05, mats["tape"], (1.0, 1.0, 0.8))
+        ball("glove_" + side, fa, (0.012, 0, -0.29), 0.07, mats["glove"], (1.2, 1.0, 1.05))
+        ball("thumb_" + side, fa, (0.05, 0, -0.26), 0.028, mats["glove"])
+        ball("hip_" + side, hips, (0, y * 0.55, -0.06), 0.088, mats["shorts"])
+        th = segment("thigh_" + side, hips, (0, y * 0.55, -0.06), 0.44, 0.088, 0.062, mats["shorts"])
+        ball("sidestripe_" + side, th, (0, -0.075 if side == "R" else 0.075, -0.12), 0.028, mats["stripe"], (0.6, 0.4, 3.2))
         ball("knee_" + side, th, (0, 0, -0.44), 0.058, mats["skin"])
         sh = segment("shin_" + side, th, (0, 0, -0.44), 0.42, 0.06, 0.042, mats["skin"])
-        ball("calf_" + side, sh, (-0.015, 0, -0.14), 0.06, mats["skin"], (1.0, 1.0, 1.6))
+        ball("calf_" + side, sh, (-0.018, 0, -0.14), 0.062, mats["skin"], (1.0, 1.0, 1.6))
         ball("ankle_" + side, sh, (0, 0, -0.42), 0.04, mats["skin"])
         foot = segment("foot_" + side, sh, (0, 0, -0.43), 0.045, 0.035, 0.045, mats["skin"], offset=(0.065, 0, 0))
         ball("toe_" + side, foot, (0.11, 0, -0.035), 0.035, mats["skin"], (1.4, 1.0, 0.7))
@@ -195,24 +204,23 @@ def build_mannequin():
     return parts
 
 
-def setup_camera_and_light():
+def setup_camera_and_lights():
     cam_data = bpy.data.cameras.new("cam")
     cam_data.type = "ORTHO"
-    cam_data.ortho_scale = FRAME_W / PX_PER_M  # escala na maior dimensão (largura)
+    cam_data.ortho_scale = FRAME_W / PX_PER_M
     cam = bpy.data.objects.new("cam", cam_data)
     bpy.context.collection.objects.link(cam)
     cam.location = (CAM_X_OFFSET, -6.0, CAM_Z)
     cam.rotation_euler = (math.radians(90), 0, 0)
     bpy.context.scene.camera = cam
-    sun_data = bpy.data.lights.new("sun", "SUN")
-    sun_data.energy = 3.0
-    sun = bpy.data.objects.new("sun", sun_data)
-    bpy.context.collection.objects.link(sun)
-    sun.rotation_euler = (math.radians(35), math.radians(-25), math.radians(20))  # de cima, levemente à frente (ART §10.1)
+    for name, energy, rot in (("key", 3.0, (35, -25, 20)), ("rim", 1.6, (-20, 40, 160))):
+        data = bpy.data.lights.new(name, "SUN")
+        data.energy = energy
+        obj = bpy.data.objects.new(name, data)
+        bpy.context.collection.objects.link(obj)
+        obj.rotation_euler = tuple(math.radians(a) for a in rot)
 
 
-# ---------------------------------------------------------------------------- poses e animações
-# Ângulos em graus no plano sagital (rotação em Y). Membros: negativo = para frente. Tronco: positivo = inclina à frente.
 GUARD = {
     "hips_z": 0.95, "hips_x": 0.0, "torso": 8, "head": -8,
     "upper_arm_L": -45, "forearm_L": -105, "upper_arm_R": -25, "forearm_R": -125,
@@ -238,36 +246,42 @@ def apply_pose(parts, p, frame):
         obj.keyframe_insert("rotation_euler", frame=frame)
 
 
+def strike_anim(sid, *poses_at):
+    s, a, r = strike_phases(sid)
+    keys = [(0, GUARD)]
+    for frac, p in poses_at:
+        keys.append((max(1, int(round(s * frac))), p))
+    keys.append((s + a, keys[-1][1]))
+    keys.append((s + a + r, GUARD))
+    return keys
+
+
 def animations():
-    """Cada animação: lista de (quadro de simulação, pose). Fases dos golpes lidas dos dados."""
     anims = {}
-    anims["guard"] = [(0, GUARD), (16, pose(GUARD, hips_z=0.94, torso=10)), (32, GUARD)]
+    anims["guard"] = [(0, GUARD), (15, pose(GUARD, hips_z=0.94, torso=10, head=-6)), (30, GUARD)]
     step_a = pose(GUARD, hips_x=0.08, thigh_L=-30, shin_L=10, thigh_R=22, shin_R=26)
     step_b = pose(GUARD, hips_x=0.16, thigh_L=-16, shin_L=24, thigh_R=8, shin_R=10)
     anims["walk"] = [(0, GUARD), (8, step_a), (16, step_b), (24, pose(GUARD, hips_x=0.2))]
-    s, a, r = strike_phases("jab")
-    jab_out = pose(GUARD, torso=12, upper_arm_L=-90, forearm_L=-4, head=-12)
-    anims["jab"] = [(0, GUARD), (s, jab_out), (s + a, jab_out), (s + a + r, GUARD)]
-    s, a, r = strike_phases("cross")
-    cross_out = pose(GUARD, hips_x=0.06, torso=22, upper_arm_R=-92, forearm_R=-4, upper_arm_L=-30, forearm_L=-130, thigh_R=24, shin_R=8)
-    anims["cross"] = [(0, GUARD), (s, cross_out), (s + a, cross_out), (s + a + r, GUARD)]
-    s, a, r = strike_phases("low_kick")
-    chamber = pose(GUARD, torso=-6, thigh_R=-30, shin_R=60)
-    kick_out = pose(GUARD, torso=-18, thigh_R=-62, shin_R=12, upper_arm_R=10, forearm_R=-110)
-    anims["low_kick"] = [(0, GUARD), (s // 2, chamber), (s, kick_out), (s + a, kick_out), (s + a + r, GUARD)]
+    anims["jab"] = strike_anim("jab", (1.0, pose(GUARD, torso=12, upper_arm_L=-90, forearm_L=-4, head=-12)))
+    anims["cross"] = strike_anim("cross", (0.5, pose(GUARD, torso=14, upper_arm_R=-50, forearm_R=-90)),
+                                 (1.0, pose(GUARD, hips_x=0.06, torso=22, upper_arm_R=-92, forearm_R=-4, upper_arm_L=-30, forearm_L=-130, thigh_R=24, shin_R=8)))
+    anims["lead_hook"] = strike_anim("lead_hook", (1.0, pose(GUARD, torso=20, head=-10, upper_arm_L=-78, forearm_L=-80)))
+    anims["uppercut"] = strike_anim("uppercut", (0.5, pose(GUARD, hips_z=0.9, torso=14, upper_arm_R=-10, forearm_R=-140)),
+                                    (1.0, pose(GUARD, hips_z=0.97, torso=0, head=-14, upper_arm_R=-60, forearm_R=-115)))
+    anims["low_kick"] = strike_anim("low_kick", (0.5, pose(GUARD, torso=-6, thigh_R=-30, shin_R=60)),
+                                    (1.0, pose(GUARD, torso=-18, thigh_R=-62, shin_R=12, upper_arm_R=10, forearm_R=-110)))
+    anims["body_kick"] = strike_anim("body_kick", (0.5, pose(GUARD, torso=-8, thigh_R=-45, shin_R=75)),
+                                     (1.0, pose(GUARD, torso=-28, thigh_R=-88, shin_R=20, upper_arm_R=15, forearm_R=-100)))
+    anims["high_kick"] = strike_anim("high_kick", (0.5, pose(GUARD, torso=-15, thigh_R=-70, shin_R=90, upper_arm_R=20, forearm_R=-90)),
+                                     (1.0, pose(GUARD, torso=-38, head=20, thigh_R=-125, shin_R=8, upper_arm_R=30, forearm_R=-60, thigh_L=-5, shin_L=8)))
+    anims["teep"] = strike_anim("teep", (0.5, pose(GUARD, torso=-8, thigh_L=-75, shin_L=95)),
+                                (1.0, pose(GUARD, torso=-20, hips_x=-0.05, thigh_L=-88, shin_L=8)))
+    anims["calf_kick"] = strike_anim("calf_kick", (1.0, pose(GUARD, torso=-10, thigh_L=-30, shin_L=35)))
     s = grapple_startup("double_leg")
     level = pose(GUARD, hips_z=0.72, torso=40, thigh_L=-55, shin_L=75, thigh_R=30, shin_R=40, head=-30)
     shoot = pose(GUARD, hips_x=0.45, hips_z=0.58, torso=62, head=-40, thigh_L=-80, shin_L=95, thigh_R=55, shin_R=10,
                  upper_arm_L=-80, forearm_L=-20, upper_arm_R=-75, forearm_R=-25)
     anims["double_leg"] = [(0, GUARD), (s // 2, level), (s, shoot), (s + 8, shoot)]
-    s, a, r = strike_phases("lead_hook")
-    hook_out = pose(GUARD, torso=20, head=-10, upper_arm_L=-78, forearm_L=-80)
-    anims["lead_hook"] = [(0, GUARD), (s, hook_out), (s + a, hook_out), (s + a + r, GUARD)]
-    s, a, r = strike_phases("body_kick")
-    chamber_b = pose(GUARD, torso=-8, thigh_R=-45, shin_R=75)
-    body_out = pose(GUARD, torso=-28, thigh_R=-88, shin_R=20, upper_arm_R=15, forearm_R=-100)
-    anims["body_kick"] = [(0, GUARD), (s // 2, chamber_b), (s, body_out), (s + a, body_out), (s + a + r, GUARD)]
-    # Esquivas: duração = evade_frames do balanceamento (14 quadros [PROV])
     slip = pose(GUARD, hips_z=0.9, torso=20, head=-18, thigh_L=-28, shin_L=26)
     duck = pose(GUARD, hips_z=0.76, torso=36, head=-20, thigh_L=-55, shin_L=75, thigh_R=38, shin_R=60)
     pull = pose(GUARD, hips_x=-0.08, torso=-24, head=12, thigh_R=24, shin_R=22)
@@ -276,32 +290,37 @@ def animations():
     down = pose(GUARD, hips_z=0.16, hips_x=-0.3, torso=-88, head=10, upper_arm_L=-150, forearm_L=-20,
                 upper_arm_R=-160, forearm_R=-15, thigh_L=-82, shin_L=10, thigh_R=-70, shin_R=30)
     anims["down"] = [(0, down), (4, down)]
-    s, a, r = strike_phases("uppercut")
-    dip = pose(GUARD, hips_z=0.9, torso=14, upper_arm_R=-10, forearm_R=-140)
-    upper_out = pose(GUARD, hips_z=0.97, torso=0, head=-14, upper_arm_R=-60, forearm_R=-115)
-    anims["uppercut"] = [(0, GUARD), (s // 2, dip), (s, upper_out), (s + a, upper_out), (s + a + r, GUARD)]
-    s, a, r = strike_phases("teep")
-    teep_chamber = pose(GUARD, torso=-8, thigh_L=-75, shin_L=95)
-    teep_out = pose(GUARD, torso=-20, hips_x=-0.05, thigh_L=-88, shin_L=8)
-    anims["teep"] = [(0, GUARD), (s // 2, teep_chamber), (s, teep_out), (s + a, teep_out), (s + a + r, GUARD)]
-    s, a, r = strike_phases("calf_kick")
-    calf_out = pose(GUARD, torso=-10, thigh_L=-30, shin_L=35)
-    anims["calf_kick"] = [(0, GUARD), (s, calf_out), (s + a, calf_out), (s + a + r, GUARD)]
-    s, a, r = strike_phases("high_kick")
-    high_chamber = pose(GUARD, torso=-15, thigh_R=-70, shin_R=90, upper_arm_R=20, forearm_R=-90)
-    high_out = pose(GUARD, torso=-38, head=20, thigh_R=-125, shin_R=8, upper_arm_R=30, forearm_R=-60, thigh_L=-5, shin_L=8)
-    anims["high_kick"] = [(0, GUARD), (s // 2, high_chamber), (s, high_out), (s + a, high_out), (s + a + r, GUARD)]
-    hit = pose(GUARD, torso=-12, head=24, hips_x=-0.05)
-    anims["hit_head"] = [(0, GUARD), (4, hit), (16, GUARD)]
+    anims["hit_head"] = [(0, GUARD), (4, pose(GUARD, torso=-12, head=24, hips_x=-0.05)), (16, GUARD)]
     return anims
 
 
-def clear_animation(parts):
-    for obj in parts.values():
-        obj.animation_data_clear()
+def configure_layer(layer):
+    """Mostra a camada pedida; o corpo vira holdout nas camadas de cabelo/barba (oclusão correta)."""
+    for obj in bpy.data.objects:
+        if obj.type != "MESH":
+            continue
+        is_hair = obj.name.startswith("hair")
+        is_beard = obj.name.startswith("beard")
+        if layer == "body":
+            visible = not (is_hair or is_beard)
+        elif layer == "beard":
+            visible = is_beard
+        else:
+            visible = obj.name.startswith("hair%d_" % layer)
+        other_overlay = (is_hair or is_beard) and not visible
+        obj.hide_render = other_overlay
+        obj.is_holdout = (not visible) and (not other_overlay)
 
 
-# ---------------------------------------------------------------------------- render e pós-processo
+def ramps_for(layer_key):
+    cols = []
+    for mat in LAYER_MATERIALS[layer_key]:
+        for c in PALETTE[mat]:
+            cols.append(c)
+            cols.append(tuple(v * FAR_SIDE_DARKEN for v in c))
+    return np.array(cols, dtype=np.float32)
+
+
 def load_rgba(path):
     img = bpy.data.images.load(path)
     w, h = img.size
@@ -311,12 +330,14 @@ def load_rgba(path):
 
 
 def postprocess(px, colors):
-    """Quantiza cada pixel opaco para a cor de paleta mais próxima e adiciona contorno de 1 px."""
     alpha = px[:, :, 3] > 0.5
-    rgb = px[:, :, :3]
+    rgb = px[:, :, :3].copy()
     flat = rgb[alpha]
     if flat.size:
-        d = ((flat[:, None, :] - colors[None, :, :]) ** 2).sum(axis=2)
+        # O render sai codificado em sRGB; a paleta está em valores lineares. Compara no mesmo espaço (sRGB)
+        # e grava a cor da paleta original (é ela que o shader do jogo procura).
+        enc = np.where(colors <= 0.0031308, colors * 12.92, 1.055 * np.power(colors, 1.0 / 2.4) - 0.055)
+        d = ((flat[:, None, :] - enc[None, :, :]) ** 2).sum(axis=2)
         rgb[alpha] = colors[d.argmin(axis=1)]
     out = np.zeros_like(px)
     out[:, :, :3] = rgb
@@ -342,50 +363,55 @@ def save_png(px, path):
     bpy.data.images.remove(img)
 
 
-def palette_array():
-    cols = []
-    for ramp in PALETTE.values():
-        for c in ramp:
-            cols.append(c)
-            cols.append(tuple(v * FAR_SIDE_DARKEN for v in c))
-    return np.array(cols, dtype=np.float32)
+def render_layer(scene, keys, name, layer, suffix):
+    configure_layer(layer)
+    colors = ramps_for("body" if layer == "body" else ("beard" if layer == "beard" else "hair"))
+    last = keys[-1][0]
+    frames = list(range(0, last + 1, SIM_FRAMES_PER_SPRITE))
+    sheet = np.zeros((FRAME_H, FRAME_W * len(frames), 4), dtype=np.float32)
+    for k, f in enumerate(frames):
+        scene.frame_set(f)
+        tmp = os.path.join(TMP_DIR, "%s%s_%03d.png" % (name, suffix, k))
+        scene.render.filepath = tmp
+        bpy.ops.render.render(write_still=True)
+        sheet[:, k * FRAME_W:(k + 1) * FRAME_W] = postprocess(load_rgba(tmp), colors)
+    save_png(sheet, os.path.join(OUT_DIR, name + suffix + ".png"))
+    return len(frames), last
 
 
 def main():
     t0 = time.time()
     scene = reset_scene()
     parts = build_mannequin()
-    setup_camera_and_light()
+    setup_camera_and_lights()
     os.makedirs(OUT_DIR, exist_ok=True)
     os.makedirs(TMP_DIR, exist_ok=True)
-    colors = palette_array()
+    for f in os.listdir(OUT_DIR):
+        if f.endswith(".png"):
+            os.remove(os.path.join(OUT_DIR, f))
     meta = {"frame_size": [FRAME_W, FRAME_H], "sim_frames_per_sprite": SIM_FRAMES_PER_SPRITE,
             "anchor": [round(FRAME_W / 2 - CAM_X_OFFSET * PX_PER_M), round(FRAME_H / 2 + CAM_Z * PX_PER_M)],
-            "px_per_m": PX_PER_M, "animations": {}}
+            "px_per_m": PX_PER_M, "far_darken": FAR_SIDE_DARKEN, "hair_styles": HAIR_STYLES, "beard": True,
+            "palette": {k: [list(c) for c in v] for k, v in PALETTE.items()}, "animations": {}}
     metrics = {}
     for name, keys in animations().items():
         ta = time.time()
-        clear_animation(parts)
+        for obj in parts.values():
+            obj.animation_data_clear()
         for frame, p in keys:
             apply_pose(parts, p, frame)
-        last = keys[-1][0]
-        sprite_frames = list(range(0, last + 1, SIM_FRAMES_PER_SPRITE))
-        sheet = np.zeros((FRAME_H, FRAME_W * len(sprite_frames), 4), dtype=np.float32)
-        for k, f in enumerate(sprite_frames):
-            scene.frame_set(f)
-            tmp = os.path.join(TMP_DIR, "%s_%03d.png" % (name, k))
-            scene.render.filepath = tmp
-            bpy.ops.render.render(write_still=True)
-            sheet[:, k * FRAME_W:(k + 1) * FRAME_W] = postprocess(load_rgba(tmp), colors)
-        save_png(sheet, os.path.join(OUT_DIR, name + ".png"))
-        meta["animations"][name] = {"frames": len(sprite_frames), "sim_frames": last}
-        metrics[name] = {"sprite_frames": len(sprite_frames), "seconds": round(time.time() - ta, 2)}
+        frames, last = render_layer(scene, keys, name, "body", "")
+        for style in HAIR_STYLES:
+            render_layer(scene, keys, name, style, "__hair%d" % style)
+        render_layer(scene, keys, name, "beard", "__beard")
+        meta["animations"][name] = {"frames": frames, "sim_frames": last}
+        metrics[name] = {"sprite_frames": frames, "seconds": round(time.time() - ta, 2)}
         print("ANIM", name, metrics[name])
-    with open(os.path.join(OUT_DIR, "m_medium.json"), "w", encoding="utf-8") as fh:
+    with open(os.path.join(OUT_DIR, "m_medium.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(meta, fh, indent=2)
     total = round(time.time() - t0, 1)
-    with open(os.path.join(ROOT, "tools", "art_pipeline", "last_metrics.json"), "w", encoding="utf-8") as fh:
-        json.dump({"total_seconds": total, "animations": metrics, "blender": bpy.app.version_string}, fh, indent=2)
+    with open(os.path.join(ROOT, "tools", "art_pipeline", "last_metrics.json"), "w", encoding="utf-8", newline="\n") as fh:
+        json.dump({"total_seconds": total, "layers": 5, "animations": metrics, "blender": bpy.app.version_string}, fh, indent=2)
     print("PIPELINE_OK total=%ss" % total)
 
 

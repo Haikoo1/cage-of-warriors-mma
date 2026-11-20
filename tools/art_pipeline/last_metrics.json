@@ -1,73 +1,74 @@
 {
-  "total_seconds": 15.5,
+  "total_seconds": 72.3,
+  "layers": 5,
   "animations": {
     "guard": {
       "sprite_frames": 11,
-      "seconds": 1.63
+      "seconds": 5.82
     },
     "walk": {
       "sprite_frames": 9,
-      "seconds": 0.89
+      "seconds": 4.22
     },
     "jab": {
       "sprite_frames": 7,
-      "seconds": 0.71
+      "seconds": 3.24
     },
     "cross": {
       "sprite_frames": 9,
-      "seconds": 0.87
-    },
-    "low_kick": {
-      "sprite_frames": 12,
-      "seconds": 1.15
-    },
-    "double_leg": {
-      "sprite_frames": 10,
-      "seconds": 0.95
+      "seconds": 4.15
     },
     "lead_hook": {
       "sprite_frames": 11,
-      "seconds": 1.04
-    },
-    "body_kick": {
-      "sprite_frames": 15,
-      "seconds": 1.42
-    },
-    "slip": {
-      "sprite_frames": 5,
-      "seconds": 0.47
-    },
-    "duck": {
-      "sprite_frames": 5,
-      "seconds": 0.48
-    },
-    "pull": {
-      "sprite_frames": 5,
-      "seconds": 0.48
-    },
-    "down": {
-      "sprite_frames": 2,
-      "seconds": 0.21
+      "seconds": 5.05
     },
     "uppercut": {
       "sprite_frames": 11,
-      "seconds": 1.04
+      "seconds": 5.07
     },
-    "teep": {
-      "sprite_frames": 11,
-      "seconds": 1.04
+    "low_kick": {
+      "sprite_frames": 12,
+      "seconds": 5.51
     },
-    "calf_kick": {
-      "sprite_frames": 9,
-      "seconds": 0.84
+    "body_kick": {
+      "sprite_frames": 15,
+      "seconds": 6.86
     },
     "high_kick": {
       "sprite_frames": 17,
-      "seconds": 1.58
+      "seconds": 7.77
+    },
+    "teep": {
+      "sprite_frames": 11,
+      "seconds": 5.04
+    },
+    "calf_kick": {
+      "sprite_frames": 9,
+      "seconds": 4.14
+    },
+    "double_leg": {
+      "sprite_frames": 10,
+      "seconds": 4.59
+    },
+    "slip": {
+      "sprite_frames": 5,
+      "seconds": 2.29
+    },
+    "duck": {
+      "sprite_frames": 5,
+      "seconds": 2.3
+    },
+    "pull": {
+      "sprite_frames": 5,
+      "seconds": 2.28
+    },
+    "down": {
+      "sprite_frames": 2,
+      "seconds": 0.91
     },
     "hit_head": {
       "sprite_frames": 6,
-      "seconds": 0.55
+      "seconds": 2.73
     }
   },
   "blender": "5.3.0"

@@ -41,7 +41,12 @@ static func build(defs: Definitions, player_style: int, opp_style: int, profile:
 	var setup: FightSetup = FightSetup.new()
 	setup.bout_id = &"QUICK"
 	setup.fighter_a = FighterSnapshot.from_fighter(fighter_for_style(&"F-A", "Você" if not watch_only else STYLES[player_style], player_style))
-	setup.fighter_b = FighterSnapshot.from_fighter(fighter_for_style(&"F-B", STYLES[opp_style], opp_style))
+	var opp: FighterState = fighter_for_style(&"F-B", STYLES[opp_style], opp_style)
+	var look_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	look_rng.seed = seed
+	opp.appearance = Appearance.random(look_rng, true)
+	opp.appearance.shorts = 1 if opp.appearance.shorts == 0 else opp.appearance.shorts
+	setup.fighter_b = FighterSnapshot.from_fighter(opp)
 	setup.ruleset_id = &"rs_standard"
 	setup.weight_class_id = &"m_lightweight"
 	setup.is_title = title

@@ -48,6 +48,7 @@ static func new_career(defs: Definitions, setup: CareerSetup) -> CareerState:
 	p.rating = 900.0
 	p.popularity = 5.0
 	_physique(p, wcp, rng)
+	p.appearance = setup.appearance.duplicate_appearance()
 	c.add_fighter(p)
 	c.player_fighter_id = p.id
 	c.money = origin.starting_money
@@ -89,6 +90,7 @@ static func generate_npc(c: CareerState, defs: Definitions, wc: WeightClassDef, 
 	f.wins = rng.randi_range(org.tier, org.tier * 5)
 	f.losses = rng.randi_range(0, org.tier * 2)
 	_physique(f, wc, rng)
+	f.appearance = Appearance.random(rng, not female)
 	return f
 
 

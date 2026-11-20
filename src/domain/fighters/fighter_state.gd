@@ -13,6 +13,7 @@ var birth_week: int = 0
 ## StringName (AttributeIds) -> float 1..100; arredondado só na UI.
 var attributes: Dictionary = {}
 var physique: Physique = Physique.new()
+var appearance: Appearance = Appearance.new()
 
 # Estilo e características ocultas (CHARACTER §3, §5)
 var archetype_id: StringName = &"arch_striker"
@@ -75,7 +76,7 @@ func to_dict() -> Dictionary:
 	return {
 		"id": String(id), "display_name": display_name, "nationality": nationality,
 		"division": Division.keys()[division], "weight_class_id": String(weight_class_id), "birth_week": birth_week,
-		"attributes": attrs, "physique": physique.to_dict(),
+		"attributes": attrs, "physique": physique.to_dict(), "appearance": appearance.to_dict(),
 		"archetype_id": String(archetype_id), "potential": potential, "peak_age": peak_age,
 		"org_id": String(org_id), "contract_fights_left": contract_fights_left, "rating": snappedf(rating, 0.01),
 		"popularity": snappedf(popularity, 0.01), "titles": titles, "wins": wins, "losses": losses, "draws": draws,
@@ -97,6 +98,7 @@ static func from_dict(d: Dictionary) -> FighterState:
 	for key: String in attrs:
 		f.attributes[StringName(key)] = float(attrs[key])
 	f.physique = Physique.from_dict(d.get("physique", {}))
+	f.appearance = Appearance.from_dict(d.get("appearance", {}))
 	f.archetype_id = StringName(d.get("archetype_id", "arch_striker"))
 	f.potential = float(d.get("potential", 75.0))
 	f.peak_age = int(d.get("peak_age", 30))

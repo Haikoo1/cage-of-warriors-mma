@@ -10,6 +10,8 @@ const CENTER_X: float = 320.0
 const COLORS: Array[Color] = [Color(0.35, 0.6, 1.0), Color(1.0, 0.45, 0.35)]
 
 var sim: CombatSim
+var _fighter_nodes: Array[FighterSpriteNode] = []
+var _configured_for: CombatSim
 var debug_overlay: bool = false
 ## E-06: F4 alterna entre formas greybox e os sprites do pipeline 3D → pixel (só em pé; solo segue greybox).
 var use_sprites: bool = true
@@ -28,7 +30,10 @@ func _draw() -> void:
 	if sim == null:
 		return
 	_draw_arena(sim.balance)
+	_ensure_fighter_nodes()
 	if sim.grappling.position != &"EP":
+		for n: FighterSpriteNode in _fighter_nodes:
+			n.visible = false
 		_draw_grapple_pair()
 		return
 	# Desenha primeiro quem está mais ao fundo (maior z).
@@ -42,6 +47,8 @@ func _draw() -> void:
 func _draw_fighter(i: int) -> void:
 	var f: FighterCombatState = sim.fighters[i]
 	var base: Vector2 = to_screen(f.x, f.z)
+	if not use_sprites and i < _fighter_nodes.size():
+		_fighter_nodes[i].visible = false
 	if use_sprites and sprites != null:
 		_draw_sprite(i, f, base)
 		return
@@ -153,8 +160,33 @@ func _label(pos: Vector2, text: String, color: Color) -> void:
 	draw_string(ThemeDB.fallback_font, pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, color)
 
 
+## Cria (uma vez por luta) um nó por lutador com o material de cores da aparência dele.
+func _ensure_fighter_nodes() -> void:
+	if sprites == null or _configured_for == sim:
+		return
+	for n: FighterSpriteNode in _fighter_nodes:
+		n.queue_free()
+	_fighter_nodes.clear()
+	for k: int in 2:
+		var node: FighterSpriteNode = FighterSpriteNode.new()
+		node.configure(sprites, sim.fighters[k].snapshot.appearance)
+		add_child(node)
+		_fighter_nodes.append(node)
+	_configured_for = sim
+
+
 func _draw_sprite(i: int, f: FighterCombatState, base: Vector2) -> void:
 	_draw_ellipse(base, 18.0, 5.0, Color(0, 0, 0, 0.45))
+	if _fighter_nodes.size() == 2:
+		var g0: CombatGrappling = sim.grappling
+		var tech: GrappleTechniqueDef = g0.pending.technique if (g0.pending != null and g0.pending.attacker == i) else null
+		var node: FighterSpriteNode = _fighter_nodes[i]
+		node.visible = true
+		node.z_index = 10 - roundi(f.z * 4.0)
+		node.present(base, sprites.pick(f, sim.frame, tech), float(f.facing), PPM / sprites.px_per_m, f.cut)
+		if debug_overlay:
+			_draw_debug(f, base)
+		return
 	var g: CombatGrappling = sim.grappling
 	var technique: GrappleTechniqueDef = g.pending.technique if (g.pending != null and g.pending.attacker == i) else null
 	var pick: Array = sprites.pick(f, sim.frame, technique)

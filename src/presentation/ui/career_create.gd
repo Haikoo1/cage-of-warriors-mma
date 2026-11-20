@@ -1,14 +1,21 @@
 extends Control
-## Criação da carreira (CAREER_DESIGN §2). W/S linha · A/D valor · digite o nome · Enter cria · Esc volta.
+## Criação da carreira (CAREER_DESIGN §2) com criador de visual (estilo Stardew/Terraria): prévia animada
+## com troca de paleta em tempo real. ↑/↓ linha · A/D (←/→) valor · digite o nome · R aleatório · Enter cria · Esc volta.
 
-const ROWS: Array[String] = ["Nome", "Categoria", "Origem", "Idade", "Duração do round", "Slot de save"]
+const ROWS: Array[String] = ["Nome", "Categoria", "Origem", "Idade", "Duração do round", "Slot de save",
+	"Tom de pele", "Cabelo", "Cor do cabelo", "Barba", "Calção", "Luvas"]
 const ROUND_LENGTHS: Array[int] = [60, 120, 180, 300]
+const FIRST_LOOK_ROW: int = 6
 
 var row: int = 0
 var name_text: String = "Novo Lutador"
 var wc_ids: Array[StringName] = []
 var origin_ids: Array[StringName] = []
-var values: Array[int] = [0, 3, 3, 4, 1, 0]  # índices: nome(ignorado), categoria, origem, idade-18, round, slot-1
+var values: Array[int] = [0, 3, 3, 4, 1, 0]
+var look: Appearance = Appearance.new()
+var preview: FighterSpriteNode
+var sprites: SpriteSet
+var _anim_time: float = 0.0
 
 
 func _ready() -> void:
@@ -23,10 +30,56 @@ func _ready() -> void:
 		origin_ids.append(o)
 	origin_ids.sort()
 	values[1] = wc_ids.find(&"m_lightweight")
+	sprites = SpriteSet.load_biotype("res://assets/sprites/fighters/m_medium", "m_medium")
+	if sprites != null:
+		preview = FighterSpriteNode.new()
+		add_child(preview)
+		_refresh_preview()
+
+
+func _is_female() -> bool:
+	return DataRegistry.definitions.weight_class(wc_ids[values[1]]).division == WeightClassDef.Division.FEMALE
 
 
 func _count(i: int) -> int:
-	return [1, wc_ids.size(), origin_ids.size(), 13, ROUND_LENGTHS.size(), 3][i]
+	match i:
+		0: return 1
+		1: return wc_ids.size()
+		2: return origin_ids.size()
+		3: return 13
+		4: return ROUND_LENGTHS.size()
+		5: return 3
+		6: return Appearance.SKIN_TONES.size()
+		7: return 4
+		8: return Appearance.HAIR_COLORS.size()
+		9: return 2
+		10: return Appearance.SHORTS_COLORS.size()
+	return Appearance.GLOVE_COLORS.size()
+
+
+func _get_value(i: int) -> int:
+	match i:
+		6: return look.skin
+		7: return look.hair_style
+		8: return look.hair_color
+		9: return 1 if look.beard else 0
+		10: return look.shorts
+		11: return look.gloves
+	return values[i]
+
+
+func _set_value(i: int, v: int) -> void:
+	match i:
+		6: look.skin = v
+		7: look.hair_style = v
+		8: look.hair_color = v
+		9: look.beard = v == 1 and not _is_female()
+		10: look.shorts = v
+		11: look.gloves = v
+		_: values[i] = v
+	if i == 1 and _is_female():
+		look.beard = false
+	_refresh_preview()
 
 
 func _value_text(i: int) -> String:
@@ -42,29 +95,49 @@ func _value_text(i: int) -> String:
 		3:
 			return "%d anos" % (18 + values[3])
 		4:
-			return "%d min (lutas jogadas; regras oficiais 5 min)" % (ROUND_LENGTHS[values[4]] / 60)
-	var s: int = values[5] + 1
-	var used: String = CareerController.slot_summary(defs, s)
-	return "%d%s" % [s, ("  (SOBRESCREVE: %s)" % used) if used != "" else ""]
+			return "%d min (lutas jogadas)" % (ROUND_LENGTHS[values[4]] / 60)
+		5:
+			var s: int = values[5] + 1
+			var used: String = CareerController.slot_summary(defs, s)
+			return "%d%s" % [s, ("  (sobrescreve: %s)" % used) if used != "" else ""]
+		6: return Appearance.SKIN_NAMES[look.skin]
+		7: return Appearance.HAIR_STYLE_NAMES[look.hair_style]
+		8: return Appearance.HAIR_COLOR_NAMES[look.hair_color]
+		9: return ("Sim" if look.beard else "Não") + (" (indisponível)" if _is_female() else "")
+		10: return Appearance.SHORTS_NAMES[look.shorts]
+	return Appearance.GLOVE_NAMES[look.gloves]
 
 
-func _process(_delta: float) -> void:
+func _refresh_preview() -> void:
+	if preview != null:
+		preview.configure(sprites, look)
+
+
+func _process(delta: float) -> void:
+	_anim_time += delta
+	if preview != null:
+		var frames: int = int(sprites.frames.get("guard", 1))
+		var idx: int = int(_anim_time * 20.0 / 1.5) % frames
+		preview.present(Vector2(524, 300), ["guard", idx], 1.0, 1.25, 0)
 	queue_redraw()
 
 
 func _draw() -> void:
 	UiDraw.background(self, "NOVA CARREIRA", "do circuito local ao cinturão")
 	for i: int in ROWS.size():
-		var rect: Rect2 = Rect2(30, 56 + i * 28, 580, 22)
+		var y: float = 50 + i * 22 + (8 if i >= FIRST_LOOK_ROW else 0)
+		var rect: Rect2 = Rect2(20, y, 400, 19)
 		UiDraw.panel(self, rect, i == row)
-		UiDraw.text(self, rect.position + Vector2(12, 15), ROWS[i], UiDraw.C_SEL if i == row else UiDraw.C_DIM, 10)
-		UiDraw.text(self, rect.position + Vector2(150, 15), ("‹  %s  ›" if i > 0 else "%s") % _value_text(i), UiDraw.C_TEXT, 10, 420)
+		UiDraw.text(self, rect.position + Vector2(10, 13), ROWS[i], UiDraw.C_SEL if i == row else UiDraw.C_DIM, 9)
+		UiDraw.text(self, rect.position + Vector2(120, 13), ("‹ %s ›" if i > 0 else "%s") % _value_text(i), UiDraw.C_TEXT, 9, 275)
+	UiDraw.text(self, Vector2(22, 50 + FIRST_LOOK_ROW * 22 + 4), "VISUAL", UiDraw.C_ACCENT, 7)
+	UiDraw.panel(self, Rect2(440, 50, 180, 270))
+	UiDraw.text(self, Vector2(452, 66), "Prévia", UiDraw.C_SEL, 10)
+	draw_rect(Rect2(452, 300, 156, 3), Color(0.8, 0.8, 0.78))
 	var origin: OriginDef = DataRegistry.definitions.origin(origin_ids[values[2]])
-	UiDraw.panel(self, Rect2(30, 232, 580, 56))
-	UiDraw.text(self, Vector2(42, 250), origin.display_name, UiDraw.C_SEL, 11)
-	UiDraw.text(self, Vector2(42, 266), origin.description, UiDraw.C_TEXT, UiDraw.TEXT)
-	UiDraw.text(self, Vector2(42, 280), "Mais novo: atributos baixos e carreira longa. Mais velho: começa melhor, com menos tempo até o pico.", UiDraw.C_DIM, UiDraw.SMALL)
-	UiDraw.footer(self, "↑/↓ linha · A/D mudar · digite o nome na 1ª linha · Enter criar · Esc voltar")
+	UiDraw.text(self, Vector2(452, 82), origin.display_name, UiDraw.C_TEXT, 8, 160)
+	UiDraw.text(self, Vector2(452, 314), origin.description, UiDraw.C_DIM, 7, 160)
+	UiDraw.footer(self, "↑/↓ linha · A/D mudar · digite o nome na 1ª linha · R visual aleatório · Enter criar · Esc voltar")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -79,20 +152,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_BACKSPACE:
 			if row == 0:
 				name_text = name_text.left(-1)
-		KEY_UP:
+		KEY_UP, KEY_W:
 			row = (row + ROWS.size() - 1) % ROWS.size()
-		KEY_DOWN, KEY_TAB:
-			row = (row + 1) % ROWS.size()
-		KEY_W:
-			row = (row + ROWS.size() - 1) % ROWS.size()
-		KEY_S:
+		KEY_DOWN, KEY_S, KEY_TAB:
 			row = (row + 1) % ROWS.size()
 		KEY_A, KEY_LEFT:
 			if row > 0:
-				values[row] = (values[row] + _count(row) - 1) % _count(row)
+				_set_value(row, (_get_value(row) + _count(row) - 1) % _count(row))
 		KEY_D, KEY_RIGHT:
 			if row > 0:
-				values[row] = (values[row] + 1) % _count(row)
+				_set_value(row, (_get_value(row) + 1) % _count(row))
+		KEY_R:
+			var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+			rng.randomize()
+			look = Appearance.random(rng, not _is_female())
+			_refresh_preview()
 		KEY_ENTER, KEY_KP_ENTER:
 			_create()
 		KEY_ESCAPE:
@@ -107,6 +181,7 @@ func _create() -> void:
 	setup.age = 18 + values[3]
 	setup.round_seconds = ROUND_LENGTHS[values[4]]
 	setup.seed = Time.get_ticks_usec()
+	setup.appearance = look.duplicate_appearance()
 	var slot: int = values[5] + 1
 	CareerController.delete_slot(slot)
 	var cc: CareerController = CareerController.create(DataRegistry.definitions, setup, slot)

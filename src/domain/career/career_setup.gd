@@ -9,3 +9,4 @@ var origin_id: StringName = &"origin_mma"
 var age: int = 22
 var round_seconds: int = 120
 var seed: int = 1
+var appearance: Appearance = Appearance.new()

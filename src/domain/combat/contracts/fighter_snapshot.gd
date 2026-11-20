@@ -9,6 +9,7 @@ var reach_cm: int = 0
 var fight_weight_kg: float = 0.0
 var biotype_id: StringName = &""
 var stance: Physique.Stance = Physique.Stance.ORTHODOX
+var appearance: Appearance = Appearance.new()
 ## Modificadores do dia (corte de peso, Fadiga, lesão) — preenchidos pela carreira em etapas futuras.
 var reserve_start: float = 1.0
 var chin_modifier: float = 0.0
@@ -23,4 +24,5 @@ static func from_fighter(f: FighterState) -> FighterSnapshot:
 	s.fight_weight_kg = f.physique.walk_weight_kg
 	s.biotype_id = f.physique.biotype_id
 	s.stance = f.physique.stance
+	s.appearance = f.appearance.duplicate_appearance()
 	return s
