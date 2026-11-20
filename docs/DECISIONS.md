@@ -27,7 +27,7 @@
 | D-015 | Controle principal: **teclado primeiro**, gamepad como alternativa completa (P-007) | idem |
 | D-017 | **Pipeline de arte: 3D → pixel** (resolve P-003 pelo método D-014). Mais detalhe nos sprites fica para a produção de arte (E-10), com modelo humanoide com skinning | Usuário aprovou o M2, 2026-11-20 |
 | D-018 | **Menus e HUD em HD** (UI renderizada na resolução da janela, fonte do sistema); a luta continua em pixel art fiel numa SubViewport 640×360 (revisa T-011) | Pedido do usuário, 2026-11-20 |
-| D-019 | **Criador de visual** estilo Stardew/Terraria: sprites em camadas (corpo, 3 cabelos, barba) e troca de paleta por shader (8 peles, 6 cores de cabelo, 8 calções, 6 luvas) | Pedido do usuário, 2026-11-20 (resolve P-004 de forma inicial) |
+| D-019 | **Criador de visual** estilo Stardew/Terraria: sprites em camadas (corpo, 3 cabelos, barba) e troca de paleta por shader (8 peles, 6 cores de cabelo, 8 calções, 6 luvas); biótipos m_medium e f_medium; aba Visual na carreira (gratuita, só aparência) | Pedido do usuário, 2026-11-20 (resolve P-004 de forma inicial) |
 | D-020 | **HUD e telas com elementos de RPG**: ícones em pixel art gerados por código, cinturões, selo de nível, ficha de atributos | Pedido do usuário, 2026-11-20 |
 | D-021 | Áudio provisório **sintetizado por código** (sem assets de terceiros) até haver design de áudio (V-005) | Autonomia autorizada pelo usuário, 2026-11-20 |
 | D-016 | Todas as teclas são **remapeáveis pelo jogador**; padrões simples definidos pelo Claude (U/I mãos, J/K pernas, E curvo, Q corpo, Shift guarda, Espaço técnica, L agarrar) | Usuário, 2026-11-19 (E-03) |
